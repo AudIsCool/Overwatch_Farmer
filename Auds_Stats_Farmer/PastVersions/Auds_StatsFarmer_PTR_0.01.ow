@@ -862,7 +862,7 @@ rule("Hero Swicthes"){
 
 
 
-
+//DISABLED TO SAVE SERVER RESOURCES
 disabled rule("Left Side Scoreboard")
 {
 	event
@@ -905,6 +905,7 @@ disabled rule("Left Side Scoreboard")
 	}
 }
 
+//DISABLED TO SAVE SERVER RESOURCES
 disabled rule("Right Side Scoreboard")
 {
 	event
@@ -947,6 +948,7 @@ disabled rule("Right Side Scoreboard")
 	}
 }
 
+//DISABLED TO SAVE SERVER RESOURCES
 disabled rule("Setting Score after failed attacks")
 {
 	event
@@ -955,6 +957,7 @@ disabled rule("Setting Score after failed attacks")
 	}
 }
 
+//DISABLED TO SAVE SERVER RESOURCES
 rule("First attack done")
 {
 	event
