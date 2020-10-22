@@ -746,7 +746,7 @@ rule("Ults used not echo or dva")
 	}
 }
 
-rule("Echo Ult Used")
+rule("Echo used ult during copy")
 {
 	event
 	{
@@ -757,19 +757,20 @@ rule("Echo Ult Used")
 
 	conditions
 	{
-		Is Game In Progress == True;
+		Is Game In Progress             == True;
 		Is Duplicating(Event Player)    == True;
 		Is Using Ultimate(Event Player) == True;
-		Hero Of(Event Player) == Hero(Echo);
+		Hero Of(Event Player)           == Hero(Echo);
 	}
 
 	actions
 	{
-        //log ult
+        //Log Ult
         Log To Inspector(Custom String("[Echo Ultimate Used] Player {0} used {1}", Event Player, Hero Being Duplicated(Event Player), Null));
 
+		//Update stats
 		Event Player.UltsUsed += 1;
-		Wait(16, Ignore Condition);
+
 
 	}
 }
