@@ -710,11 +710,18 @@ rule("Healing Done")
 	conditions
 	{
 		Is Game In Progress == True;
+		//Might be worth to differentiate in the future self healing
 	}
 
 	actions
 	{
+    	//Update Internal
 		Event Player.HealingDone += Event Healing;
+		//Definitely would add healing received, probably would have to change structure of internal data
+		
+		//Update Log
+		//Log to Inspector(Custom String("[PLAYER_HEALING] Player {0} healed player {1} for {2}", Event Player, Healee, Event Healing));
+		
 	}
 }
 
@@ -741,7 +748,7 @@ rule("Ults used not echo or dva")
         Event Player.UltsUsed += 1;
 
         //log ult
-        Log To Inspector(Custom String("[Ultimate Used] Player {0} used {1}", Event Player, Hero Of(Event Player), Null));
+        Log To Inspector(Custom String("[ULT_USED] Player {0} as {1} used {2}", Event Player, Hero Of(Event Player), Event Ability));
 
 	}
 }
@@ -766,10 +773,9 @@ rule("Echo used ult during copy")
 	actions
 	{
         //Log Ult
-        Log To Inspector(Custom String("[Echo Ultimate Used] Player {0} used {1}", Event Player, Hero Being Duplicated(Event Player), Null));
+        Log To Inspector(Custom String("[ECHO_COPYING_ULT_USED] Player {0} used {1} copying{2}", Event Player, Event Ability, Hero Being Duplicated(Event Player), Null));
 
-		//Update stats
-		Event Player.UltsUsed += 1;
+		//Removed the stats update "Event Player.UltsUsed += 1;" as this is an ultimate used while copied as other hero, does not count towards counting ultimates used, at most we should make a variable specifically for this case
 
 
 	}
@@ -803,7 +809,7 @@ rule("Echo Dup Ult Used"){
 
 		//Log Dup
 		Event Player.UltsUsed += 1;
-        Log To Inspector(Custom String("[Echo Duplication] Player {0} duplicated {1}", Event Player, Hero Being Duplicated(Event Player), Null));
+        Log To Inspector(Custom String("[ULT_USED] Player {0} used {1} duplicating {2}", Event Player, Event Ability, Hero Being Duplicated(Event Player), Null));
 
 
 
@@ -811,7 +817,7 @@ rule("Echo Dup Ult Used"){
 }
 
 
-
+//gotta differenciate for mecha and baby dva with "Is in alternate form" 
 rule("Ults used dva")
 {
 	event
@@ -838,7 +844,7 @@ rule("Ults used dva")
 	}
 }
 
-//Yeah Idk why Seita doesn't track seita
+//Yeah Idk why Seita doesn't track kills
 rule("Kills"){
     event{
 		Player Dealt Final Blow;
@@ -873,7 +879,7 @@ rule("Kill | Environmental"){
     }
 
     actions{
-        Log To Inspector(Custom String("[ENVRIONMENTAL_Kill] Player {0} Killed Player {1} with {2}", Attacker, Event Player, Custom String("{0} {1}", Hero Of(Attacker), Event Ability, Null)));
+        Log To Inspector(Custom String("[ENVIRONMENTAL_KILL] Player {0} Killed Player {1} with {2}", Attacker, Event Player, Custom String("{0} {1}", Hero Of(Attacker), Event Ability, Null)));
 
     }
 
