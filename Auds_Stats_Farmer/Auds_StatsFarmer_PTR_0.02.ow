@@ -2,7 +2,6 @@
 Live Settings - settings
 **/
 
-/**
 settings{
 	main
 	{
@@ -60,9 +59,9 @@ settings{
 
 
 
-
+/**
 Dev - Settings
-**/
+
 settings
 {
 	main
@@ -119,7 +118,7 @@ settings
 	}
 }
 
-
+**/
 
 variables
 {
@@ -149,7 +148,6 @@ variables
 		3: Deaths
 		4: DamageTaken
 		5: HeroList
-		6: Duplication
 }
 
 rule("Seita Scrim lobby")
@@ -773,7 +771,7 @@ rule("Echo used ult during copy")
 	{
 		Ongoing - Each Player;
 		All;
-		All;
+		Echo;
 	}
 
 	conditions
@@ -781,7 +779,6 @@ rule("Echo used ult during copy")
 		Is Game In Progress             == True;
 		Is Duplicating(Event Player)    == True;
 		Is Using Ultimate(Event Player) == True;
-		Hero Of(Event Player)           == Hero(Echo);
 	}
 
 	actions
@@ -804,14 +801,13 @@ rule("Echo Dup Ult Used"){
     event{
 		Ongoing - Each Player;
 		All;
-		All;
+		Echo;
 	}
 
 	conditions
 	{
 		Is Game In Progress == True;
 		Is Duplicating(Event Player) == True;
-		Hero Of(Event Player) == Hero(Echo);
 
 	}
 
@@ -842,14 +838,13 @@ rule("Ults used dva")
 	{
 		Ongoing - Each Player;
 		All;
-		All;
+		D.va;
 	}
 
 	conditions
 	{
 		Is Game In Progress == True;
 		Is Using Ultimate(Event Player) == True;
-		Hero Of(Event Player) == Hero(D.Va);
 	}
 
 	actions
@@ -1007,8 +1002,34 @@ rule("Hero Swicthes"){
         
         //Save new hero, changed as before it was =0 so obv did not work
         Event Player.H = Hero of(Event Player);
-    
 
+    }
+}
+
+//Track position
+rule("Player position"){
+    event{
+        Ongoing - Each Player;
+        All;
+        All;
+    }
+    
+    conditions{
+        Is Game in Progress == True;
+    }
+    
+    actions{
+        //Log
+        Log to Inspector(Custom String("[POS] {0} at: {1}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Position of(Event Player),
+        		Null));
+        Wait(0.1, Ignore Condition);
+        Loop;
+        
+        
+        
+        
     }
 }
 
