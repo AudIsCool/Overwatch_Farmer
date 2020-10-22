@@ -741,7 +741,7 @@ rule("Ults used not echo or dva")
         Event Player.UltsUsed += 1;
 
         //log ult
-        Log To Inspector(Custom String("[Ultimate Used] Player {0} used {1}", Event Player, Event Ability, Null));
+        Log To Inspector(Custom String("[Ultimate Used] Player {0} used {1}", Event Player, Hero Of(Event Player), Null));
 
 	}
 }
