@@ -1,5 +1,8 @@
-settings
-{
+/**
+Live Settings - settings
+**/
+
+settings{
 	main
 	{
 		Description: "Aud's Stats Farmer, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/OW_LobbyCodes/OW_SeitaStatsFarm. For updates on Seita's lobby go to https://twitter.com/Seita"
@@ -54,6 +57,69 @@ settings
 	}
 }
 
+
+
+/**
+Dev - Settings
+
+settings
+{
+	main
+	{
+		Description: "Aud's Stats Farmer, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/OW_LobbyCodes/OW_SeitaStatsFarm. For updates on Seita's lobby go to https://twitter.com/Seita"
+	}
+
+	lobby
+	{
+		Max Spectators: 12
+	}
+
+	modes
+	{
+		disabled Assault
+		{
+			Competitive Rules: On
+		}
+
+		disabled Control
+		{
+			Competitive Rules: On
+			Score To Win: 3
+		}
+
+		disabled Escort
+		{
+			Competitive Rules: On
+		}
+
+		disabled Hybrid
+		{
+			Competitive Rules: On
+		}
+
+		Practice Range
+
+		General
+		{
+			Game Mode Start: Immediately
+			Hero Limit: 2 Per Team
+			Kill Cam: Off
+			Limit Roles: 2 Of Each Role Per Team
+			Skins: Off
+		}
+	}
+
+	heroes
+	{
+		General
+		{
+			Spawn With Ultimate Ready: On
+		}
+	}
+}
+**/
+
+
 variables
 {
 	global:
@@ -82,6 +148,7 @@ variables
 		3: Deaths
 		4: DamageTaken
 		5: HeroList
+		6: Duplication
 }
 
 rule("Seita Scrim lobby")
@@ -707,6 +774,8 @@ rule("Echo Ult Used")
 	}
 }
 
+
+//Fired on End of Dup
 rule("Echo Dup Ult Used"){
     event{
 		Ongoing - Each Player;
@@ -717,20 +786,30 @@ rule("Echo Dup Ult Used"){
 	conditions
 	{
 		Is Game In Progress == True;
-		Is Duplicating(Event Player) != True;
+		Is Duplicating(Event Player) == True;
 		Hero Of(Event Player) == Hero(Echo);
+
 	}
 
 	actions
 	{
-        //log ult
+
+		//Wait then fetch duplication
+		//Wait(16, Ignore Condition);
+
+		//Abort if not a dup
+		//Abort If(Compare(Hero Being Duplicated(Event Player), ==, 0));
+
+		//Log Dup
+		Event Player.UltsUsed += 1;
         Log To Inspector(Custom String("[Echo Duplication] Player {0} duplicated {1}", Event Player, Hero Being Duplicated(Event Player), Null));
 
-		Event Player.UltsUsed += 1;
-		Wait(16, Ignore Condition);
+
 
 	}
 }
+
+
 
 rule("Ults used dva")
 {
