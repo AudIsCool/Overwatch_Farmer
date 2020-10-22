@@ -848,6 +848,7 @@ rule("Kills"){
 	conditions
 	{
 		Is Game In Progress == True;
+		Event Was Environment != True;
 	}
 
 	actions
@@ -856,6 +857,27 @@ rule("Kills"){
         Log to Inspector(Custom String("[PLAYER_KILL] {0} Killed {1} using {2}", Event Player, Victim, Custom String("{0} {1}", Hero Of(Event Player), Event Ability, Null)));
 	}
 }
+
+rule("Kill | Environmental"){
+    event{
+        Player Died;
+        All;
+        All;
+    }
+
+    conditions{
+        Is Game In Progress == True;
+        Event Player != Attacker;
+        Event Was Environment == True;
+    }
+
+    actions{
+        Log To Inspector(Custom String("[ENVRIONMENTAL_Kill] Player {0} Killed Player {1} with {2}", Attacker, Event Player, Custom String("{0} {1}", Hero Of(Attacker), Event Ability, Null)));
+
+    }
+
+}
+
 
 rule("Deaths | Normal")
 {
@@ -887,11 +909,12 @@ rule("Suicide | Off Cliff"){
 
     conditions{
         Is Game In Progress == True;
+        Event Player == Attacker;
         Event Was Environment == True;
     }
 
     actions{
-        Log To Inspector(Custom String("[ENVRIONMENTAL_DEATH] Player {0}", Event Player, Null, Null));
+        Log To Inspector(Custom String("[SUICIDE_ENVRIONMENTAL_DEATH] Player {0}", Event Player, Null, Null));
 
     }
 
@@ -906,6 +929,8 @@ rule("Suicide | Casually"){
 
     conditions{
         Is Game In Progress == True;
+        Event Was Environment != True;
+
         Event Player == Attacker;
     }
 
