@@ -2,7 +2,7 @@ settings
 {
 	main
 	{
-		Description: "Seita Scrim lobby v1.23 | Aud's Stats Logging Version -- For latest updates and more information check out: twitter.com/Seita_ow & twitter.com/MrCoachAud"
+		Description: "Aud's Stats Farmer, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/OW_LobbyCodes/OW_SeitaStatsFarm. For updates on Seita's lobby go to https://twitter.com/Seita"
 	}
 
 	lobby
