@@ -2,6 +2,7 @@
 Live Settings - settings
 **/
 
+/**
 settings{
 	main
 	{
@@ -59,9 +60,9 @@ settings{
 
 
 
-/**
-Dev - Settings
 
+Dev - Settings
+**/
 settings
 {
 	main
@@ -117,7 +118,7 @@ settings
 		}
 	}
 }
-**/
+
 
 
 variables
@@ -758,9 +759,9 @@ rule("Ults used not echo or dva")
         Event Player.UltsUsed += 1;
 
         //log ult
-        Log to Inspector(Custom String("[ULT_USED] {0} used {1}",
+        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
         		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Custom String("{0}", Event Ability, Null, Null),
+        		Null,
         		Null));
 
 	}
@@ -786,9 +787,9 @@ rule("Echo used ult during copy")
 	actions
 	{
         //Log Ult
-        Log to Inspector(Custom String("[ECHO_COPYING_ULT_USED] {0} used {1}",
+        Log to Inspector(Custom String("[ECHO_COPYING_ULT_USED] {0} used Ultimate (as {1})",
         		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Custom String("{0} as ({1})", Event Ability, Hero Being Duplicated(Event Player), Null),
+        		Hero Being Duplicated(Event Player),
         		Null));
         
 		//Removed the stats update "Event Player.UltsUsed += 1;" as this is an ultimate used while copied as other hero, does not count towards counting ultimates used, at most we should make a variable specifically for this case
@@ -825,9 +826,9 @@ rule("Echo Dup Ult Used"){
 
 		Event Player.UltsUsed += 1;
 		//Log Dup Ult
-		Log to Inspector(Custom String("[ULT_USED] {0} used {1}",
+		Log to Inspector(Custom String("[ULT_USED] {0} used ultimate duplicating {1}",
         		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Custom String("{0} duplicating {1}", Event Ability, Hero Being Duplicated(Event Player), Null),
+        		Hero Being Duplicated(Event Player),
         		Null));
 
 	}
@@ -854,9 +855,9 @@ rule("Ults used dva")
 	actions
 	{
         //log
-        Log to Inspector(Custom String("[ULT_USED] {0} used {1}",
+        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
         		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Custom String("{0}", Event Ability, Null, Null),
+        		Null,
         		Null));
 
         //gotta remove this wait i guess, should be made not to count remech
@@ -1011,7 +1012,21 @@ rule("Hero Swicthes"){
     }
 }
 
-
+//Track Dva demech, to do
+/**
+rule("Dva mech loss"){
+    event {
+        Ongoing - Each Player;
+        All;
+        All;
+    }
+    
+    conditions{
+        Hero of(Event Player)== Hero(Dva);
+    }
+    
+    }
+**/
 
 //DISABLED TO SAVE SERVER RESOURCES
 disabled rule("Left Side Scoreboard")
