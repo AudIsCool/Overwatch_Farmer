@@ -758,7 +758,7 @@ rule("Echo Ult Used")
 	conditions
 	{
 		Is Game In Progress == True;
-		Is Duplicating(Event Player)    != True;
+		Is Duplicating(Event Player)    == True;
 		Is Using Ultimate(Event Player) == True;
 		Hero Of(Event Player) == Hero(Echo);
 	}
@@ -766,7 +766,7 @@ rule("Echo Ult Used")
 	actions
 	{
         //log ult
-        Log To Inspector(Custom String("[Echo Ultimate Used] Player {0} used {1}", Event Player, Event Ability, Null));
+        Log To Inspector(Custom String("[Echo Ultimate Used] Player {0} used {1}", Event Player, Hero Being Duplicated(Event Player), Null));
 
 		Event Player.UltsUsed += 1;
 		Wait(16, Ignore Condition);
