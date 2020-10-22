@@ -693,7 +693,12 @@ rule("Damage Done & Taken")
 		Victim.DamageTaken += Event Damage;
 
         //Update Log
-		//Log to Inspector(Custom String("[PLAYER_DAMAGE] Player {0} damaged player {1} for {2}", Event Player, Victim, Event Damage));
+		/**
+		Log to Inspector(Custom String("[PLAYER_DAMAGE] {0} damaged {1} for {2}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} ({1})", Victim, Hero of(Victim), Null),
+        		Event Damage));
+        **/
 
 	}
 }
@@ -720,7 +725,12 @@ rule("Healing Done")
 		//Definitely would add healing received, probably would have to change structure of internal data
 		
 		//Update Log
-		//Log to Inspector(Custom String("[PLAYER_HEALING] Player {0} healed player {1} for {2}", Event Player, Healee, Event Healing));
+		/**
+		Log to Inspector(Custom String("[PLAYER_HEALING] {0} healed {1} for {2}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} ({1})", Healee, Hero of(Healee), Null),
+        		Event Healing));
+        **/
 		
 	}
 }
@@ -748,7 +758,10 @@ rule("Ults used not echo or dva")
         Event Player.UltsUsed += 1;
 
         //log ult
-        Log To Inspector(Custom String("[ULT_USED] Player {0} as {1} used {2}", Event Player, Hero Of(Event Player), Event Ability));
+        Log to Inspector(Custom String("[ULT_USED] {0} used {1}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0}", Event Ability, Null, Null),
+        		Null));
 
 	}
 }
@@ -773,8 +786,11 @@ rule("Echo used ult during copy")
 	actions
 	{
         //Log Ult
-        Log To Inspector(Custom String("[ECHO_COPYING_ULT_USED] Player {0} used {1} copying{2}", Event Player, Event Ability, Hero Being Duplicated(Event Player), Null));
-
+        Log to Inspector(Custom String("[ECHO_COPYING_ULT_USED] {0} used {1}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} as ({1})", Event Ability, Hero Being Duplicated(Event Player), Null),
+        		Null));
+        
 		//Removed the stats update "Event Player.UltsUsed += 1;" as this is an ultimate used while copied as other hero, does not count towards counting ultimates used, at most we should make a variable specifically for this case
 
 
@@ -807,11 +823,12 @@ rule("Echo Dup Ult Used"){
 		//Abort if not a dup
 		//Abort If(Compare(Hero Being Duplicated(Event Player), ==, 0));
 
-		//Log Dup
 		Event Player.UltsUsed += 1;
-        Log To Inspector(Custom String("[ULT_USED] Player {0} used {1} duplicating {2}", Event Player, Event Ability, Hero Being Duplicated(Event Player), Null));
-
-
+		//Log Dup Ult
+		Log to Inspector(Custom String("[ULT_USED] {0} used {1}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} duplicating {1}", Event Ability, Hero Being Duplicated(Event Player), Null),
+        		Null));
 
 	}
 }
@@ -836,9 +853,13 @@ rule("Ults used dva")
 
 	actions
 	{
-        //log 
-        Log To Inspector(Custom String("[Ultimate Used] Player {0} used {1}", Event Player, Event Ability, Null));
+        //log
+        Log to Inspector(Custom String("[ULT_USED] {0} used {1}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0}", Event Ability, Null, Null),
+        		Null));
 
+        //gotta remove this wait i guess, should be made not to count remech
 		Wait(2.500, Abort When False);
 		Event Player.UltsUsed += 1;
 	}
@@ -861,7 +882,11 @@ rule("Kills"){
 	actions
 	{
 		//Log player kill
-        Log to Inspector(Custom String("[PLAYER_KILL] {0} Killed {1} using {2}", Event Player, Victim, Custom String("{0} {1}", Hero Of(Event Player), Event Ability, Null)));
+		Log to Inspector(Custom String("[PLAYER_KILL] {0} killed {1} using {2}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} ({1})", Victim, Hero of(Victim), Null),
+        		Event Ability));
+        		
 	}
 }
 
@@ -879,7 +904,11 @@ rule("Kill | Environmental"){
     }
 
     actions{
-        Log To Inspector(Custom String("[ENVIRONMENTAL_KILL] Player {0} Killed Player {1} with {2}", Attacker, Event Player, Custom String("{0} {1}", Hero Of(Attacker), Event Ability, Null)));
+        //Log env kill
+        Log to Inspector(Custom String("[ENVIRNOMENTAL_KILL] {0} killed {1} using {2}",
+        		Custom String("{0} ({1}, {2})", Attacker, Hero of(Attacker), Team of(Attacker)),
+        		Custom String("{0} ({1})", Event Player, Hero of(Event Player), Null),
+        		Event Ability));
 
     }
 
@@ -921,7 +950,11 @@ rule("Suicide | Off Cliff"){
     }
 
     actions{
-        Log To Inspector(Custom String("[SUICIDE_ENVRIONMENTAL_DEATH] Player {0}", Event Player, Null, Null));
+        //log suicide from fall
+        Log to Inspector(Custom String("[SUICIDE_ENVIRONMENTAL_DEATH] {0} fell from a high place",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
 
     }
 
@@ -942,7 +975,11 @@ rule("Suicide | Casually"){
     }
 
     actions{
-        Log To Inspector(Custom String("[SUICIDE] Player {0}", Event Player, Null, Null));
+        //log suicide from self-damage
+        Log to Inspector(Custom String("[SUICIDE] {0} hurt itself in its confusion",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
 
     }
 
@@ -961,11 +998,14 @@ rule("Hero Swicthes"){
     }
 
     actions{
-        //Save new hero
-        Event Player.H = 0;
-
-        //Log 
-        Log To Inspector(Custom String("[HERO_SWITCH] Player {0} switched to {1}", Event Player, Hero Of(Event Player), Null));
+        //Log
+        Log to Inspector(Custom String("[HERO_SWITCH] {0} switched to {1} (was {2})",
+        		Custom String("{0} ({1})", Event Player, Team of(Event Player), Null),
+        		Hero of(Event Player),
+        		Event Player.H));
+        
+        //Save new hero, changed as before it was =0 so obv did not work
+        Event Player.H = Hero of(Event Player);
     
 
     }
