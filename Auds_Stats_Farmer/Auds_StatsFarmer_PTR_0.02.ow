@@ -853,7 +853,7 @@ rule("Kills"){
 	actions
 	{
 		//Log player kill
-        Log to Inspector(Custom String("[PLAYER_KILL] {0} Killed {1} using {2}", Event Player, Victim, Event Ability));
+        Log to Inspector(Custom String("[PLAYER_KILL] {0} Killed {1} using {2}", Event Player, Victim, Custom String("{0} {1}", Hero Of(Event Player), Event Ability, Null)));
 	}
 }
 
