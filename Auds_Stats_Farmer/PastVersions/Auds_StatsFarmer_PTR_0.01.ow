@@ -134,6 +134,9 @@ rule("Remove Assembling Heroes")
 	}
 }
 
+/**
+* Sets up intro text players // Spectators see at the start of the game
+**/
 rule("Help HUD at the start of the game")
 {
 	event
@@ -208,6 +211,7 @@ rule("Help HUD at the start of the game")
 
 	}
 }
+
 
 rule("Game in Progress: Remove HUD, Reset variables")
 {
@@ -758,7 +762,7 @@ rule("Ults used dva")
 	}
 }
 
-//Yeah Idk why Seita doesn't track seita
+//Yeah Idk why Seita doesn't track kills
 rule("Kills"){
     event{
 		Player Dealt Final Blow;
@@ -858,103 +862,6 @@ rule("Hero Swicthes"){
     
 
     }
-}
-
-
-
-//DISABLED TO SAVE SERVER RESOURCES
-disabled rule("Left Side Scoreboard")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	actions
-	{
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(0, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(0, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(0, Team 1))) == True ? Round To Integer(Players In Slot(0, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(0, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(0, Team 1)
-			.UltsUsed, Players In Slot(0, Team 1).Deaths))), Left, 1, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(1, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(1, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(1, Team 1))) == True ? Round To Integer(Players In Slot(1, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(1, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(1, Team 1)
-			.UltsUsed, Players In Slot(1, Team 1).Deaths))), Left, 2, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(2, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(2, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(2, Team 1))) == True ? Round To Integer(Players In Slot(2, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(2, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(2, Team 1)
-			.UltsUsed, Players In Slot(2, Team 1).Deaths))), Left, 3, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(3, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(3, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(3, Team 1))) == True ? Round To Integer(Players In Slot(3, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(3, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(3, Team 1)
-			.UltsUsed, Players In Slot(3, Team 1).Deaths))), Left, 4, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(4, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(4, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(4, Team 1))) == True ? Round To Integer(Players In Slot(4, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(4, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(4, Team 1)
-			.UltsUsed, Players In Slot(4, Team 1).Deaths))), Left, 5, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(5, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(5, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(5, Team 1))) == True ? Round To Integer(Players In Slot(5, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(5, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(5, Team 1)
-			.UltsUsed, Players In Slot(5, Team 1).Deaths))), Left, 6, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-	}
-}
-
-//DISABLED TO SAVE SERVER RESOURCES
-disabled rule("Right Side Scoreboard")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	actions
-	{
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(0, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(0, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(0, Team 2))) == True ? Round To Integer(Players In Slot(0, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(0, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(0, Team 2)
-			.UltsUsed, Players In Slot(0, Team 2).Deaths))), Right, 1, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(1, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(1, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(1, Team 2))) == True ? Round To Integer(Players In Slot(1, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(1, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(1, Team 2)
-			.UltsUsed, Players In Slot(1, Team 2).Deaths))), Right, 2, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(2, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(2, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(2, Team 2))) == True ? Round To Integer(Players In Slot(2, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(2, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(2, Team 2)
-			.UltsUsed, Players In Slot(2, Team 2).Deaths))), Right, 3, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(3, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(3, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(3, Team 2))) == True ? Round To Integer(Players In Slot(3, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(3, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(3, Team 2)
-			.UltsUsed, Players In Slot(3, Team 2).Deaths))), Right, 4, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(4, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(4, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(4, Team 2))) == True ? Round To Integer(Players In Slot(4, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(4, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(4, Team 2)
-			.UltsUsed, Players In Slot(4, Team 2).Deaths))), Right, 5, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(5, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(5, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(5, Team 2))) == True ? Round To Integer(Players In Slot(5, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(5, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(5, Team 2)
-			.UltsUsed, Players In Slot(5, Team 2).Deaths))), Right, 6, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-	}
-}
-
-//DISABLED TO SAVE SERVER RESOURCES
-disabled rule("Setting Score after failed attacks")
-{
-	event
-	{
-		Ongoing - Global;
-	}
 }
 
 //DISABLED TO SAVE SERVER RESOURCES
@@ -1561,169 +1468,5 @@ rule("Gibraltar")
 	actions
 	{
 		Teleport(Event Player, Vector(32.488, 4.692, -71.941));
-	}
-}
-
-disabled rule("Ultimate Charge on Disconnect (code copied directly from easyScrims by MrPig100 and MrMoustachioo)")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-}
-
-disabled rule("=> realize any DC")
-{
-	event
-	{
-		Player Left Match;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-	}
-
-	actions
-	{
-		Global.Disconnect[1] = True;
-	}
-}
-
-disabled rule("=> identify dc'd player")
-{
-	event
-	{
-		Player Joined Match;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-	}
-
-	actions
-	{
-		Global.DcSlot = Slot Of(Event Player);
-		Global.DcTeam = Team Of(Event Player);
-		Global.Disconnect[2] = True;
-	}
-}
-
-disabled rule("=> set ult charge of last dc'd player all Teams")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.Disconnect[1] == True;
-		Global.Disconnect[2] == True;
-		Hero Of(Players In Slot(Global.DcSlot, Global.DcTeam)) != False;
-	}
-
-	actions
-	{
-		Skip If(Global.DcTeam == Team 2, 2);
-		Set Ultimate Charge(Players In Slot(Global.DcSlot, Global.DcTeam), Global.UltChargeTable[Global.DcSlot]);
-		Skip(1);
-		Set Ultimate Charge(Players In Slot(Global.DcSlot, Global.DcTeam), Global.UltChargeTable[Global.DcSlot + 6]);
-		Wait(0.250, Ignore Condition);
-		Global.Disconnect[1] = 0;
-		Global.Disconnect[2] = 0;
-		Global.DcSlot = 0;
-		Global.DcTeam = 0;
-	}
-}
-
-disabled rule("=> 1st block short ult charge gather")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.UltChargeLoop > 3;
-		Global.Disconnect[1] == 0;
-	}
-
-	actions
-	{
-		Global.UltChargeTable[0] = Ultimate Charge Percent(Players In Slot(0, Team 1));
-		Global.UltChargeTable[1] = Ultimate Charge Percent(Players In Slot(1, Team 1));
-		Global.UltChargeTable[2] = Ultimate Charge Percent(Players In Slot(2, Team 1));
-		Chase Global Variable Over Time(UltChargeLoop, 0, 4, Destination and Duration);
-	}
-}
-
-disabled rule("=> 2nd block short ult charge gather")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.UltChargeLoop > 2;
-		Global.Disconnect[1] == 0;
-	}
-
-	actions
-	{
-		Global.UltChargeTable[3] = Ultimate Charge Percent(Players In Slot(3, Team 1));
-		Global.UltChargeTable[4] = Ultimate Charge Percent(Players In Slot(4, Team 1));
-		Global.UltChargeTable[5] = Ultimate Charge Percent(Players In Slot(5, Team 1));
-	}
-}
-
-disabled rule("=> 3rd block short ult charge gather")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.UltChargeLoop > 1;
-		Global.Disconnect[1] == 0;
-	}
-
-	actions
-	{
-		Global.UltChargeTable[6] = Ultimate Charge Percent(Players In Slot(0, Team 2));
-		Global.UltChargeTable[7] = Ultimate Charge Percent(Players In Slot(1, Team 2));
-		Global.UltChargeTable[8] = Ultimate Charge Percent(Players In Slot(2, Team 2));
-	}
-}
-
-disabled rule("=> 4th block and loop short ult charge gather")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.UltChargeLoop == 0;
-		Global.Disconnect[1] == 0;
-	}
-
-	actions
-	{
-		Global.UltChargeTable[9] = Ultimate Charge Percent(Players In Slot(3, Team 2));
-		Global.UltChargeTable[10] = Ultimate Charge Percent(Players In Slot(4, Team 2));
-		Global.UltChargeTable[11] = Ultimate Charge Percent(Players In Slot(5, Team 2));
-		Global.UltChargeLoop = 4;
 	}
 }
