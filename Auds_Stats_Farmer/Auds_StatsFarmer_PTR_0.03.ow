@@ -1,7 +1,6 @@
 /**
 Live Settings - settings
 **/
-
 settings{
 	main
 	{
@@ -61,7 +60,6 @@ settings{
 
 /**
 Dev - Settings
-
 settings
 {
 	main
@@ -117,9 +115,9 @@ settings
 		}
 	}
 }
-
 **/
 
+//Intro Variables that allow us to run the game
 variables
 {
 	global:
@@ -150,56 +148,10 @@ variables
 		5: HeroList
 }
 
-rule("Seita Scrim lobby")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	actions
-	{
-		//Disable Inspector Recording;
-		Global.Team1Hud[0] = -1;
-		Global.Team1Hud[1] = -1;
-		Global.Team1Hud[2] = -1;
-		Global.Team2Hud[0] = -1;
-		Global.Team2Hud[1] = -1;
-		Global.Team2Hud[2] = -1;
-		Global.HelpHud[0] = -1;
-		Global.HelpHud[1] = -1;
-		Global.HelpHud[2] = -1;
-		Global.HelpHud[3] = -1;
-		Global.HelpHud[4] = -1;
-		Global.HelpHud[5] = -1;
-		Global.HelpHud[6] = -1;
-		Global.HelpHud[7] = -1;
-		Global.HelpHud[8] = -1;
-		Global.HelpHud[9] = -1;
-		Global.HelpHud[10] = -1;
-	}
-}
-
-rule("Remove Assembling Heroes")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Is Assembling Heroes == True;
-	}
-
-	actions
-	{
-		Set Match Time(0);
-		Wait(5, Ignore Condition);
-		Set Match Time(10);
-	}
-}
-
+/**
+* Intro Texts
+*     The code below allows us to 
+**/
 rule("Help HUD at the start of the game")
 {
 	event
@@ -275,6 +227,12 @@ rule("Help HUD at the start of the game")
 	}
 }
 
+
+/**
+* Info Collection 
+*     The code below allows us to grab info about the game
+*     and reset internal values once the game starts
+**/
 rule("Game in Progress: Remove HUD, Reset variables")
 {
 	event
@@ -333,6 +291,456 @@ rule("Game not in progress: Tell log game done"){
     }
 }
 
+
+/**
+* Statistics Collection
+*	The code below allows us to pull data from the game and log it
+*	We track: 
+*       - Damage (Seita)
+*       - Healing (Seita)
+*       - Final Blows (Us)
+*       - Ults (Seita and Us)
+*       - Suicides (us)
+*       - Environmental Kills (Us)
+**/
+//Tracks Damages
+rule("Damage Done & Taken")
+{
+	event
+	{
+		Player Dealt Damage;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Victim != Event Player;
+	}
+
+	actions
+	{
+        //Update Internal
+		Event Player.DamageDone += Event Damage;
+		Victim.DamageTaken += Event Damage;
+
+        //Update Log
+		/**
+		Log to Inspector(Custom String("[PLAYER_DAMAGE] {0} damaged {1} for {2}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} ({1})", Victim, Hero of(Victim), Null),
+        		Event Damage));
+        **/
+
+	}
+}
+
+//Tracks Healing
+rule("Healing Done")
+{
+	event
+	{
+		Player Dealt Healing;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		//Might be worth to differentiate in the future self healing
+	}
+
+	actions
+	{
+    	//Update Internal
+		Event Player.HealingDone += Event Healing;
+		//Definitely would add healing received, probably would have to change structure of internal data
+		
+		//Update Log
+		/**
+		Log to Inspector(Custom String("[PLAYER_HEALING] {0} healed {1} for {2}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} ({1})", Healee, Hero of(Healee), Null),
+        		Event Healing));
+        **/
+		
+	}
+}
+
+//Catches all unspecial ults
+rule("Ults used not echo or dva")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Using Ultimate(Event Player) == True;
+		Hero Of(Event Player) != Hero(D.Va);
+		Hero Of(Event Player) != Hero(Echo);
+	}
+
+	actions
+	{
+		//Increase Ult Count
+        Event Player.UltsUsed += 1;
+
+        //log ult
+        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
+
+	}
+}
+
+//When ultimate used that's not duplicate
+rule("Echo used ult during copy")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Echo;
+	}
+
+	conditions
+	{
+		Is Game In Progress             == True;
+		Is Duplicating(Event Player)    == True;
+		Is Using Ultimate(Event Player) == True;
+	}
+
+	actions
+	{
+        //Log Ult
+        Log to Inspector(Custom String("[ECHO_COPYING_ULT_USED] {0} used Ultimate (as {1})",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Hero Being Duplicated(Event Player),
+        		Null));
+        
+		//Removed the stats update "Event Player.UltsUsed += 1;" as this is an ultimate used while copied as other hero, does not count towards counting ultimates used, at most we should make a variable specifically for this case
+
+
+	}
+}
+
+//When echo uses duplication
+rule("Echo Dup Ult Used"){
+    event{
+		Ongoing - Each Player;
+		All;
+		Echo;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Duplicating(Event Player) == True;
+
+	}
+
+	actions
+	{
+
+		//Wait then fetch duplication
+		//Wait(16, Ignore Condition);
+
+		//Abort if not a dup
+		//Abort If(Compare(Hero Being Duplicated(Event Player), ==, 0));
+
+		Event Player.UltsUsed += 1;
+		//Log Dup Ult
+		Log to Inspector(Custom String("[ULT_USED] {0} used ultimate duplicating {1}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Hero Being Duplicated(Event Player),
+        		Null));
+
+	}
+}
+
+//TODO: Fix Baby vs Mech D.va
+rule("Ults used dva")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		D.va;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Using Ultimate(Event Player) == True;
+	}
+
+	actions
+	{
+        //log
+        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
+
+        //gotta remove this wait i guess, should be made not to count remech
+		Wait(2.500, Abort When False);
+		Event Player.UltsUsed += 1;
+	}
+}
+
+//Final Blows Made
+rule("Kills | Normal"){
+    event{
+		Player Dealt Final Blow;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Event Was Environment != True;
+	}
+
+	actions
+	{
+		//Log player kill
+		Log to Inspector(Custom String("[PLAYER_KILL] {0} killed {1} using {2}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} ({1})", Victim, Hero of(Victim), Null),
+        		Event Ability));
+        		
+	}
+}
+
+//Environ Kills
+rule("Kills | Environmental"){
+    event{
+        Player Died;
+        All;
+        All;
+    }
+
+    conditions{
+        Is Game In Progress == True;
+        Event Player != Attacker;
+        Event Was Environment == True;
+    }
+
+    actions{
+        //Log env kill
+        Log to Inspector(Custom String("[ENVIRNOMENTAL_KILL] {0} killed {1} using {2}",
+        		Custom String("{0} ({1}, {2})", Attacker, Hero of(Attacker), Team of(Attacker)),
+        		Custom String("{0} ({1})", Event Player, Hero of(Event Player), Null),
+        		Event Ability));
+
+    }
+
+}
+
+//Just normal deaths
+rule("Deaths | Normal")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Event Player.Deaths += 1;
+	}
+}
+
+//Suicide - Off CLiff
+rule("Suicide | Off Cliff"){
+    event{
+        Player Died;
+        All;
+        All;
+    }
+
+    conditions{
+        Is Game In Progress == True;
+        Event Player == Attacker;
+        Event Was Environment == True;
+    }
+
+    actions{
+        //log suicide from fall
+        Log to Inspector(Custom String("[SUICIDE_ENVIRONMENTAL_DEATH] {0} fell from a high place",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
+
+    }
+
+}
+
+//Suicide using ability
+rule("Suicide | Casually"){
+    event{
+        Player Died;
+        All;
+        All;
+    }
+
+    conditions{
+        Is Game In Progress == True;
+        Event Was Environment != True;
+
+        Event Player == Attacker;
+    }
+
+    actions{
+        //log suicide from self-damage
+        Log to Inspector(Custom String("[SUICIDE] {0} hurt itself in its confusion",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
+
+    }
+
+}
+
+//Track switches in comps
+rule("Hero Swicthes"){
+    event {
+        Ongoing - Each Player;
+        All; 
+        All;
+    }
+
+    conditions{
+        Hero Of(Event Player) != Player Variable(Event Player, H);
+    }
+
+    actions{
+        //Log
+        Log to Inspector(Custom String("[HERO_SWITCH] {0} switched to {1} (was {2})",
+        		Custom String("{0} ({1})", Event Player, Team of(Event Player), Null),
+        		Hero of(Event Player),
+        		Event Player.H));
+        
+        //Save new hero, changed as before it was =0 so obv did not work
+        Event Player.H = Hero of(Event Player);
+
+    }
+}
+
+//Track position
+rule("Player position"){
+    event{
+        Ongoing - Each Player;
+        All;
+        All;
+    }
+    
+    conditions{
+        Is Game in Progress == True;
+    }
+    
+    actions{
+        //Log
+        Log to Inspector(Custom String("[POS] {0} at: {1}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Position of(Event Player),
+        		Null));
+        Wait(0.1, Ignore Condition);
+        Loop;
+        
+        
+        
+        
+    }
+}
+
+//Track Dva demech, to do
+/**
+rule("Dva mech loss"){
+    event {
+        Ongoing - Each Player;
+        All;
+        All;
+    }
+    
+    conditions{
+        Hero of(Event Player)== Hero(Dva);
+    }
+    
+    }
+**/
+
+
+/**
+*   Scrim Lobby Controls
+*       These are the controls that allow for 
+*       Seita's unique custom scrim lobby design 
+**/ 
+rule("Setup Seita Scrim lobby text")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		//Disable Inspector Recording;
+		Global.Team1Hud[0] = -1;
+		Global.Team1Hud[1] = -1;
+		Global.Team1Hud[2] = -1;
+		Global.Team2Hud[0] = -1;
+		Global.Team2Hud[1] = -1;
+		Global.Team2Hud[2] = -1;
+		Global.HelpHud[0] = -1;
+		Global.HelpHud[1] = -1;
+		Global.HelpHud[2] = -1;
+		Global.HelpHud[3] = -1;
+		Global.HelpHud[4] = -1;
+		Global.HelpHud[5] = -1;
+		Global.HelpHud[6] = -1;
+		Global.HelpHud[7] = -1;
+		Global.HelpHud[8] = -1;
+		Global.HelpHud[9] = -1;
+		Global.HelpHud[10] = -1;
+	}
+}
+
+rule("Remove Assembling Heroes")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		Set Match Time(0);
+		Wait(5, Ignore Condition);
+		Set Match Time(10);
+	}
+}
 
 rule("Both Teams Ready: Match starts in 5 sec, Remove HUD, Reset variables")
 {
@@ -662,489 +1070,49 @@ rule("HUD: Team 2 Not Ready")
 	}
 }
 
-disabled rule("Scoreboard")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-}
-
-rule("Damage Done & Taken")
-{
-	event
-	{
-		Player Dealt Damage;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		Victim != Event Player;
-	}
-
-	actions
-	{
-        //Update Internal
-		Event Player.DamageDone += Event Damage;
-		Victim.DamageTaken += Event Damage;
-
-        //Update Log
-		/**
-		Log to Inspector(Custom String("[PLAYER_DAMAGE] {0} damaged {1} for {2}",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Custom String("{0} ({1})", Victim, Hero of(Victim), Null),
-        		Event Damage));
-        **/
-
-	}
-}
-
-rule("Healing Done")
-{
-	event
-	{
-		Player Dealt Healing;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		//Might be worth to differentiate in the future self healing
-	}
-
-	actions
-	{
-    	//Update Internal
-		Event Player.HealingDone += Event Healing;
-		//Definitely would add healing received, probably would have to change structure of internal data
-		
-		//Update Log
-		/**
-		Log to Inspector(Custom String("[PLAYER_HEALING] {0} healed {1} for {2}",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Custom String("{0} ({1})", Healee, Hero of(Healee), Null),
-        		Event Healing));
-        **/
-		
-	}
-}
-
-rule("Ults used not echo or dva")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		Is Using Ultimate(Event Player) == True;
-		Hero Of(Event Player) != Hero(D.Va);
-		Hero Of(Event Player) != Hero(Echo);
-	}
-
-	actions
-	{
-		//Increase Ult Count
-        Event Player.UltsUsed += 1;
-
-        //log ult
-        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Null,
-        		Null));
-
-	}
-}
-
-rule("Echo used ult during copy")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		Echo;
-	}
-
-	conditions
-	{
-		Is Game In Progress             == True;
-		Is Duplicating(Event Player)    == True;
-		Is Using Ultimate(Event Player) == True;
-	}
-
-	actions
-	{
-        //Log Ult
-        Log to Inspector(Custom String("[ECHO_COPYING_ULT_USED] {0} used Ultimate (as {1})",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Hero Being Duplicated(Event Player),
-        		Null));
-        
-		//Removed the stats update "Event Player.UltsUsed += 1;" as this is an ultimate used while copied as other hero, does not count towards counting ultimates used, at most we should make a variable specifically for this case
-
-
-	}
-}
-
-
-//Fired on End of Dup
-rule("Echo Dup Ult Used"){
-    event{
-		Ongoing - Each Player;
-		All;
-		Echo;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		Is Duplicating(Event Player) == True;
-
-	}
-
-	actions
-	{
-
-		//Wait then fetch duplication
-		//Wait(16, Ignore Condition);
-
-		//Abort if not a dup
-		//Abort If(Compare(Hero Being Duplicated(Event Player), ==, 0));
-
-		Event Player.UltsUsed += 1;
-		//Log Dup Ult
-		Log to Inspector(Custom String("[ULT_USED] {0} used ultimate duplicating {1}",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Hero Being Duplicated(Event Player),
-        		Null));
-
-	}
-}
-
-
-//gotta differenciate for mecha and baby dva with "Is in alternate form" 
-rule("Ults used dva")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		D.va;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		Is Using Ultimate(Event Player) == True;
-	}
-
-	actions
-	{
-        //log
-        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Null,
-        		Null));
-
-        //gotta remove this wait i guess, should be made not to count remech
-		Wait(2.500, Abort When False);
-		Event Player.UltsUsed += 1;
-	}
-}
-
-//Yeah Idk why Seita doesn't track kills
-rule("Kills"){
-    event{
-		Player Dealt Final Blow;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		Event Was Environment != True;
-	}
-
-	actions
-	{
-		//Log player kill
-		Log to Inspector(Custom String("[PLAYER_KILL] {0} killed {1} using {2}",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Custom String("{0} ({1})", Victim, Hero of(Victim), Null),
-        		Event Ability));
-        		
-	}
-}
-
-rule("Kill | Environmental"){
-    event{
-        Player Died;
-        All;
-        All;
-    }
-
-    conditions{
-        Is Game In Progress == True;
-        Event Player != Attacker;
-        Event Was Environment == True;
-    }
-
-    actions{
-        //Log env kill
-        Log to Inspector(Custom String("[ENVIRNOMENTAL_KILL] {0} killed {1} using {2}",
-        		Custom String("{0} ({1}, {2})", Attacker, Hero of(Attacker), Team of(Attacker)),
-        		Custom String("{0} ({1})", Event Player, Hero of(Event Player), Null),
-        		Event Ability));
-
-    }
-
-}
-
-
-rule("Deaths | Normal")
-{
-	event
-	{
-		Player Died;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-	}
-
-	actions
-	{
-		Event Player.Deaths += 1;
-	}
-}
-
-
-rule("Suicide | Off Cliff"){
-    event{
-        Player Died;
-        All;
-        All;
-    }
-
-    conditions{
-        Is Game In Progress == True;
-        Event Player == Attacker;
-        Event Was Environment == True;
-    }
-
-    actions{
-        //log suicide from fall
-        Log to Inspector(Custom String("[SUICIDE_ENVIRONMENTAL_DEATH] {0} fell from a high place",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Null,
-        		Null));
-
-    }
-
-}
-
-rule("Suicide | Casually"){
-    event{
-        Player Died;
-        All;
-        All;
-    }
-
-    conditions{
-        Is Game In Progress == True;
-        Event Was Environment != True;
-
-        Event Player == Attacker;
-    }
-
-    actions{
-        //log suicide from self-damage
-        Log to Inspector(Custom String("[SUICIDE] {0} hurt itself in its confusion",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Null,
-        		Null));
-
-    }
-
-}
-
-//Track switches in comps
-rule("Hero Swicthes"){
-    event {
-        Ongoing - Each Player;
-        All; 
-        All;
-    }
-
-    conditions{
-        Hero Of(Event Player) != Player Variable(Event Player, H);
-    }
-
-    actions{
-        //Log
-        Log to Inspector(Custom String("[HERO_SWITCH] {0} switched to {1} (was {2})",
-        		Custom String("{0} ({1})", Event Player, Team of(Event Player), Null),
-        		Hero of(Event Player),
-        		Event Player.H));
-        
-        //Save new hero, changed as before it was =0 so obv did not work
-        Event Player.H = Hero of(Event Player);
-
-    }
-}
-
-//Track position
-rule("Player position"){
-    event{
-        Ongoing - Each Player;
-        All;
-        All;
-    }
-    
-    conditions{
-        Is Game in Progress == True;
-    }
-    
-    actions{
-        //Log
-        Log to Inspector(Custom String("[POS] {0} at: {1}",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Position of(Event Player),
-        		Null));
-        Wait(0.1, Ignore Condition);
-        Loop;
-        
-        
-        
-        
-    }
-}
-
-//Track Dva demech, to do
 /**
-rule("Dva mech loss"){
-    event {
-        Ongoing - Each Player;
-        All;
-        All;
-    }
-    
-    conditions{
-        Hero of(Event Player)== Hero(Dva);
-    }
-    
-    }
+* Quality of Life Changes
+*     Below are a bunch of quality of life changes 
+*     made to custom scrim lobbies that I stole straight
+*     from Seita (credit where credit due :D)
+*     It includes:
+*         - hold reload to change hero on defense
+*         - hold melee to teleport to first point 
+*         - And score sets to max upon round change 
 **/
-
-//DISABLED TO SAVE SERVER RESOURCES
-disabled rule("Left Side Scoreboard")
+rule("Hold Reload: Change hero for Defense team")
 {
 	event
 	{
-		Ongoing - Global;
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is In Setup == True;
+		Is Team On Defense(Team Of(Event Player)) == True;
+		Has Spawned(Event Player) == True;
+		Is Button Held(Event Player, Button(Reload)) == True;
+		Is Alive(Event Player) == True;
+		Hero Of(Event Player) == True;
+		Match Time >= 1;
 	}
 
 	actions
 	{
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(0, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(0, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(0, Team 1))) == True ? Round To Integer(Players In Slot(0, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(0, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(0, Team 1)
-			.UltsUsed, Players In Slot(0, Team 1).Deaths))), Left, 1, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(1, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(1, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(1, Team 1))) == True ? Round To Integer(Players In Slot(1, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(1, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(1, Team 1)
-			.UltsUsed, Players In Slot(1, Team 1).Deaths))), Left, 2, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(2, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(2, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(2, Team 1))) == True ? Round To Integer(Players In Slot(2, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(2, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(2, Team 1)
-			.UltsUsed, Players In Slot(2, Team 1).Deaths))), Left, 3, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(3, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(3, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(3, Team 1))) == True ? Round To Integer(Players In Slot(3, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(3, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(3, Team 1)
-			.UltsUsed, Players In Slot(3, Team 1).Deaths))), Left, 4, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(4, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(4, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(4, Team 1))) == True ? Round To Integer(Players In Slot(4, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(4, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(4, Team 1)
-			.UltsUsed, Players In Slot(4, Team 1).Deaths))), Left, 5, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(5, Team 1))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(5, Team 1).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(5, Team 1))) == True ? Round To Integer(Players In Slot(5, Team 1).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(5, Team 1).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(5, Team 1)
-			.UltsUsed, Players In Slot(5, Team 1).Deaths))), Left, 6, Color(White), Color(White), Color(Blue), Visible To and String, Visible Always);
+		Wait(0.200, Abort When False);
+		Small Message(Event Player, Custom String("keep holding reload to change hero"));
+		Wait(0.700, Abort When False);
+		Event Player.HeroList = All Heroes;
+		Modify Player Variable(Event Player, HeroList, Remove From Array By Value, Hero Of(Event Player));
+		Set Player Allowed Heroes(Event Player, Event Player.HeroList);
+		Wait(0.100, Ignore Condition);
+		Set Player Allowed Heroes(Event Player, All Heroes);
 	}
 }
 
-//DISABLED TO SAVE SERVER RESOURCES
-disabled rule("Right Side Scoreboard")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	actions
-	{
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(0, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(0, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(0, Team 2))) == True ? Round To Integer(Players In Slot(0, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(0, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(0, Team 2)
-			.UltsUsed, Players In Slot(0, Team 2).Deaths))), Right, 1, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(1, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(1, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(1, Team 2))) == True ? Round To Integer(Players In Slot(1, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(1, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(1, Team 2)
-			.UltsUsed, Players In Slot(1, Team 2).Deaths))), Right, 2, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(2, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(2, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(2, Team 2))) == True ? Round To Integer(Players In Slot(2, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(2, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(2, Team 2)
-			.UltsUsed, Players In Slot(2, Team 2).Deaths))), Right, 3, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(3, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(3, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(3, Team 2))) == True ? Round To Integer(Players In Slot(3, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(3, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(3, Team 2)
-			.UltsUsed, Players In Slot(3, Team 2).Deaths))), Right, 4, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(4, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(4, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(4, Team 2))) == True ? Round To Integer(Players In Slot(4, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(4, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(4, Team 2)
-			.UltsUsed, Players In Slot(4, Team 2).Deaths))), Right, 5, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-		Create HUD Text(Null, Null, Null, String("{0} {1}", Hero Icon String(Hero Of(Players In Slot(5, Team 2))), String(
-			"{0} - {1} - {2}", Round To Integer(Players In Slot(5, Team 2).DamageDone, To Nearest), Array Contains(All Support Heroes,
-			Hero Of(Players In Slot(5, Team 2))) == True ? Round To Integer(Players In Slot(5, Team 2).HealingDone, To Nearest)
-			: Round To Integer(Players In Slot(5, Team 2).DamageTaken, To Nearest), String("{0} - {1}", Players In Slot(5, Team 2)
-			.UltsUsed, Players In Slot(5, Team 2).Deaths))), Right, 6, Color(White), Color(White), Color(Red), Visible To and String, Visible Always);
-	}
-}
-
-//DISABLED TO SAVE SERVER RESOURCES
-disabled rule("Setting Score after failed attacks")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-}
-
-//DISABLED TO SAVE SERVER RESOURCES
 rule("First attack done")
 {
 	event
@@ -1186,6 +1154,11 @@ rule("Set Team Score: Escort & Hybrid")
 	}
 }
 
+
+/**
+* Game Mode Check
+*	Check to see what game mode we're on and update the score accordingly
+**/
 rule("Set Team Score: Assault")
 {
 	event
@@ -1278,47 +1251,13 @@ rule("Game Mode check: Control")
 	}
 }
 
-rule("Teleports for Defense team")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-}
 
-rule("Hold Reload: Change hero for Defense team")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Reload)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-		Match Time >= 1;
-	}
-
-	actions
-	{
-		Wait(0.200, Abort When False);
-		Small Message(Event Player, Custom String("keep holding reload to change hero"));
-		Wait(0.700, Abort When False);
-		Event Player.HeroList = All Heroes;
-		Modify Player Variable(Event Player, HeroList, Remove From Array By Value, Hero Of(Event Player));
-		Set Player Allowed Heroes(Event Player, Event Player.HeroList);
-		Wait(0.100, Ignore Condition);
-		Set Player Allowed Heroes(Event Player, All Heroes);
-	}
-}
-
+/**
+* Seita's Teleportation 
+*     Below is seita's teleportion tech that allows users
+*     to teleport to a place on the map when on defence to make 
+*     setup faster.
+**/
 rule("Press Melee: Blizz World (Press Melee for all of the maps)")
 {
 	event
@@ -1748,169 +1687,5 @@ rule("Gibraltar")
 	actions
 	{
 		Teleport(Event Player, Vector(32.488, 4.692, -71.941));
-	}
-}
-
-disabled rule("Ultimate Charge on Disconnect (code copied directly from easyScrims by MrPig100 and MrMoustachioo)")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-}
-
-disabled rule("=> realize any DC")
-{
-	event
-	{
-		Player Left Match;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-	}
-
-	actions
-	{
-		Global.Disconnect[1] = True;
-	}
-}
-
-disabled rule("=> identify dc'd player")
-{
-	event
-	{
-		Player Joined Match;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-	}
-
-	actions
-	{
-		Global.DcSlot = Slot Of(Event Player);
-		Global.DcTeam = Team Of(Event Player);
-		Global.Disconnect[2] = True;
-	}
-}
-
-disabled rule("=> set ult charge of last dc'd player all Teams")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.Disconnect[1] == True;
-		Global.Disconnect[2] == True;
-		Hero Of(Players In Slot(Global.DcSlot, Global.DcTeam)) != False;
-	}
-
-	actions
-	{
-		Skip If(Global.DcTeam == Team 2, 2);
-		Set Ultimate Charge(Players In Slot(Global.DcSlot, Global.DcTeam), Global.UltChargeTable[Global.DcSlot]);
-		Skip(1);
-		Set Ultimate Charge(Players In Slot(Global.DcSlot, Global.DcTeam), Global.UltChargeTable[Global.DcSlot + 6]);
-		Wait(0.250, Ignore Condition);
-		Global.Disconnect[1] = 0;
-		Global.Disconnect[2] = 0;
-		Global.DcSlot = 0;
-		Global.DcTeam = 0;
-	}
-}
-
-disabled rule("=> 1st block short ult charge gather")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.UltChargeLoop > 3;
-		Global.Disconnect[1] == 0;
-	}
-
-	actions
-	{
-		Global.UltChargeTable[0] = Ultimate Charge Percent(Players In Slot(0, Team 1));
-		Global.UltChargeTable[1] = Ultimate Charge Percent(Players In Slot(1, Team 1));
-		Global.UltChargeTable[2] = Ultimate Charge Percent(Players In Slot(2, Team 1));
-		Chase Global Variable Over Time(UltChargeLoop, 0, 4, Destination and Duration);
-	}
-}
-
-disabled rule("=> 2nd block short ult charge gather")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.UltChargeLoop > 2;
-		Global.Disconnect[1] == 0;
-	}
-
-	actions
-	{
-		Global.UltChargeTable[3] = Ultimate Charge Percent(Players In Slot(3, Team 1));
-		Global.UltChargeTable[4] = Ultimate Charge Percent(Players In Slot(4, Team 1));
-		Global.UltChargeTable[5] = Ultimate Charge Percent(Players In Slot(5, Team 1));
-	}
-}
-
-disabled rule("=> 3rd block short ult charge gather")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.UltChargeLoop > 1;
-		Global.Disconnect[1] == 0;
-	}
-
-	actions
-	{
-		Global.UltChargeTable[6] = Ultimate Charge Percent(Players In Slot(0, Team 2));
-		Global.UltChargeTable[7] = Ultimate Charge Percent(Players In Slot(1, Team 2));
-		Global.UltChargeTable[8] = Ultimate Charge Percent(Players In Slot(2, Team 2));
-	}
-}
-
-disabled rule("=> 4th block and loop short ult charge gather")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.UltChargeLoop == 0;
-		Global.Disconnect[1] == 0;
-	}
-
-	actions
-	{
-		Global.UltChargeTable[9] = Ultimate Charge Percent(Players In Slot(3, Team 2));
-		Global.UltChargeTable[10] = Ultimate Charge Percent(Players In Slot(4, Team 2));
-		Global.UltChargeTable[11] = Ultimate Charge Percent(Players In Slot(5, Team 2));
-		Global.UltChargeLoop = 4;
 	}
 }
