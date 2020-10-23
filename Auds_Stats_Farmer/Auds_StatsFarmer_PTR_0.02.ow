@@ -117,8 +117,8 @@ settings
 		}
 	}
 }
-**/
 
+**/
 
 variables
 {
@@ -148,7 +148,6 @@ variables
 		3: Deaths
 		4: DamageTaken
 		5: HeroList
-		6: Duplication
 }
 
 rule("Seita Scrim lobby")
@@ -693,7 +692,12 @@ rule("Damage Done & Taken")
 		Victim.DamageTaken += Event Damage;
 
         //Update Log
-		//Log to Inspector(Custom String("[PLAYER_DAMAGE] Player {0} damaged player {1} for {2}", Event Player, Victim, Event Damage));
+		/**
+		Log to Inspector(Custom String("[PLAYER_DAMAGE] {0} damaged {1} for {2}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} ({1})", Victim, Hero of(Victim), Null),
+        		Event Damage));
+        **/
 
 	}
 }
@@ -710,11 +714,23 @@ rule("Healing Done")
 	conditions
 	{
 		Is Game In Progress == True;
+		//Might be worth to differentiate in the future self healing
 	}
 
 	actions
 	{
+    	//Update Internal
 		Event Player.HealingDone += Event Healing;
+		//Definitely would add healing received, probably would have to change structure of internal data
+		
+		//Update Log
+		/**
+		Log to Inspector(Custom String("[PLAYER_HEALING] {0} healed {1} for {2}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} ({1})", Healee, Hero of(Healee), Null),
+        		Event Healing));
+        **/
+		
 	}
 }
 
@@ -741,7 +757,10 @@ rule("Ults used not echo or dva")
         Event Player.UltsUsed += 1;
 
         //log ult
-        Log To Inspector(Custom String("[Ultimate Used] Player {0} used {1}", Event Player, Hero Of(Event Player), Null));
+        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
 
 	}
 }
@@ -752,7 +771,7 @@ rule("Echo used ult during copy")
 	{
 		Ongoing - Each Player;
 		All;
-		All;
+		Echo;
 	}
 
 	conditions
@@ -760,16 +779,17 @@ rule("Echo used ult during copy")
 		Is Game In Progress             == True;
 		Is Duplicating(Event Player)    == True;
 		Is Using Ultimate(Event Player) == True;
-		Hero Of(Event Player)           == Hero(Echo);
 	}
 
 	actions
 	{
         //Log Ult
-        Log To Inspector(Custom String("[Echo Ultimate Used] Player {0} used {1}", Event Player, Hero Being Duplicated(Event Player), Null));
-
-		//Update stats
-		Event Player.UltsUsed += 1;
+        Log to Inspector(Custom String("[ECHO_COPYING_ULT_USED] {0} used Ultimate (as {1})",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Hero Being Duplicated(Event Player),
+        		Null));
+        
+		//Removed the stats update "Event Player.UltsUsed += 1;" as this is an ultimate used while copied as other hero, does not count towards counting ultimates used, at most we should make a variable specifically for this case
 
 
 	}
@@ -781,14 +801,13 @@ rule("Echo Dup Ult Used"){
     event{
 		Ongoing - Each Player;
 		All;
-		All;
+		Echo;
 	}
 
 	conditions
 	{
 		Is Game In Progress == True;
 		Is Duplicating(Event Player) == True;
-		Hero Of(Event Player) == Hero(Echo);
 
 	}
 
@@ -801,44 +820,48 @@ rule("Echo Dup Ult Used"){
 		//Abort if not a dup
 		//Abort If(Compare(Hero Being Duplicated(Event Player), ==, 0));
 
-		//Log Dup
 		Event Player.UltsUsed += 1;
-        Log To Inspector(Custom String("[Echo Duplication] Player {0} duplicated {1}", Event Player, Hero Being Duplicated(Event Player), Null));
-
-
+		//Log Dup Ult
+		Log to Inspector(Custom String("[ULT_USED] {0} used ultimate duplicating {1}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Hero Being Duplicated(Event Player),
+        		Null));
 
 	}
 }
 
 
-
+//gotta differenciate for mecha and baby dva with "Is in alternate form" 
 rule("Ults used dva")
 {
 	event
 	{
 		Ongoing - Each Player;
 		All;
-		All;
+		D.va;
 	}
 
 	conditions
 	{
 		Is Game In Progress == True;
 		Is Using Ultimate(Event Player) == True;
-		Hero Of(Event Player) == Hero(D.Va);
 	}
 
 	actions
 	{
-        //log 
-        Log To Inspector(Custom String("[Ultimate Used] Player {0} used {1}", Event Player, Event Ability, Null));
+        //log
+        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
 
+        //gotta remove this wait i guess, should be made not to count remech
 		Wait(2.500, Abort When False);
 		Event Player.UltsUsed += 1;
 	}
 }
 
-//Yeah Idk why Seita doesn't track seita
+//Yeah Idk why Seita doesn't track kills
 rule("Kills"){
     event{
 		Player Dealt Final Blow;
@@ -855,7 +878,11 @@ rule("Kills"){
 	actions
 	{
 		//Log player kill
-        Log to Inspector(Custom String("[PLAYER_KILL] {0} Killed {1} using {2}", Event Player, Victim, Custom String("{0} {1}", Hero Of(Event Player), Event Ability, Null)));
+		Log to Inspector(Custom String("[PLAYER_KILL] {0} killed {1} using {2}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} ({1})", Victim, Hero of(Victim), Null),
+        		Event Ability));
+        		
 	}
 }
 
@@ -873,7 +900,11 @@ rule("Kill | Environmental"){
     }
 
     actions{
-        Log To Inspector(Custom String("[ENVRIONMENTAL_Kill] Player {0} Killed Player {1} with {2}", Attacker, Event Player, Custom String("{0} {1}", Hero Of(Attacker), Event Ability, Null)));
+        //Log env kill
+        Log to Inspector(Custom String("[ENVIRNOMENTAL_KILL] {0} killed {1} using {2}",
+        		Custom String("{0} ({1}, {2})", Attacker, Hero of(Attacker), Team of(Attacker)),
+        		Custom String("{0} ({1})", Event Player, Hero of(Event Player), Null),
+        		Event Ability));
 
     }
 
@@ -915,7 +946,11 @@ rule("Suicide | Off Cliff"){
     }
 
     actions{
-        Log To Inspector(Custom String("[SUICIDE_ENVRIONMENTAL_DEATH] Player {0}", Event Player, Null, Null));
+        //log suicide from fall
+        Log to Inspector(Custom String("[SUICIDE_ENVIRONMENTAL_DEATH] {0} fell from a high place",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
 
     }
 
@@ -936,7 +971,11 @@ rule("Suicide | Casually"){
     }
 
     actions{
-        Log To Inspector(Custom String("[SUICIDE] Player {0}", Event Player, Null, Null));
+        //log suicide from self-damage
+        Log to Inspector(Custom String("[SUICIDE] {0} hurt itself in its confusion",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
 
     }
 
@@ -955,17 +994,60 @@ rule("Hero Swicthes"){
     }
 
     actions{
-        //Save new hero
-        Event Player.H = 0;
-
-        //Log 
-        Log To Inspector(Custom String("[HERO_SWITCH] Player {0} switched to {1}", Event Player, Hero Of(Event Player), Null));
-    
+        //Log
+        Log to Inspector(Custom String("[HERO_SWITCH] {0} switched to {1} (was {2})",
+        		Custom String("{0} ({1})", Event Player, Team of(Event Player), Null),
+        		Hero of(Event Player),
+        		Event Player.H));
+        
+        //Save new hero, changed as before it was =0 so obv did not work
+        Event Player.H = Hero of(Event Player);
 
     }
 }
 
+//Track position
+rule("Player position"){
+    event{
+        Ongoing - Each Player;
+        All;
+        All;
+    }
+    
+    conditions{
+        Is Game in Progress == True;
+    }
+    
+    actions{
+        //Log
+        Log to Inspector(Custom String("[POS] {0} at: {1}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Position of(Event Player),
+        		Null));
+        Wait(0.1, Ignore Condition);
+        Loop;
+        
+        
+        
+        
+    }
+}
 
+//Track Dva demech, to do
+/**
+rule("Dva mech loss"){
+    event {
+        Ongoing - Each Player;
+        All;
+        All;
+    }
+    
+    conditions{
+        Hero of(Event Player)== Hero(Dva);
+    }
+    
+    }
+**/
 
 //DISABLED TO SAVE SERVER RESOURCES
 disabled rule("Left Side Scoreboard")
