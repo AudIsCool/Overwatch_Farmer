@@ -138,6 +138,8 @@ variables
 		22: DcTeam
 		23: UltChargeLoop
 		24: UltChargeTable
+		//25: Positions
+		//26: PositionCount
 
 	player:
 		0: DamageDone
@@ -171,12 +173,17 @@ rule("Game in Progress: Remove HUD, Reset variables")
         //Log to Inspector
         Log to Inspector(Custom String("[ROUND_START] Started Round: {0} on Map: {1}", Current Map, Match Round));
 
+		
+		//Edit Globals
 		Global.Team1Ready = False;
 		Global.Team2Ready = False;
+
 		Global.TimeCooldown = 0;
 		Global.BreakCooldown = 0;
+
 		Global.T1ReadyCD = 0;
 		Global.T2ReadyCD = 0;
+
 		Destroy HUD Text(Global.Team1Hud[0]);
 		Destroy HUD Text(Global.Team1Hud[1]);
 		Destroy HUD Text(Global.Team1Hud[2]);
@@ -208,6 +215,7 @@ rule("Game not in progress: Tell log game done"){
 	}
 
     actions{
+		//Global.Positions = Array();
         Log To Inspector(Custom String("[Round_End]", Null, Null, Null));
     }
 }
@@ -566,6 +574,7 @@ rule("Hero Swicthes"){
 
 //Track position
 //Disabled because I like being able to use my game lol
+
 /**
 rule("Player position"){
     event{
@@ -584,15 +593,47 @@ rule("Player position"){
         		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Position of(Event Player),
         		Null));
-        Wait(0.1, Ignore Condition);
+	
+		Wait(0.5, Ignore Condition);
         Loop;
         
         
-        
-        
     }
+}**/
+
+//Log out player pos
+/**
+rule("Log Player Pos"){
+	event{
+		Ongoing - Global;
+	}
+	conditions{
+		Is Game in Progress == True;
+		Count Of(Global.Positions) >= 992;
+		Global.PositionCount < 992;
+	}
+
+	actions{
+		//Loop through and find position
+		Log To Inspector(
+			Custom String("[{0}]{1}", Value In Array(Global.Positions, Global.PositionCount),  Custom String("{0}, {1}, {2}", Value In Array(Global.Positions, Global.PositionCount + 1), Value In Array(Global.Positions, Global.PositionCount + 2), Value In Array(Global.Positions,Global.PositionCount + 3)), Null)
+		);
+
+		Global.PositionCount += 4;
+
+		Loop If Condition Is True;
+
+	}
+
 }
 **/
+
+
+
+
+
+
+
 //Track Dva demech, to do
 /**
 rule("Dva mech loss"){
@@ -1231,8 +1272,6 @@ rule("Gibraltar")
 }
 
 
-
-
 /**
 *   Scrim Lobby Controls
 *       These are the controls that allow for 
@@ -1254,6 +1293,7 @@ rule("Setup Seita Scrim lobby text")
 		Global.Team2Hud[0] = -1;
 		Global.Team2Hud[1] = -1;
 		Global.Team2Hud[2] = -1;
+
 		Global.HelpHud[0] = -1;
 		Global.HelpHud[1] = -1;
 		Global.HelpHud[2] = -1;
@@ -1265,6 +1305,10 @@ rule("Setup Seita Scrim lobby text")
 		Global.HelpHud[8] = -1;
 		Global.HelpHud[9] = -1;
 		Global.HelpHud[10] = -1;
+
+		//Global.Positions = Array();
+		//Global.PositionCount = 0;
+
 	}
 }
 
@@ -1692,8 +1736,6 @@ rule("Help HUD at the start of the game")
 
 		Create HUD Text(Null, Null, Null, Custom String(" "), Right, 27, Color(White), Color(White), Color(White), Visible To and String, Visible Always);
 		Global.HelpHud[5] = Last Text ID;
-
-		Log To Inspector(Custom String("F{0}", Last Text Id, Null, Null));
 
 	}
 }
