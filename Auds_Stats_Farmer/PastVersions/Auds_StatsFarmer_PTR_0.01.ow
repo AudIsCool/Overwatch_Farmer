@@ -135,7 +135,8 @@ rule("Remove Assembling Heroes")
 }
 
 /**
-* Sets up intro text players // Spectators see at the start of the game
+* Intro Texts
+*     The code below allows us to 
 **/
 rule("Help HUD at the start of the game")
 {
@@ -213,6 +214,11 @@ rule("Help HUD at the start of the game")
 }
 
 
+/**
+* Info Collection 
+*     The code below allows us to grab info about the game
+*     and reset internal values once the game starts
+**/
 rule("Game in Progress: Remove HUD, Reset variables")
 {
 	event
@@ -272,6 +278,281 @@ rule("Game not in progress: Tell log game done"){
 }
 
 
+/**
+* Statistics Collection
+*	The code below allows us to pull data from the game and log it
+*	We track: 
+*       - Damage (Seita)
+*       - Healing (Seita)
+*       - Final Blows (Us)
+*       - Ults (Seita and Us)
+*       - Suicides (us)
+*       - Environmental Kills (Us)
+**/
+
+rule("Damage Done & Taken")
+{
+	event
+	{
+		Player Dealt Damage;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Victim != Event Player;
+	}
+
+	actions
+	{
+        //Update Internal
+		Event Player.DamageDone += Event Damage;
+		Victim.DamageTaken += Event Damage;
+
+        //Update Log
+		//Log to Inspector(Custom String("[PLAYER_DAMAGE] Player {0} damaged player {1} for {2}", Event Player, Victim, Event Damage));
+
+	}
+}
+
+rule("Healing Done")
+{
+	event
+	{
+		Player Dealt Healing;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Event Player.HealingDone += Event Healing;
+	}
+}
+
+rule("Ults used not echo or dva")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Using Ultimate(Event Player) == True;
+		Hero Of(Event Player) != Hero(D.Va);
+		Hero Of(Event Player) != Hero(Echo);
+	}
+
+	actions
+	{
+		//Increase Ult Count
+        Event Player.UltsUsed += 1;
+
+        //log ult
+        Log To Inspector(Custom String("[Ultimate Used] Player {0} used {1}", Event Player, Event Ability, Null));
+
+	}
+}
+
+rule("Echo Ult Used")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Duplicating(Event Player)    != True;
+		Is Using Ultimate(Event Player) == True;
+		Hero Of(Event Player) == Hero(Echo);
+	}
+
+	actions
+	{
+        //log ult
+        Log To Inspector(Custom String("[Echo Ultimate Used] Player {0} used {1}", Event Player, Event Ability, Null));
+
+		Event Player.UltsUsed += 1;
+		Wait(16, Ignore Condition);
+
+	}
+}
+
+rule("Echo Dup Ult Used"){
+    event{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Duplicating(Event Player) != True;
+		Hero Of(Event Player) == Hero(Echo);
+	}
+
+	actions
+	{
+        //log ult
+        Log To Inspector(Custom String("[Echo Duplication] Player {0} duplicated {1}", Event Player, Hero Being Duplicated(Event Player), Null));
+
+		Event Player.UltsUsed += 1;
+		Wait(16, Ignore Condition);
+
+	}
+}
+
+rule("Ults used dva")
+{
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Using Ultimate(Event Player) == True;
+		Hero Of(Event Player) == Hero(D.Va);
+	}
+
+	actions
+	{
+        //log 
+        Log To Inspector(Custom String("[Ultimate Used] Player {0} used {1}", Event Player, Event Ability, Null));
+
+		Wait(2.500, Abort When False);
+		Event Player.UltsUsed += 1;
+	}
+}
+
+//Yeah Idk why Seita doesn't track kills
+rule("Kills"){
+    event{
+		Player Dealt Final Blow;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		//Log player kill
+        Log to Inspector(Custom String("[PLAYER_KILL] {0} Killed {1} using {2}", Event Player, Victim, Event Ability));
+	}
+}
+
+rule("Deaths | Normal")
+{
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Event Player.Deaths += 1;
+	}
+}
+
+rule("Suicide | Off Cliff"){
+    event{
+        Player Died;
+        All;
+        All;
+    }
+
+    conditions{
+        Is Game In Progress == True;
+        Event Was Environment == True;
+    }
+
+    actions{
+        Log To Inspector(Custom String("[ENVRIONMENTAL_DEATH] Player {0}", Event Player, Null, Null));
+
+    }
+
+}
+
+rule("Suicide | Casually"){
+    event{
+        Player Died;
+        All;
+        All;
+    }
+
+    conditions{
+        Is Game In Progress == True;
+        Event Player == Attacker;
+    }
+
+    actions{
+        Log To Inspector(Custom String("[SUICIDE] Player {0}", Event Player, Null, Null));
+
+    }
+
+}
+
+//Track switches in comps
+rule("Hero Swicthes"){
+    event {
+        Ongoing - Each Player;
+        All; 
+        All;
+    }
+
+    conditions{
+        Hero Of(Event Player) != Player Variable(Event Player, H);
+    }
+
+    actions{
+        //Save new hero
+        Event Player.H = 0;
+
+        //Log 
+        Log To Inspector(Custom String("[HERO_SWITCH] Player {0} switched to {1}", Event Player, Hero Of(Event Player), Null));
+    
+
+    }
+}
+
+
+
+/**
+* Game Play Configuration
+*     The code below helps improve the lobby
+*     experience within the game- For example you
+*     can teleport to first point when on defense 
+**/
 rule("Both Teams Ready: Match starts in 5 sec, Remove HUD, Reset variables")
 {
 	event
@@ -600,271 +881,6 @@ rule("HUD: Team 2 Not Ready")
 	}
 }
 
-disabled rule("Scoreboard")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-}
-
-rule("Damage Done & Taken")
-{
-	event
-	{
-		Player Dealt Damage;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		Victim != Event Player;
-	}
-
-	actions
-	{
-        //Update Internal
-		Event Player.DamageDone += Event Damage;
-		Victim.DamageTaken += Event Damage;
-
-        //Update Log
-		//Log to Inspector(Custom String("[PLAYER_DAMAGE] Player {0} damaged player {1} for {2}", Event Player, Victim, Event Damage));
-
-	}
-}
-
-rule("Healing Done")
-{
-	event
-	{
-		Player Dealt Healing;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-	}
-
-	actions
-	{
-		Event Player.HealingDone += Event Healing;
-	}
-}
-
-rule("Ults used not echo or dva")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		Is Using Ultimate(Event Player) == True;
-		Hero Of(Event Player) != Hero(D.Va);
-		Hero Of(Event Player) != Hero(Echo);
-	}
-
-	actions
-	{
-		//Increase Ult Count
-        Event Player.UltsUsed += 1;
-
-        //log ult
-        Log To Inspector(Custom String("[Ultimate Used] Player {0} used {1}", Event Player, Event Ability, Null));
-
-	}
-}
-
-rule("Echo Ult Used")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		Is Duplicating(Event Player)    != True;
-		Is Using Ultimate(Event Player) == True;
-		Hero Of(Event Player) == Hero(Echo);
-	}
-
-	actions
-	{
-        //log ult
-        Log To Inspector(Custom String("[Echo Ultimate Used] Player {0} used {1}", Event Player, Event Ability, Null));
-
-		Event Player.UltsUsed += 1;
-		Wait(16, Ignore Condition);
-
-	}
-}
-
-rule("Echo Dup Ult Used"){
-    event{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		Is Duplicating(Event Player) != True;
-		Hero Of(Event Player) == Hero(Echo);
-	}
-
-	actions
-	{
-        //log ult
-        Log To Inspector(Custom String("[Echo Duplication] Player {0} duplicated {1}", Event Player, Hero Being Duplicated(Event Player), Null));
-
-		Event Player.UltsUsed += 1;
-		Wait(16, Ignore Condition);
-
-	}
-}
-
-rule("Ults used dva")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-		Is Using Ultimate(Event Player) == True;
-		Hero Of(Event Player) == Hero(D.Va);
-	}
-
-	actions
-	{
-        //log 
-        Log To Inspector(Custom String("[Ultimate Used] Player {0} used {1}", Event Player, Event Ability, Null));
-
-		Wait(2.500, Abort When False);
-		Event Player.UltsUsed += 1;
-	}
-}
-
-//Yeah Idk why Seita doesn't track kills
-rule("Kills"){
-    event{
-		Player Dealt Final Blow;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-	}
-
-	actions
-	{
-		//Log player kill
-        Log to Inspector(Custom String("[PLAYER_KILL] {0} Killed {1} using {2}", Event Player, Victim, Event Ability));
-	}
-}
-
-rule("Deaths | Normal")
-{
-	event
-	{
-		Player Died;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == True;
-	}
-
-	actions
-	{
-		Event Player.Deaths += 1;
-	}
-}
-
-
-rule("Suicide | Off Cliff"){
-    event{
-        Player Died;
-        All;
-        All;
-    }
-
-    conditions{
-        Is Game In Progress == True;
-        Event Was Environment == True;
-    }
-
-    actions{
-        Log To Inspector(Custom String("[ENVRIONMENTAL_DEATH] Player {0}", Event Player, Null, Null));
-
-    }
-
-}
-
-rule("Suicide | Casually"){
-    event{
-        Player Died;
-        All;
-        All;
-    }
-
-    conditions{
-        Is Game In Progress == True;
-        Event Player == Attacker;
-    }
-
-    actions{
-        Log To Inspector(Custom String("[SUICIDE] Player {0}", Event Player, Null, Null));
-
-    }
-
-}
-
-//Track switches in comps
-rule("Hero Swicthes"){
-    event {
-        Ongoing - Each Player;
-        All; 
-        All;
-    }
-
-    conditions{
-        Hero Of(Event Player) != Player Variable(Event Player, H);
-    }
-
-    actions{
-        //Save new hero
-        Event Player.H = 0;
-
-        //Log 
-        Log To Inspector(Custom String("[HERO_SWITCH] Player {0} switched to {1}", Event Player, Hero Of(Event Player), Null));
-    
-
-    }
-}
-
-//DISABLED TO SAVE SERVER RESOURCES
 rule("First attack done")
 {
 	event
@@ -1066,6 +1082,13 @@ rule("Press Melee: Blizz World (Press Melee for all of the maps)")
 	}
 }
 
+
+/**
+* Seita's Teleportation 
+*     Below is seita's teleportion tech that allows users
+*     to teleport to a place on the map when on defence to make 
+*     setup faster.
+**/
 rule("Eichen")
 {
 	event
