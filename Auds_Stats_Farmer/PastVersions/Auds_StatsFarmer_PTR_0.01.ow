@@ -84,56 +84,6 @@ variables
 		5: HeroList
 }
 
-rule("Seita Scrim lobby")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	actions
-	{
-		//Disable Inspector Recording;
-		Global.Team1Hud[0] = -1;
-		Global.Team1Hud[1] = -1;
-		Global.Team1Hud[2] = -1;
-		Global.Team2Hud[0] = -1;
-		Global.Team2Hud[1] = -1;
-		Global.Team2Hud[2] = -1;
-		Global.HelpHud[0] = -1;
-		Global.HelpHud[1] = -1;
-		Global.HelpHud[2] = -1;
-		Global.HelpHud[3] = -1;
-		Global.HelpHud[4] = -1;
-		Global.HelpHud[5] = -1;
-		Global.HelpHud[6] = -1;
-		Global.HelpHud[7] = -1;
-		Global.HelpHud[8] = -1;
-		Global.HelpHud[9] = -1;
-		Global.HelpHud[10] = -1;
-	}
-}
-
-rule("Remove Assembling Heroes")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Is Assembling Heroes == True;
-	}
-
-	actions
-	{
-		Set Match Time(0);
-		Wait(5, Ignore Condition);
-		Set Match Time(10);
-	}
-}
-
 /**
 * Intro Texts
 *     The code below allows us to 
@@ -553,6 +503,56 @@ rule("Hero Swicthes"){
 *     experience within the game- For example you
 *     can teleport to first point when on defense 
 **/
+rule("Seita Scrim lobby")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	actions
+	{
+		//Disable Inspector Recording;
+		Global.Team1Hud[0] = -1;
+		Global.Team1Hud[1] = -1;
+		Global.Team1Hud[2] = -1;
+		Global.Team2Hud[0] = -1;
+		Global.Team2Hud[1] = -1;
+		Global.Team2Hud[2] = -1;
+		Global.HelpHud[0] = -1;
+		Global.HelpHud[1] = -1;
+		Global.HelpHud[2] = -1;
+		Global.HelpHud[3] = -1;
+		Global.HelpHud[4] = -1;
+		Global.HelpHud[5] = -1;
+		Global.HelpHud[6] = -1;
+		Global.HelpHud[7] = -1;
+		Global.HelpHud[8] = -1;
+		Global.HelpHud[9] = -1;
+		Global.HelpHud[10] = -1;
+	}
+}
+
+rule("Remove Assembling Heroes")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Assembling Heroes == True;
+	}
+
+	actions
+	{
+		Set Match Time(0);
+		Wait(5, Ignore Condition);
+		Set Match Time(10);
+	}
+}
+
 rule("Both Teams Ready: Match starts in 5 sec, Remove HUD, Reset variables")
 {
 	event
