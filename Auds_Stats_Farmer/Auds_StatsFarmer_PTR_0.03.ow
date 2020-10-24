@@ -117,6 +117,7 @@ settings
 }
 **/
 
+
 //Intro Variables that allow us to run the game
 variables
 {
@@ -148,6 +149,7 @@ variables
 		3: Deaths
 		4: DamageTaken
 		5: HeroList
+		6: RezTarget
 }
 
 
@@ -298,6 +300,50 @@ rule("Healing Done")
 	}
 }
 
+
+//Tracks Rezzes
+rule("Track Rez"){
+	event{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions{
+		//Check for Mercy
+		Hero Of(Event Player) == Hero(Mercy);
+
+		//Check for Mercy Rez
+		Is Using Ability 2(Event Player) == True;
+	}
+
+	actions{
+		//Find the target being rezzed
+		Event Player.RezTarget = Sorted Array(
+			All Dead Players(
+				Team Of(Event Player)), 
+				Distance Between(
+					Ray Cast Hit Position(
+						Eye Position(Event Player),
+						Eye Position(Event Player) + Facing Direction Of(Event Player) * 2,
+						All Players(All Teams),
+						Event Player,
+						True
+					), 
+				Current Array Element
+			)
+			);
+
+
+		//Log out the target mercy is rezzing
+		Log To Inspector(Custom String("[RESURRECT] Team {0} Player {1} Rezzed {2}", Team Of(Event Player), Event Player, Event Player.RezTarget));
+	}
+
+
+
+}
+
+
 //Catches all unspecial ults
 rule("Ults used not echo or dva")
 {
@@ -378,12 +424,6 @@ rule("Echo Dup Ult Used"){
 
 	actions
 	{
-
-		//Wait then fetch duplication
-		//Wait(16, Ignore Condition);
-
-		//Abort if not a dup
-		//Abort If(Compare(Hero Being Duplicated(Event Player), ==, 0));
 
 		Event Player.UltsUsed += 1;
 		//Log Dup Ult
