@@ -918,10 +918,9 @@ rule("Hybrid | Track Tick Gains"){
 		//If in control
 		//TODO LOG WHAT TEAM EARNED A TICK
 		Log To Inspector(
-			Custom String("[EARNED_TICK] Percent Controlled {0}", Point Capture Percentage, Null, Null)
+			Custom String("[EARNED_TICK] Team {0} Percent Controlled {1}", Global.AttackingTeam, Point Capture Percentage, Null)
 		);
-			
-
+		
 	}
 }
 
@@ -941,7 +940,7 @@ rule("Hybrid | Payload Gains"){
 	actions{
 		//TODO LOG WHAT TEAM WON THE POINT
 		Log To Inspector(
-			Custom String("[WON_POINT] TEAM {0} WON POINT {1}", Null, Null, Null)
+			Custom String("[WON_POINT] TEAM {0} WON POINT {1}", Global.AttackingTeam, Objective Index, Null)
 		);
 		Global.CaptureProgress = Objective Index; 
 	}
