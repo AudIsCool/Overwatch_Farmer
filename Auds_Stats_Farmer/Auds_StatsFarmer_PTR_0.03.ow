@@ -27,6 +27,7 @@ settings{
 
 			enabled maps
 			{
+				Busan
 			}
 		}
 
@@ -41,7 +42,6 @@ settings{
 		{
 			enabled maps
 			{
-				King's Row
 			}
 		}
 
@@ -152,6 +152,7 @@ variables
 		26: CaptureProgress
 		27: AttackingTeam
 		28: DefendingTeam
+		29: UpdateTeamsNeedSide
 		//25: Positions
 		//26: PositionCount
 
@@ -190,6 +191,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 	actions
 	{
 		//Edit Globals
+		Global.UpdateTeamsNeedSide = True;
 		Global.WhoControlsPoint = Control Mode Scoring Team;
 		Global.CaptureProgress = Objective Position(Objective Index);
 
@@ -225,7 +227,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		wait(2.500, Ignore Condition);
 
 		//If On Control don't log out the attacker and defender, just log teams
-		Skip If(Current Game Mode == Game Mode(Control), 2);
+		Skip If(Current Game Mode != Game Mode(Control), 2);
 		Log To Inspector(
 			Custom String("[ROUND_START] Started Round {0} on Map {1} with Teams {2}",
 				//Round
@@ -238,7 +240,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 				Custom String("[{0} , {1}]", 
 					//Team One
 					Custom String("{0} : {1}",
-						Team(Team 1),
+						Global.AttackingTeam,
 
 						//Player List
 						Custom String("[{0}, {1}]",
@@ -254,7 +256,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 					),
 
 					Custom String("{0} : {1}",
-						Team(Team 2),
+						Global.DefendingTeam,
 
 						//Player List
 						Custom String("[{0}, {1}]",
@@ -282,58 +284,61 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		Abort();
 
 		//If on any other type that contains attacker and defender log out those teams
-		Skip(1);
-			Log To Inspector(
-			Custom String("[ROUND_START] Started Round {0} on Map {1} with Teams {2}",
-				//Round
-				Match Round,
+		Log To Inspector(
+			Custom String("Help me pls {0}", Global.AttackingTeam)
+		);
 
-				//Map
-				Current Map,
+		Log To Inspector(
+		Custom String("[ROUND_START] Started Round {0} on Map {1} with Teams {2}",
+			//Round
+			Match Round,
 
-				//Teams 
-				Custom String("[Attacker: {0} , Defender: {1}]", 
-					//Team One
-					Custom String("{0} : {1}",
-						Global.AttackingTeam,
+			//Map
+			Current Map,
 
-						//Player List
-						Custom String("[{0}, {1}]",
-							Custom String("{0}, {1}, {2}", Players In Slot(0, Global.AttackingTeam), Players In Slot(1, Global.AttackingTeam), Players In Slot(2, Global.AttackingTeam)),
+			//Teams 
+			Custom String("[Attacker: {0} , Defender: {1}]", 
+				//Team One
+				Custom String("{0} : {1}",
+					Global.AttackingTeam,
 
-							Custom String("{0}, {1}, {2}", Players In Slot(3, Global.AttackingTeam), Players In Slot(4, Global.AttackingTeam), Players In Slot(5, Global.AttackingTeam)),
+					//Player List
+					Custom String("[{0}, {1}]",
+						Custom String("{0}, {1}, {2}", Players In Slot(0, Global.AttackingTeam), Players In Slot(1, Global.AttackingTeam), Players In Slot(2, Global.AttackingTeam)),
 
-							Null 
-						),
+						Custom String("{0}, {1}, {2}", Players In Slot(3, Global.AttackingTeam), Players In Slot(4, Global.AttackingTeam), Players In Slot(5, Global.AttackingTeam)),
 
-
-						Null
+						Null 
 					),
 
-					Custom String("{0} : {1}",
-						Global.DefendingTeam,
-
-						//Player List
-						Custom String("[{0}, {1}]",
-							Custom String("{0}, {1}, {2}", Players In Slot(0, Global.DefendingTeam), Players In Slot(1, Global.DefendingTeam), Players In Slot(2, Global.DefendingTeam)),
-
-							Custom String("{0}, {1}, {2}", Players In Slot(3, Global.DefendingTeam), Players In Slot(4, Global.DefendingTeam), Players In Slot(5, Global.DefendingTeam)),
-
-							Null 
-						),
-
-
-						Null
-					),
-
-					//Team Two
 
 					Null
-				)
-			
-			
+				),
+
+				Custom String("{0} : {1}",
+					Global.DefendingTeam,
+
+					//Player List
+					Custom String("[{0}, {1}]",
+						Custom String("{0}, {1}, {2}", Players In Slot(0, Global.DefendingTeam), Players In Slot(1, Global.DefendingTeam), Players In Slot(2, Global.DefendingTeam)),
+
+						Custom String("{0}, {1}, {2}", Players In Slot(3, Global.DefendingTeam), Players In Slot(4, Global.DefendingTeam), Players In Slot(5, Global.DefendingTeam)),
+
+						Null 
+					),
+
+
+					Null
+				),
+
+				//Team Two
+
+				Null
 			)
-		);
+		
+		
+		)
+	);
 
 	}
 }
@@ -905,14 +910,14 @@ rule("Dva mech loss"){
 **/
 
 //Check to see which team is on which side
-rule("Check for Attack/Defense | Team 1"){
+rule("[ALL] Check for Attack/Defense | Team 1"){
 	event{
 		Ongoing - Global;
 	}
 
 	conditions{
-		Is In Setup                 == True;
-		Global.AttackingTeam        == Null;
+		Is In Setup == True;
+		OR(Global.AttackingTeam == Null, Global.UpdateTeamsNeedSide == True) == True;
 		Is Team on Offense(Team(Team 1))  == True;
 	}
 
@@ -920,18 +925,20 @@ rule("Check for Attack/Defense | Team 1"){
 	actions{
 		Global.AttackingTeam = Team(Team 1);
 		Global.DefendingTeam = Team(Team 2);
+		Global.UpdateTeamsNeedSide = False;
+
 	}
 
 }
 
-rule("Check for Attack/Defense | Team 2"){
+rule("[ALL] Check for Attack/Defense | Team 2"){
 	event{
 		Ongoing - Global;
 	}
 
 	conditions{
-		Is In Setup                 == True;
-		Global.AttackingTeam        == Null;
+		Is In Setup == True;
+		OR(Global.AttackingTeam == Null, Global.UpdateTeamsNeedSide == True) == True;
 		Is Team On Offense(Team(Team 2))  == True;
 	}
 
@@ -939,9 +946,66 @@ rule("Check for Attack/Defense | Team 2"){
 	actions{
 		Global.AttackingTeam = Team(Team 2);
 		Global.DefendingTeam = Team(Team 1);
+		Global.UpdateTeamsNeedSide = False;
 	}
 
 }
+
+//Just for consistencies sake Team 1 is attack in control
+rule("[CONTROL] Manually set Attack/Defense"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is In Setup == True;
+		Current Game Mode == Game Mode(Control);
+		Global.UpdateTeamsNeedSide == True;
+
+	}
+
+
+	actions{
+		Global.AttackingTeam = Team(Team 1);
+		Global.DefendingTeam = Team(Team 2);
+		Global.UpdateTeamsNeedSide = False;
+	}
+
+}
+
+//If teams swap during setup change the variables
+rule("[All] Check for change in teams"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Team On Offense(Global.AttackingTeam) != True;
+	}
+
+
+	actions{
+		Global.UpdateTeamsNeedSide = True;
+	}
+
+}
+
+rule("[CONTROL] Check for change in teams"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Global.AttackingTeam != Team(Team 1);
+	}
+
+
+	actions{
+		Global.UpdateTeamsNeedSide = True;
+	}
+
+}
+
 
 
 //CONTROL
