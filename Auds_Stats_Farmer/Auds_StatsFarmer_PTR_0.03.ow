@@ -18,6 +18,7 @@ settings{
 		{
 			enabled maps
 			{
+				Hanamura
 			}
 		}
 
@@ -27,7 +28,6 @@ settings{
 
 			enabled maps
 			{
-				Busan
 			}
 		}
 
@@ -284,10 +284,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		Abort();
 
 		//If on any other type that contains attacker and defender log out those teams
-		Log To Inspector(
-			Custom String("Help me pls {0}", Global.AttackingTeam)
-		);
-
 		Log To Inspector(
 		Custom String("[ROUND_START] Started Round {0} on Map {1} with Teams {2}",
 			//Round
@@ -1010,7 +1006,7 @@ rule("[CONTROL] Check for change in teams"){
 
 //CONTROL
 //When someone else takes the point
-rule("Point Flop"){
+rule("Control | Point Flop"){
 	event{
 		Ongoing - Global;
 	}
@@ -1122,6 +1118,57 @@ rule("Hybrid | Payload Gains"){
 	}
 }
 
+//2CP | Point
+rule("2CP | Point Capture Progress"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Current Game Mode   == Game Mode(Assault);
+		//Objective Index     == 0;
+
+		//At ticks, log
+		OR(
+			AND(33 < Point Capture Percentage, Point Capture Percentage < 35),
+
+			OR(
+				AND(66 < Point Capture Percentage, Point Capture Percentage < 67),
+				Global.CaptureProgress == 100
+			)
+
+		) == True;
+	}
+
+	actions{
+		Log To Inspector(
+			Custom String("[EARNED_TICK] Team {0} now has {1} controlled on Point {2}", Global.AttackingTeam, Point Capture Percentage, (Objective Index + 1))
+		);
+	}
+}
+
+
+//Escort | Payload
+rule("Escort | Payload Gains"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress    == True;
+		Current Game Mode      == Game Mode(Escort);
+		Global.CaptureProgress != Objective Index;
+	}
+
+	actions{
+		//TODO LOG WHAT TEAM WON THE POINT
+		Log To Inspector(
+			Custom String("[WON_POINT] TEAM {0} WON POINT {1}", Global.AttackingTeam, Objective Index, Null)
+		);
+		Global.CaptureProgress = Objective Index; 
+	}
+}
 
 
 
