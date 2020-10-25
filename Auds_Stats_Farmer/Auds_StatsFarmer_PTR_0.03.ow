@@ -27,6 +27,7 @@ settings{
 
 			enabled maps
 			{
+				Busan
 			}
 		}
 
@@ -34,7 +35,6 @@ settings{
 		{
 			enabled maps
 			{
-				Dorado
 			}
 		}
 
@@ -52,6 +52,15 @@ settings{
 			Kill Cam: Off
 			Limit Roles: 2 Of Each Role Per Team
 			Skins: Off
+		}
+	}
+
+	
+	heroes
+	{
+		General
+		{
+			Spawn With Ultimate Ready: On
 		}
 	}
 }
@@ -139,6 +148,8 @@ variables
 		22: DcTeam
 		23: UltChargeLoop
 		24: UltChargeTable
+		25: WhoControlsPoint
+		26: CaptureProgress
 		//25: Positions
 		//26: PositionCount
 
@@ -176,9 +187,9 @@ rule("Game in Progress: Remove HUD, Reset variables")
 	{
         //Log to Inspector
         Log to Inspector(Custom String("[ROUND_START] Started Round: {0} on Map: {1}", Current Map, Match Round));
-
 		
 		//Edit Globals
+		Global.WhoControlsPoint = Control Mode Scoring Team;
 		Global.Team1Ready = False;
 		Global.Team2Ready = False;
 
@@ -229,11 +240,11 @@ rule("Game not in progress: Tell log game done"){
 * Statistics Collection
 *	The code below allows us to pull data from the game and log it
 *	We track: 
-*       - Damage (Seita)
-*       - Healing (Seita)
-*       - Final Blows (Us)
-*       - Ults (Seita and Us)
-*       - Suicides (us)
+*       - Damage              (Seita)
+*       - Healing             (Seita)
+*       - Final Blows         (Us)
+*       - Ults                (Seita and Us)
+*       - Suicides            (us)
 *       - Environmental Kills (Us)
 **/
 //Tracks Damages
@@ -456,8 +467,10 @@ rule("D.va Used Bomb | D.va Remeched")
 
 	actions
 	{
+		Log To Inspector(Custom String("Max HP: {0}", Max Health of Type(Event Player, Health), Null, Null));
+
 		//If Max HP was 600, they just started to bomb
-		Skip If(Event Player.MaxHP < 500, 5);
+		Skip If(Event Player.MaxHP < 200, 5);
 			Log to Inspector(
 				Custom String("[DVA BOMBED] {0}",
 					Custom String(
@@ -472,7 +485,7 @@ rule("D.va Used Bomb | D.va Remeched")
 			);
 
 			//Update HP
-			Event Player.MaxHP = Max Health(Event Player);
+			Event Player.MaxHP = Max Health of Type(Event Player, Health);
 
 			//Update Stats
 			Event Player.UltsUsed += 1;
@@ -481,12 +494,12 @@ rule("D.va Used Bomb | D.va Remeched")
 			Abort();
 
 
-        //If Max Hp was below 500, it's a remech
+        //If Max Hp was below 200, it's a remech
 		Skip(1);
 
 			//Abort if remech failed
 			Wait(2.500, Ignore Condition);
-			Abort If(Max Health(Event Player) < 500);
+			Abort If(Max Health of Type(Event Player, Health)< 200);
 
 			//Log out remech
 			Log to Inspector(
@@ -502,7 +515,7 @@ rule("D.va Used Bomb | D.va Remeched")
 			);
 
 			//Update HP
-			Event Player.MaxHP = Max Health(Event Player);
+			Event Player.MaxHP = Max Health of Type(Event Player, Health);
 
 			//Update stats
 			Event Player.UltsUsed += 1;
@@ -653,7 +666,7 @@ rule("Hero Swicthes"){
         //Save new hero, changed as before it was =0 so obv did not work
         Event Player.H = Hero of(Event Player);
 
-		Event Player.MaxHP = Max Health(Event Player);
+		Event Player.MaxHP = Max Health of Type(Event Player, Health);
 
     }
 }
@@ -730,7 +743,7 @@ rule("Dva mech loss"){
 		Is Alive(Event Player) == True;
 
 		//If Last Max HP was not what your hp was 
-		Event Player.MaxHP != Max Health(Event Player);
+		Event Player.MaxHP !=  Max Health of Type(Event Player, Health);
 		
     }
 
@@ -740,7 +753,7 @@ rule("Dva mech loss"){
 		* If their new max hp is LESS than 500, that means
 		* They've been demeched and are now baby d.va
 		**/
-		Abort If(Max Health(Event Player) > 500);
+		Abort If(Max Health of Type(Event Player, Health) > 200);
 
 		//Log Demech
 		Log To Inspector(
@@ -752,12 +765,72 @@ rule("Dva mech loss"){
 		);
 
 		//Set the new max hp
-		Event Player.MaxHP = Max Health(Event Player);
+		Event Player.MaxHP =  Max Health of Type(Event Player, Health);
 
 	}
 
 }
 
+/**
+* Logging Game Data
+*     Below are functions designed to log out 
+*     information about the current game, for 
+*     example how much the payload has been 
+*     moved, or how much point has been captured 
+*     or even when the point has been flipped
+**/
+//When someone else takes the point
+rule("Point Flop"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Global.WhoControlsPoint != Control Mode Scoring Team;
+		Is Control Mode Point Locked != True;
+	}
+
+	actions{
+		//Log who took the point
+		Log To Inspector(
+			Custom String("[POINT FLIP] Team {0} has taken the point at {1}%", Control Mode Scoring Team, Control Mode Scoring Percentage(Control Mode Scoring Team), Null)
+		);
+
+		//Save who took point
+		Global.WhoControlsPoint = Control Mode Scoring Team;
+		Global.CaptureProgress  = Control Mode Scoring Percentage(Control Mode Scoring Team);
+	}
+
+}
+
+//Log updates in percentage
+rule("Update Percentage Increase"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Global.WhoControlsPoint != Team(All);
+
+		//If the difference between last capture progress save and current capture progress is more than 5%
+		(Control Mode Scoring Percentage(Control Mode Scoring Team) - Global.CaptureProgress) > 10;
+
+	}
+
+	actions{
+		//Log update
+		Log To Inspector(
+			Custom String("[POINT Update] Team {0} is now at {1}% control", Control Mode Scoring Team, Control Mode Scoring Percentage(Control Mode Scoring Team), Null)
+		);
+
+		//Save new progress
+		Global.CaptureProgress  = Control Mode Scoring Percentage(Control Mode Scoring Team);
+
+	}
+
+}
 
 
 /**
