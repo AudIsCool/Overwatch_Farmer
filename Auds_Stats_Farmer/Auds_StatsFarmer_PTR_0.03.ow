@@ -889,7 +889,7 @@ rule("Hybrid | Payload Gains"){
 	actions{
 		//TODO LOG WHAT TEAM WON THE POINT
 		Log To Inspector(
-			Custom String("[WON_POINT] TEAM {0} WON POINT {1}", Team , Null, Null)
+			Custom String("[WON_POINT] TEAM {0} WON POINT {1}", Null, Null, Null)
 		);
 		Global.CaptureProgress = Objective Index; 
 	}
