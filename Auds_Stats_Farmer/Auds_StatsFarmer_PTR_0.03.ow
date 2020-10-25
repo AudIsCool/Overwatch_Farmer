@@ -284,7 +284,8 @@ rule("Damage Done & Taken")
 	}
 }
 
-//Tracks Healing, does not count for passive health regen
+//Tracks Healing
+//All hp gain count as healing except: temporary life (brig ult, lucio ult, sigma shift, doompassive, torb e), shields (blue life) self regen, healthpack if not hacked, payload healing, tracer recall
 rule("Healing Done")
 {
 	event
