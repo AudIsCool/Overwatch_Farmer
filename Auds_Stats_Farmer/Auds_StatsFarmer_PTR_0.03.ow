@@ -163,6 +163,8 @@ variables
 		6: RezTarget
 		7: MaxHP
 		8: H
+		9: HealingReceived
+		10: HealingSelf
 }
 
 
@@ -295,14 +297,15 @@ rule("Healing Done")
 	conditions
 	{
 		Is Game In Progress == True;
-		//Might be worth to differentiate in the future self healing
 	}
 
 	actions
 	{
     	//Update Internal
 		Event Player.HealingDone += Event Healing;
-		//Definitely would add healing received, probably would have to change structure of internal data
+		Healee.HealingReceived += Event Healing;
+		Skip if(Event Player == Healee, 1);
+		Event Player.HealingSelf += Event Healing;
 		
 		//Update Log
 		/**
@@ -311,7 +314,6 @@ rule("Healing Done")
         		Custom String("{0} ({1})", Healee, Hero of(Healee), Null),
         		Event Healing));
         **/
-		
 	}
 }
 
