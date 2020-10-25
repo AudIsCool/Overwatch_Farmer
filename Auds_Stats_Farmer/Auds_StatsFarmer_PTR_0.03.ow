@@ -150,6 +150,8 @@ variables
 		4: DamageTaken
 		5: HeroList
 		6: RezTarget
+		7: MaxHP
+		8: H
 }
 
 
@@ -436,7 +438,7 @@ rule("Echo Dup Ult Used"){
 }
 
 //TODO: Fix Baby vs Mech D.va
-rule("Ults used dva")
+rule("D.va Used Bomb | D.va Remeched")
 {
 	event
 	{
@@ -449,19 +451,61 @@ rule("Ults used dva")
 	{
 		Is Game In Progress == True;
 		Is Using Ultimate(Event Player) == True;
+		Hero Of(Event Player) == Hero(D.va);
 	}
 
 	actions
 	{
-        //log
-        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Null,
-        		Null));
+		//If Max HP was 600, they just started to bomb
+		Skip If(Event Player.MaxHP < 500, 5);
+			Log to Inspector(
+				Custom String("[DVA BOMBED] {0}",
+					Custom String(
+						"{0} ({1}, {2})", 
+						Event Player, 
+						Hero of(Event Player), 
+						Team of(Event Player)
+					),
+					Null,
+					Null
+				)
+			);
 
-        //gotta remove this wait i guess, should be made not to count remech
-		Wait(2.500, Abort When False);
-		Event Player.UltsUsed += 1;
+			//Update HP
+			Event Player.MaxHP = Max Health(Event Player);
+
+			//Update Stats
+			Event Player.UltsUsed += 1;
+			
+			//Exit so the following code isn't ran
+			Abort();
+
+
+        //If Max Hp was below 500, it's a remech
+		Skip(1);
+
+			//Abort if remech failed
+			Wait(2.500, Ignore Condition);
+			Abort If(Max Health(Event Player) < 500);
+
+			//Log out remech
+			Log to Inspector(
+				Custom String("[DVA REMECH] {0}",
+					Custom String("{0} ({1}, {2})", 
+						Event Player,
+						Hero of(Event Player),
+						Team of(Event Player)
+					),
+					Null,
+					Null
+				)
+			);
+
+			//Update HP
+			Event Player.MaxHP = Max Health(Event Player);
+
+			//Update stats
+			Event Player.UltsUsed += 1;
 	}
 }
 
@@ -609,6 +653,8 @@ rule("Hero Swicthes"){
         //Save new hero, changed as before it was =0 so obv did not work
         Event Player.H = Hero of(Event Player);
 
+		Event Player.MaxHP = Max Health(Event Player);
+
     }
 }
 
@@ -668,27 +714,50 @@ rule("Log Player Pos"){
 }
 **/
 
-
-
-
-
-
-
-//Track Dva demech, to do
-/**
+//Track Dva demech
 rule("Dva mech loss"){
     event {
-        Ongoing - Each Player;
+        Player Took Damage;
         All;
         All;
     }
     
     conditions{
-        Hero of(Event Player)== Hero(Dva);
+		//If you're on D.va
+        Hero of(Event Player)== Hero(D.va);
+
+		//If you're alive
+		Is Alive(Event Player) == True;
+
+		//If Last Max HP was not what your hp was 
+		Event Player.MaxHP != Max Health(Event Player);
+		
     }
-    
-    }
-**/
+
+
+	actions{
+		/**
+		* If their new max hp is LESS than 500, that means
+		* They've been demeched and are now baby d.va
+		**/
+		Abort If(Max Health(Event Player) > 500);
+
+		//Log Demech
+		Log To Inspector(
+			Custom String("[DEMECH] Player {0} was demeched by {1} {2} ", 
+				Custom String("({0}, {1})", Team Of(Event Player), Event Player, Null), 
+				Custom String("({0}, {1})", Team Of(Attacker), Hero Of(Attacker), Null), 
+				Event Ability
+			)
+		);
+
+		//Set the new max hp
+		Event Player.MaxHP = Max Health(Event Player);
+
+	}
+
+}
+
 
 
 /**
