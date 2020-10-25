@@ -190,6 +190,8 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		
 		//Edit Globals
 		Global.WhoControlsPoint = Control Mode Scoring Team;
+		Global.CaptureProgress = Objective Position(Objective Index);
+
 		Global.Team1Ready = False;
 		Global.Team2Ready = False;
 
@@ -779,6 +781,8 @@ rule("Dva mech loss"){
 *     moved, or how much point has been captured 
 *     or even when the point has been flipped
 **/
+
+//CONTROL
 //When someone else takes the point
 rule("Point Flop"){
 	event{
@@ -806,7 +810,7 @@ rule("Point Flop"){
 }
 
 //Log updates in percentage
-rule("Update Percentage Increase"){
+rule("Control | Update Percentage Increase"){
 	event{
 		Ongoing - Global;
 	}
@@ -833,6 +837,65 @@ rule("Update Percentage Increase"){
 	}
 
 }
+
+//HYBRID | Control
+rule("Hybrid | Track Tick Gains"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Game Mode(Hybrid)   == True;
+		Objective Index     == 0;
+
+		//At ticks, log
+		OR(
+			AND(33 < Point Capture Percentage, Point Capture Percentage < 35),
+
+			OR(
+				AND(66 < Point Capture Percentage, Point Capture Percentage < 67),
+				Global.CaptureProgress == 100
+			)
+
+		) == True;
+		
+	}
+
+	actions{
+		//If in control
+		//TODO LOG WHAT TEAM EARNED A TICK
+		Log To Inspector(
+			Custom String("[EARNED_TICK] Percent Controlled {0}", Point Capture Percentage, Null, Null)
+		);
+			
+
+	}
+}
+
+//HYBRID | Payload
+rule("Hybrid | Payload Gains"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Game Mode(Hybrid)   == True;
+		Objective Index     >= 1;
+		Global.CaptureProgress != Objective Index;
+	}
+
+	actions{
+		//TODO LOG WHAT TEAM WON THE POINT
+		Log To Inspector(
+			Custom String("[WON_POINT] TEAM {0} WON POINT {1}", Team , Null, Null)
+		);
+		Global.CaptureProgress = Objective Index; 
+	}
+}
+
+
 
 
 /**
