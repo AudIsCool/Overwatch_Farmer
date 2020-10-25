@@ -150,6 +150,8 @@ variables
 		24: UltChargeTable
 		25: WhoControlsPoint
 		26: CaptureProgress
+		27: AttackingTeam
+		28: DefendingTeam
 		//25: Positions
 		//26: PositionCount
 
@@ -236,6 +238,11 @@ rule("Game not in progress: Tell log game done"){
     actions{
 		//Global.Positions = Array();
         Log To Inspector(Custom String("[Round_End]", Null, Null, Null));
+
+		//Setup Game Info
+		Global.AttackingTeam = Null;
+		Global.DefendingTeam = Null;
+
     }
 }
 
@@ -784,6 +791,46 @@ rule("Dva mech loss"){
 *     moved, or how much point has been captured 
 *     or even when the point has been flipped
 **/
+
+//Check to see which team is on which side
+rule("Check for Attack/Defense | Team 1"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is In Setup                 == True;
+		Global.AttackingTeam        == Null;
+		Is Team on Offense(Team(Team 1))  == True;
+	}
+
+
+	actions{
+		Global.AttackingTeam = Team(Team 1);
+		Global.DefendingTeam = Team(Team 2);
+	}
+
+}
+
+rule("Check for Attack/Defense | Team 2"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is In Setup                 == True;
+		Global.AttackingTeam        == Null;
+		Is Team On Offense(Team(Team 2))  == True;
+	}
+
+
+	actions{
+		Global.AttackingTeam = Team(Team 2);
+		Global.DefendingTeam = Team(Team 1);
+	}
+
+}
+
 
 //CONTROL
 //When someone else takes the point
