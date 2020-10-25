@@ -1118,6 +1118,7 @@ rule("Hybrid | Payload Gains"){
 	}
 }
 
+//2CP | Point
 rule("2CP | Point Capture Progress"){
 	event{
 		Ongoing - Global;
@@ -1148,6 +1149,26 @@ rule("2CP | Point Capture Progress"){
 }
 
 
+//Escort | Payload
+rule("Escort | Payload Gains"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress    == True;
+		Current Game Mode      == Game Mode(Escort);
+		Global.CaptureProgress != Objective Index;
+	}
+
+	actions{
+		//TODO LOG WHAT TEAM WON THE POINT
+		Log To Inspector(
+			Custom String("[WON_POINT] TEAM {0} WON POINT {1}", Global.AttackingTeam, Objective Index, Null)
+		);
+		Global.CaptureProgress = Objective Index; 
+	}
+}
 
 
 
