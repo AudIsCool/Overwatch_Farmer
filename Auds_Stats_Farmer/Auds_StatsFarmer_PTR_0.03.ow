@@ -189,9 +189,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 	actions
 	{
-        //Log to Inspector
-        Log to Inspector(Custom String("[ROUND_START] Started Round: {0} on Map: {1}", Current Map, Match Round));
-		
 		//Edit Globals
 		Global.WhoControlsPoint = Control Mode Scoring Team;
 		Global.CaptureProgress = Objective Position(Objective Index);
@@ -222,6 +219,121 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		Destroy HUD Text(Global.HelpHud[8]);
 		Destroy HUD Text(Global.HelpHud[9]);
 		Destroy HUD Text(Global.HelpHud[10]);
+
+
+		//Wait to make sure everyone's in lobby
+		wait(2.500, Ignore Condition);
+
+		//If On Control don't log out the attacker and defender, just log teams
+		Skip If(Current Game Mode == Game Mode(Control), 2);
+		Log To Inspector(
+			Custom String("[ROUND_START] Started Round {0} on Map {1} with Teams {2}",
+				//Round
+				Match Round,
+
+				//Map
+				Current Map,
+
+				//Teams 
+				Custom String("[{0} , {1}]", 
+					//Team One
+					Custom String("{0} : {1}",
+						Team(Team 1),
+
+						//Player List
+						Custom String("[{0}, {1}]",
+							Custom String("{0}, {1}, {2}", Players In Slot(0, Team 1), Players In Slot(1, Team 1), Players In Slot(2, Team 1)),
+
+							Custom String("{0}, {1}, {2}", Players In Slot(3, Team 1), Players In Slot(4, Team 1), Players In Slot(5, Team 1)),
+
+							Null 
+						),
+
+
+						Null
+					),
+
+					Custom String("{0} : {1}",
+						Team(Team 2),
+
+						//Player List
+						Custom String("[{0}, {1}]",
+							Custom String("{0}, {1}, {2}", Players In Slot(0, Team 2), Players In Slot(1, Team 2), Players In Slot(2, Team 2)),
+
+							Custom String("{0}, {1}, {2}", Players In Slot(3, Team 2), Players In Slot(4, Team 2), Players In Slot(5, Team 2)),
+
+							Null 
+						),
+
+
+						Null
+					),
+
+					//Team Two
+
+					Null
+				)
+			
+			
+			)
+		);
+
+		//Exit so the second log doesn't fire
+		Abort();
+
+		//If on any other type that contains attacker and defender log out those teams
+		Skip(1);
+			Log To Inspector(
+			Custom String("[ROUND_START] Started Round {0} on Map {1} with Teams {2}",
+				//Round
+				Match Round,
+
+				//Map
+				Current Map,
+
+				//Teams 
+				Custom String("[Attacker: {0} , Defender: {1}]", 
+					//Team One
+					Custom String("{0} : {1}",
+						Global.AttackingTeam,
+
+						//Player List
+						Custom String("[{0}, {1}]",
+							Custom String("{0}, {1}, {2}", Players In Slot(0, Global.AttackingTeam), Players In Slot(1, Global.AttackingTeam), Players In Slot(2, Global.AttackingTeam)),
+
+							Custom String("{0}, {1}, {2}", Players In Slot(3, Global.AttackingTeam), Players In Slot(4, Global.AttackingTeam), Players In Slot(5, Global.AttackingTeam)),
+
+							Null 
+						),
+
+
+						Null
+					),
+
+					Custom String("{0} : {1}",
+						Global.DefendingTeam,
+
+						//Player List
+						Custom String("[{0}, {1}]",
+							Custom String("{0}, {1}, {2}", Players In Slot(0, Global.DefendingTeam), Players In Slot(1, Global.DefendingTeam), Players In Slot(2, Global.DefendingTeam)),
+
+							Custom String("{0}, {1}, {2}", Players In Slot(3, Global.DefendingTeam), Players In Slot(4, Global.DefendingTeam), Players In Slot(5, Global.DefendingTeam)),
+
+							Null 
+						),
+
+
+						Null
+					),
+
+					//Team Two
+
+					Null
+				)
+			
+			
+			)
+		);
 
 	}
 }
@@ -2023,8 +2135,8 @@ rule("Help HUD at the start of the game")
 		Global.HelpHud[10] = Last Text ID;
 
         /**
-        * Barrier Texts?
-        *    Ask SEITA!!!!
+        * Barrier Texts
+        *    Barrier texts for sure lmao
         **/ 
         Create HUD Text(All Players(All Teams), Null, Custom String(" "), Null, Right, 20, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
         Global.HelpHud[0] = Last Text ID;
