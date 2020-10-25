@@ -802,7 +802,8 @@ rule("Point Flop"){
 	actions{
 		//Log who took the point
 		Log To Inspector(
-			Custom String("[POINT FLIP] Team {0} has taken the point at {1}%", Control Mode Scoring Team, Control Mode Scoring Percentage(Control Mode Scoring Team), Null)
+			Custom String("[POINT FLIP] {0} has taken the point, currently: {1} (vs:{2})", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team),Down), Round to integer(Control Mode Scoring Percentage(Opposite Team of(Control Mode Scoring Team)), Down)
+			)
 		);
 
 		//Save who took point
@@ -823,15 +824,16 @@ rule("Control | Update Percentage Increase"){
 		Is Game In Progress == True;
 		Global.WhoControlsPoint != Team(All);
 
-		//If the difference between last capture progress save and current capture progress is more than 5%
-		(Control Mode Scoring Percentage(Control Mode Scoring Team) - Global.CaptureProgress) > 10;
+		Modulo(Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team),Down),10)== 0;
+		//Alternative methond: If the difference between last capture progress save and current capture progress is more than 10%
+		//(Control Mode Scoring Percentage(Control Mode Scoring Team) - Global.CaptureProgress) > 2;
 
 	}
 
 	actions{
 		//Log update
 		Log To Inspector(
-			Custom String("[POINT Update] Team {0} is now at {1}% control", Control Mode Scoring Team, Control Mode Scoring Percentage(Control Mode Scoring Team), Null)
+			Custom String("[POINT Update] {0} is now at {1}% control", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team), Down), Null)
 		);
 
 		//Save new progress
@@ -849,7 +851,7 @@ rule("Hybrid | Track Tick Gains"){
 
 	conditions{
 		Is Game In Progress == True;
-		Game Mode(Hybrid)   == True;
+		Current Game Mode == Game Mode(Hybrid);
 		Objective Index     == 0;
 
 		//At ticks, log
@@ -884,7 +886,7 @@ rule("Hybrid | Payload Gains"){
 
 	conditions{
 		Is Game In Progress == True;
-		Game Mode(Hybrid)   == True;
+		Current Game Mode == Game Mode(Hybrid);
 		Objective Index     >= 1;
 		Global.CaptureProgress != Objective Index;
 	}
