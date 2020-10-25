@@ -27,7 +27,6 @@ settings{
 
 			enabled maps
 			{
-				Busan
 			}
 		}
 
@@ -42,6 +41,7 @@ settings{
 		{
 			enabled maps
 			{
+				King's Row
 			}
 		}
 
@@ -236,7 +236,7 @@ rule("Game not in progress: Tell log game done"){
 }
 
 
-/**
+/**	
 * Statistics Collection
 *	The code below allows us to pull data from the game and log it
 *	We track: 
@@ -787,6 +787,7 @@ rule("Point Flop"){
 
 	conditions{
 		Is Game In Progress == True;
+		Current Game Mode == Game Mode(Control);
 		Global.WhoControlsPoint != Control Mode Scoring Team;
 		Is Control Mode Point Locked != True;
 	}
@@ -811,6 +812,7 @@ rule("Update Percentage Increase"){
 	}
 
 	conditions{
+		Current Game Mode == Game Mode(Control);
 		Is Game In Progress == True;
 		Global.WhoControlsPoint != Team(All);
 
