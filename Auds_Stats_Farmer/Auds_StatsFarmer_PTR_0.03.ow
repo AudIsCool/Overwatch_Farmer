@@ -339,26 +339,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 	}
 }
 
-rule("Game not in progress: Tell log game done"){
-    event{
-		Ongoing - Global;
-	}
-
-	conditions{
-		Is Game In Progress != True;
-	}
-
-    actions{
-		//Global.Positions = Array();
-        Log To Inspector(Custom String("[Round_End]", Null, Null, Null));
-
-		//Setup Game Info
-		Global.AttackingTeam = Null;
-		Global.DefendingTeam = Null;
-
-    }
-}
-
 
 /**	
 * Statistics Collection
@@ -1177,6 +1157,45 @@ rule("Escort | Payload Gains"){
 		);
 		Global.CaptureProgress = Objective Index; 
 	}
+}
+
+rule("Round Score not control"){
+    event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress != True;
+		Current Game Mode   != Game Mode(Control);
+	}
+
+    actions{
+        
+		//Global.Positions = Array();
+        Log To Inspector(Custom String("[SCORE] {0} SCORED {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
+
+    }
+}
+
+rule("Game not in progress: Tell log game done"){
+    event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress != True;
+	}
+
+    actions{
+        
+		//Global.Positions = Array();
+        Log To Inspector(Custom String("[Round_End]", Null, Null, Null));
+
+		//Setup Game Info
+		Global.AttackingTeam = Null;
+		Global.DefendingTeam = Null;
+
+    }
 }
 
 
