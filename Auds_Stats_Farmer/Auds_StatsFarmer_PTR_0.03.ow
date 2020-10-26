@@ -1071,7 +1071,6 @@ rule("Hybrid | Track Tick Gains"){
 	conditions{
 		Is Game In Progress   == True;
 		Current Game Mode     == Game Mode(Hybrid);
-		Objective Index       == 0;
 
 		//At ticks, log
 		OR(
@@ -1102,14 +1101,13 @@ rule("Hybrid | Payload Gains"){
 	conditions{
 		Is Game In Progress == True;
 		Current Game Mode == Game Mode(Hybrid);
-		Objective Index     >= 1;
-		Global.CaptureProgress != Objective Index;
+		Is objective complete (Global.CaptureProgress)==True;
 	}
 
 	actions{
 		//TODO LOG WHAT TEAM WON THE POINT
 		Log To Inspector(
-			Custom String("[WON_POINT] {0} CAPTURED POINT {1}", Global.AttackingTeam, Objective Index, Null)
+			Custom String("[WON_POINT] {0} CAPTURED POINT {1}", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
 		);
 		Global.CaptureProgress = Objective Index; 
 	}
@@ -1124,7 +1122,6 @@ rule("2CP | Point Capture Progress"){
 	conditions{
 		Is Game In Progress == True;
 		Current Game Mode   == Game Mode(Assault);
-		//Objective Index   == 0;
 
 		//At ticks, log
 		OR(
