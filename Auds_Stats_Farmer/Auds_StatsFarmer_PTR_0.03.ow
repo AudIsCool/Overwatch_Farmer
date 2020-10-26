@@ -1021,7 +1021,7 @@ rule("Control | Point Flop"){
 	actions{
 		//Log who took the point
 		Log To Inspector(
-			Custom String("[POINT FLIP] {0} has taken the point, currently: {1} (vs:{2})", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team),Down), Round to integer(Control Mode Scoring Percentage(Opposite Team of(Control Mode Scoring Team)), Down)
+			Custom String("[POINT_FLIP] {0} has taken the point, currently: {1}% (vs:{2}%)", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team),Down), Round to integer(Control Mode Scoring Percentage(Opposite Team of(Control Mode Scoring Team)), Down)
 			)
 		);
 
@@ -1052,7 +1052,7 @@ rule("Control | Update Percentage Increase"){
 	actions{
 		//Log update
 		Log To Inspector(
-			Custom String("[POINT Update] {0} is now at {1}% control", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team), Down), Null)
+			Custom String("[POINT_UPDATE] {0} captured {1}%", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team), Down), Null)
 		);
 
 		//Save new progress
@@ -1069,28 +1069,24 @@ rule("Hybrid | Track Tick Gains"){
 	}
 
 	conditions{
-		Is Game In Progress == True;
-		Current Game Mode == Game Mode(Hybrid);
-		Objective Index     == 0;
+		Is Game In Progress   == True;
+		Current Game Mode     == Game Mode(Hybrid);
 
 		//At ticks, log
 		OR(
-			AND(33 < Point Capture Percentage, Point Capture Percentage < 35),
+			AND(33.333 < Point Capture Percentage, Point Capture Percentage < 35),
 
-			OR(
-				AND(66 < Point Capture Percentage, Point Capture Percentage < 67),
-				Global.CaptureProgress == 100
-			)
+			AND(66.666 < Point Capture Percentage, Point Capture Percentage < 68)
 
 		) == True;
-		
+
 	}
 
 	actions{
 		//If in control
 		//TODO LOG WHAT TEAM EARNED A TICK
 		Log To Inspector(
-			Custom String("[EARNED_TICK] Team {0} Percent Controlled {1}", Global.AttackingTeam, Point Capture Percentage, Null)
+			Custom String("[EARNED_TICK] {0} captured {1}%", Global.AttackingTeam, Round to integer(Point Capture Percentage,Down), Null)
 		);
 		
 	}
@@ -1105,14 +1101,13 @@ rule("Hybrid | Payload Gains"){
 	conditions{
 		Is Game In Progress == True;
 		Current Game Mode == Game Mode(Hybrid);
-		Objective Index     >= 1;
-		Global.CaptureProgress != Objective Index;
+		Is objective complete (Global.CaptureProgress)==True;
 	}
 
 	actions{
 		//TODO LOG WHAT TEAM WON THE POINT
 		Log To Inspector(
-			Custom String("[WON_POINT] TEAM {0} WON POINT {1}", Global.AttackingTeam, Objective Index, Null)
+			Custom String("[WON_POINT] {0} CAPTURED POINT {1}", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
 		);
 		Global.CaptureProgress = Objective Index; 
 	}
@@ -1127,24 +1122,39 @@ rule("2CP | Point Capture Progress"){
 	conditions{
 		Is Game In Progress == True;
 		Current Game Mode   == Game Mode(Assault);
-		//Objective Index     == 0;
 
 		//At ticks, log
 		OR(
-			AND(33 < Point Capture Percentage, Point Capture Percentage < 35),
+			AND(33.333 < Point Capture Percentage, Point Capture Percentage < 35),
 
-			OR(
-				AND(66 < Point Capture Percentage, Point Capture Percentage < 67),
-				Global.CaptureProgress == 100
-			)
+			AND(66.666 < Point Capture Percentage, Point Capture Percentage < 68)
 
 		) == True;
 	}
 
 	actions{
 		Log To Inspector(
-			Custom String("[EARNED_TICK] Team {0} now has {1} controlled on Point {2}", Global.AttackingTeam, Point Capture Percentage, (Objective Index + 1))
+			Custom String("[EARNED_TICK] {0} captured {1}% of Point {2}", Global.AttackingTeam, Round to integer (Point Capture Percentage, Down), (Objective Index + 1))
 		);
+	}
+}
+
+rule("2CP | Point Capture"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Current Game Mode   == Game Mode(Assault);
+		Is objective complete (Global.CaptureProgress)==True;
+	}
+
+	actions{
+		Log To Inspector(
+			Custom String("[WON_POINT] {0} CAPTURED POINT {2}", Global.AttackingTeam, Round to integer (Point Capture Percentage, Down), (Global.CaptureProgress + 1))
+		);
+		Global.CaptureProgress = Objective Index;		
 	}
 }
 
@@ -1158,13 +1168,12 @@ rule("Escort | Payload Gains"){
 	conditions{
 		Is Game In Progress    == True;
 		Current Game Mode      == Game Mode(Escort);
-		Global.CaptureProgress != Objective Index;
+		Is objective complete (Global.CaptureProgress)==True;
 	}
 
 	actions{
-		//TODO LOG WHAT TEAM WON THE POINT
 		Log To Inspector(
-			Custom String("[WON_POINT] TEAM {0} WON POINT {1}", Global.AttackingTeam, Objective Index, Null)
+			Custom String("[WON_POINT] {0} CAPTURED POINT {1}", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
 		);
 		Global.CaptureProgress = Objective Index; 
 	}
@@ -1256,11 +1265,6 @@ rule("Set Team Score: Escort & Hybrid")
 	}
 }
 
-
-/**
-* Game Mode Check
-*	Check to see what game mode we're on and update the score accordingly
-**/
 rule("Set Team Score: Assault")
 {
 	event
@@ -1280,6 +1284,11 @@ rule("Set Team Score: Assault")
 		Global.ScoreModified = 1;
 	}
 }
+
+/**
+* Game Mode Check
+*	Check to see what game mode we're on and update the score accordingly
+**/
 
 rule("Game Mode check: Escort")
 {
