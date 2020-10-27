@@ -1170,6 +1170,8 @@ rule("Round Score not control"){
 	}
 
     actions{
+        //don't do this at game beginning
+        skip if (total time elapsed < 5, 1);
         
 		//Global.Positions = Array();
         Log To Inspector(Custom String("[SCORE] {0} SCORED {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
@@ -1187,6 +1189,8 @@ rule("Game not in progress: Tell log game done"){
 	}
 
     actions{
+        //don't do this at game beginning
+        skip if (total time elapsed < 5, 3);
         
 		//Global.Positions = Array();
         Log To Inspector(Custom String("[Round_End]", Null, Null, Null));
