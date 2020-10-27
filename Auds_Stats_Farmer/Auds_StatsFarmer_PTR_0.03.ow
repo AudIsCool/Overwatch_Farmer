@@ -230,9 +230,9 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		//If On Control don't log out the attacker and defender, just log teams
 		Skip If(Current Game Mode != Game Mode(Control), 2);
 		Log To Inspector(
-			Custom String("[ROUND_START] Started Round {0} on Map {1} with Teams {2}",
-				//Round
-				Match Round,
+			Custom String("[ROUND_START] Started Round{0} on Map {1} with Teams {2}",
+				//We are not showing round number anymore
+				Null,
 
 				//Map
 				Current Map,
@@ -256,6 +256,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 						Null
 					),
 
+					//Team Two
 					Custom String("{0} : {1}",
 						Global.DefendingTeam,
 
@@ -272,8 +273,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 						Null
 					),
 
-					//Team Two
-
 					Null
 				)
 			
@@ -286,12 +285,12 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 		//If on any other type that contains attacker and defender log out those teams
 		Log To Inspector(
-		Custom String("[ROUND_START] Started Round {0} on Map {1} with Teams {2}",
-			//Round
-			Match Round,
-
+		Custom String("[ROUND_START] Started Round on Map {0} Stage {1} with Teams {2}",
 			//Map
 			Current Map,
+
+			//Stage
+			Objective Index,
 
 			//Teams 
 			Custom String("[Attacker: {0} , Defender: {1}]", 
@@ -308,10 +307,9 @@ rule("Game in Progress: Remove HUD, Reset variables")
 						Null 
 					),
 
-
 					Null
 				),
-
+				//Team Two
 				Custom String("{0} : {1}",
 					Global.DefendingTeam,
 
@@ -327,8 +325,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 					Null
 				),
-
-				//Team Two
 
 				Null
 			)
