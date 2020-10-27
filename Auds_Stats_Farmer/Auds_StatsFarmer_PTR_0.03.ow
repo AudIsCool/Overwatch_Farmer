@@ -153,6 +153,7 @@ variables
 		27: AttackingTeam
 		28: DefendingTeam
 		29: UpdateTeamsNeedSide
+		30: Fight
 		//25: Positions
 		//26: PositionCount
 
@@ -339,7 +340,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 	}
 }
 
-
 /**	
 * Statistics Collection
 *	The code below allows us to pull data from the game and log it
@@ -372,6 +372,8 @@ rule("Damage Done & Taken")
         //Update Internal
 		Event Player.DamageDone += Event Damage;
 		Victim.DamageTaken += Event Damage;
+		//When someone deals damage variable fight is initiated
+		Global.Fight=0;
 
         //Update Log
 		/**
@@ -381,6 +383,67 @@ rule("Damage Done & Taken")
         		Event Damage));
         **/
 
+	}
+}
+
+//Brings variable fight to a value of 1 in 5 seconds after its initiation
+rule("Chase fight variable")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.Fight==0;
+	}
+
+	actions
+	{
+		Chase global variable over time(Fight, 1, 5, None);
+	}
+}
+
+//Tracks start of Fights
+rule("Fight start")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.Fight!=1;
+	}
+
+	actions
+	{
+        //don't do this at game beginning
+        skip if (total time elapsed < 10, 1);
+		Log to Inspector(Custom String("[FIGHT_START]"));
+	}
+}
+
+//Tracks End of Fights
+rule("Fight end")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		OR(Global.Fight==1, Is Game In Progress!=True)==True;
+	}
+
+	actions
+	{
+        //don't do this at game beginning
+        skip if (total time elapsed < 10, 1);
+		Log to Inspector(Custom String("[FIGHT_END]"));
 	}
 }
 
@@ -1193,7 +1256,7 @@ rule("Game not in progress: Tell log game done"){
         skip if (total time elapsed < 5, 3);
         
 		//Global.Positions = Array();
-        Log To Inspector(Custom String("[Round_End]", Null, Null, Null));
+        Log To Inspector(Custom String("[ROUND_END]", Null, Null, Null));
 
 		//Setup Game Info
 		Global.AttackingTeam = Null;
