@@ -153,6 +153,7 @@ variables
 		27: AttackingTeam
 		28: DefendingTeam
 		29: UpdateTeamsNeedSide
+		30: Fight
 		//25: Positions
 		//26: PositionCount
 
@@ -229,12 +230,12 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		//If On Control don't log out the attacker and defender, just log teams
 		Skip If(Current Game Mode != Game Mode(Control), 2);
 		Log To Inspector(
-			Custom String("[ROUND_START] Started Round {0} on Map {1} with Teams {2}",
-				//Round
-				Match Round,
-
+			Custom String("[ROUND_START] Started Round on Map {0} Stage {1} with Teams {2}",
 				//Map
 				Current Map,
+
+				//Stage
+				Objective Index,
 
 				//Teams 
 				Custom String("[{0} , {1}]", 
@@ -255,6 +256,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 						Null
 					),
 
+					//Team Two
 					Custom String("{0} : {1}",
 						Global.DefendingTeam,
 
@@ -271,8 +273,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 						Null
 					),
 
-					//Team Two
-
 					Null
 				)
 			
@@ -285,12 +285,12 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 		//If on any other type that contains attacker and defender log out those teams
 		Log To Inspector(
-		Custom String("[ROUND_START] Started Round {0} on Map {1} with Teams {2}",
-			//Round
-			Match Round,
-
+		Custom String("[ROUND_START] Started Round on Map {0} with Teams {2}",
 			//Map
 			Current Map,
+
+			//Not tracking stage outside of Koth
+			Null,
 
 			//Teams 
 			Custom String("[Attacker: {0} , Defender: {1}]", 
@@ -307,10 +307,9 @@ rule("Game in Progress: Remove HUD, Reset variables")
 						Null 
 					),
 
-
 					Null
 				),
-
+				//Team Two
 				Custom String("{0} : {1}",
 					Global.DefendingTeam,
 
@@ -327,8 +326,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 					Null
 				),
 
-				//Team Two
-
 				Null
 			)
 		
@@ -338,7 +335,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 	}
 }
-
 
 /**	
 * Statistics Collection
@@ -372,6 +368,8 @@ rule("Damage Done & Taken")
         //Update Internal
 		Event Player.DamageDone += Event Damage;
 		Victim.DamageTaken += Event Damage;
+		//When someone deals damage variable fight is initiated
+		Global.Fight=0;
 
         //Update Log
 		/**
@@ -381,6 +379,67 @@ rule("Damage Done & Taken")
         		Event Damage));
         **/
 
+	}
+}
+
+//Brings variable fight to a value of 1 in 5 seconds after its initiation
+rule("Chase fight variable")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.Fight==0;
+	}
+
+	actions
+	{
+		Chase global variable over time(Fight, 1, 5, None);
+	}
+}
+
+//Tracks start of Fights
+rule("Fight start")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Global.Fight!=1;
+	}
+
+	actions
+	{
+        //don't do this at game beginning
+        skip if (total time elapsed < 10, 1);
+		Log to Inspector(Custom String("[FIGHT_START]"));
+	}
+}
+
+//Tracks End of Fights
+rule("Fight end")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		OR(Global.Fight==1, Is Game In Progress!=True)==True;
+	}
+
+	actions
+	{
+        //don't do this at game beginning
+        skip if (total time elapsed < 10, 1);
+		Log to Inspector(Custom String("[FIGHT_END]"));
 	}
 }
 
@@ -1170,6 +1229,8 @@ rule("Round Score not control"){
 	}
 
     actions{
+        //don't do this at game beginning
+        skip if (total time elapsed < 5, 1);
         
 		//Global.Positions = Array();
         Log To Inspector(Custom String("[SCORE] {0} SCORED {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
@@ -1187,9 +1248,11 @@ rule("Game not in progress: Tell log game done"){
 	}
 
     actions{
+        //don't do this at game beginning
+        skip if (total time elapsed < 5, 3);
         
 		//Global.Positions = Array();
-        Log To Inspector(Custom String("[Round_End]", Null, Null, Null));
+        Log To Inspector(Custom String("[ROUND_END]", Null, Null, Null));
 
 		//Setup Game Info
 		Global.AttackingTeam = Null;
