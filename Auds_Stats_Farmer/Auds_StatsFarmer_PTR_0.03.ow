@@ -392,22 +392,16 @@ rule("Damage Done & Taken")
         //Update Internal
 		Event Player.DamageDone += Event Damage;
 		Victim.DamageTaken += Event Damage;
+
 		//When someone deals damage variable fight is initiated
 		Global.Fight=0;
 
-        //Update Log
-		/**
-		Log to Inspector(Custom String("[PLAYER_DAMAGE] {0} damaged {1} for {2}",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Custom String("{0} ({1})", Victim, Hero of(Victim), Null),
-        		Event Damage));
-        **/
 
 	}
 }
 
 //Brings variable fight to a value of 1 in 5 seconds after its initiation
-rule("Chase fight variable")
+disable rule("Chase fight variable")
 {
 	event
 	{
@@ -426,7 +420,7 @@ rule("Chase fight variable")
 }
 
 //Tracks start of Fights
-rule("Fight start")
+disable rule("Fight start")
 {
 	event
 	{
@@ -447,7 +441,7 @@ rule("Fight start")
 }
 
 //Tracks End of Fights
-rule("Fight end")
+disable rule("Fight end")
 {
 	event
 	{
