@@ -2,51 +2,41 @@
 Live Settings - settings
 **/
 settings{
-	main
-	{
+	main{
 		Description: "Aud's Stats Farmer, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/OW_LobbyCodes/OW_SeitaStatsFarm. For updates on Seita's lobby go to https://twitter.com/Seita"
 	}
 
-	lobby
-	{
+	lobby{
 		Max Spectators: 12
 	}
 
-	modes
-	{
-		Assault
-		{
-			enabled maps
-			{
-				Hanamura
+	modes{
+		Assault{
+			enabled maps{
 			}
 		}
 
-		Control
-		{
+		Control{
 			Score To Win: 3
 
+			enabled maps{
+				Busan
+			}
+		}
+
+		Escort{
 			enabled maps
 			{
 			}
 		}
 
-		Escort
-		{
+		Hybrid{
 			enabled maps
 			{
 			}
 		}
 
-		Hybrid
-		{
-			enabled maps
-			{
-			}
-		}
-
-		General
-		{
+		General{
 			Competitive Rules: On
 			Game Mode Start: Immediately
 			Kill Cam: Off
@@ -56,10 +46,8 @@ settings{
 	}
 
 	
-	heroes
-	{
-		General
-		{
+	heroes{
+		General{
 			Spawn With Ultimate Ready: On
 		}
 	}
