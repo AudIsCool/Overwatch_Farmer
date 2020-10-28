@@ -389,7 +389,7 @@ rule("Damage Done & Taken")
 }
 
 //Brings variable fight to a value of 1 in 5 seconds after its initiation
-disable rule("Chase fight variable")
+disabled rule("Chase fight variable")
 {
 	event
 	{
@@ -408,7 +408,7 @@ disable rule("Chase fight variable")
 }
 
 //Tracks start of Fights
-disable rule("Fight start")
+disabled rule("Fight start")
 {
 	event
 	{
@@ -429,7 +429,7 @@ disable rule("Fight start")
 }
 
 //Tracks End of Fights
-disable rule("Fight end")
+disabled rule("Fight end")
 {
 	event
 	{
@@ -1224,7 +1224,7 @@ rule("Escort | Payload Gains"){
 	}
 }
 
-rule("Round Score not control"){
+rule("Report round Score not control"){
     event{
 		Ongoing - Global;
 	}
@@ -1236,13 +1236,13 @@ rule("Round Score not control"){
 
     actions{
         //don't do this at game beginning
-        skip if (total time elapsed < 5, 1);
+        abort if (total time elapsed < 5, 1);
         
-		//Global.Positions = Array();
-        Log To Inspector(Custom String("[SCORE] {0} SCORED {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
+		Log To Inspector(Custom String("[SCORE] {0} SCORED {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
 
     }
 }
+
 
 rule("Game not in progress: Tell log game done"){
     event{
