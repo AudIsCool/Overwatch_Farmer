@@ -655,8 +655,6 @@ rule("D.va Used Bomb | D.va Remeched")
 
 	actions
 	{
-		Log To Inspector(Custom String("Max HP: {0}", Max Health of Type(Event Player, Health), Null, Null));
-
 		//If Max HP was 600, they just started to bomb
 		Skip If(Event Player.MaxHP < 200, 5);
 			Log to Inspector(
