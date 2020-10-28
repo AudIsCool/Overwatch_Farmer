@@ -240,7 +240,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 				//Teams 
 				Custom String("[{0} , {1}]", 
 					//Team One
-					Custom String("{0} : {1} (2)",
+					Custom String("{0} : {1} {2}",
 						Global.AttackingTeam,
 
 						//Player List
@@ -259,13 +259,13 @@ rule("Game in Progress: Remove HUD, Reset variables")
 							Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Team 1)), Hero of(Players In Slot(4, Team 1)), Hero of(Players In Slot(5, Team 1))),
 
 							Null 
-						),
+						)
 
 
 					),
 
 					//Team Two
-					Custom String("{0} : {1} (2)",
+					Custom String("{0} : {1} {2}",
 						Global.DefendingTeam,
 
 						//Player List
@@ -284,7 +284,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 							Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Team 2)), Hero of(Players In Slot(4, Team 2)), Hero of(Players In Slot(5, Team 2))),
 
 							Null 
-						),
+						)
 					),
 
 					Null
@@ -309,7 +309,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 			//Teams 
 			Custom String("[Attacker: {0} , Defender: {1}]", 
 				//Team One
-				Custom String("{0} : {1} (2)",
+				Custom String("{0} : {1} {2}",
 					Global.AttackingTeam,
 
 					//Player List
@@ -323,13 +323,13 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 					//Hero List
 					Custom String("[{0}, {1}]",
-						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(0, Team Global.AttackingTeam)), Hero of(Players In Slot(1, Team Global.AttackingTeam)), Hero of(Players In Slot(2, Team Global.AttackingTeam))),
-						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Team Global.AttackingTeam)), Hero of(Players In Slot(4, Team Global.AttackingTeam)), Hero of(Players In Slot(5, Team Global.AttackingTeam))),
+						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(0, Global.AttackingTeam)), Hero of(Players In Slot(1, Global.AttackingTeam)), Hero of(Players In Slot(2, Global.AttackingTeam))),
+						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Global.AttackingTeam)), Hero of(Players In Slot(4, Global.AttackingTeam)), Hero of(Players In Slot(5, Global.AttackingTeam))),
 						Null 
-					),
+					)
 				),
 				//Team Two
-				Custom String("{0} : {1} (2)",
+				Custom String("{0} : {1} {2}",
 					Global.DefendingTeam,
 
 					//Player List
@@ -344,10 +344,10 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 					//Hero List
 					Custom String("[{0}, {1}]",
-						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(0, Team Global.DefendingTeam)), Hero of(Players In Slot(1, Team Global.DefendingTeam)), Hero of(Players In Slot(2, Team Global.DefendingTeam))),
-						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Team Global.DefendingTeam)), Hero of(Players In Slot(4, Team Global.DefendingTeam)), Hero of(Players In Slot(5, Team Global.DefendingTeam))),
+						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(0, Global.DefendingTeam)), Hero of(Players In Slot(1, Global.DefendingTeam)), Hero of(Players In Slot(2, Global.DefendingTeam))),
+						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Global.DefendingTeam)), Hero of(Players In Slot(4, Global.DefendingTeam)), Hero of(Players In Slot(5, Global.DefendingTeam))),
 						Null 
-					),
+					)
 				),
 
 				Null
