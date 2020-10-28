@@ -597,7 +597,7 @@ rule("Echo used ult during copy")
 	actions
 	{
         //Log Ult
-        Log to Inspector(Custom String("[ECHO_COPYING_ULT_USED] {0} used Ultimate (as {1})",
+        Log to Inspector(Custom String("[ECHO_ULTED_DURING_DUPLICATION] {0} used Ultimate (as {1})",
         		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Hero Being Duplicated(Event Player),
         		Null));
@@ -628,7 +628,7 @@ rule("Echo Dup Ult Used"){
 
 		Event Player.UltsUsed += 1;
 		//Log Dup Ult
-		Log to Inspector(Custom String("[ULT_USED] {0} used ultimate duplicating {1}",
+		Log to Inspector(Custom String("[ECHO_DUPLICATE] {0} used ultimate duplicating {1}",
         		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Hero Being Duplicated(Event Player),
         		Null));
