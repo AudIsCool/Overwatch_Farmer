@@ -20,7 +20,6 @@ settings{
 			Score To Win: 3
 
 			enabled maps{
-				Busan
 			}
 		}
 
@@ -33,6 +32,7 @@ settings{
 		Hybrid{
 			enabled maps
 			{
+				King's Row
 			}
 		}
 
@@ -1236,13 +1236,87 @@ rule("Report round Score not control"){
 
     actions{
         //don't do this at game beginning
-        abort if (total time elapsed < 5, 1);
+        abort if(total time elapsed < 5);
         
 		Log To Inspector(Custom String("[SCORE] {0} SCORED {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
 
     }
 }
 
+rule("Report round score control"){
+    event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress != True;
+		Current Game Mode   == Game Mode(Control);
+	}
+
+    actions{
+        //don't do this at game beginning
+        abort if (total time elapsed < 5);
+        
+		//Log out which team won
+		Skip If(Control Mode Scoring Percentage(Global.AttackingTeam) < Control Mode Scoring Percentage(Global.DefendingTeam), 2);
+
+		Log To Inspector(
+			Custom String("[ROUND_END_SCORE] {0} vs {1}",
+				//Winning Team
+				Custom String("Team {0} Won with a score of {1}",
+					Global.AttackingTeam,
+					
+					Control Mode Scoring Percentage(Global.AttackingTeam),
+
+					Null
+				),
+				
+				//Losing Team
+				Custom String("Team {0} Lost with a score of {1}",
+					Global.DefendingTeam,
+					
+					Control Mode Scoring Percentage(Global.DefendingTeam),
+
+					Null
+				),
+				
+				Null
+			
+			)
+		);
+
+		//Make sure the rest of the statement doesn't fire
+		Abort();
+
+		Log To Inspector(
+			Custom String("[ROUND_END_SCORE] {0} vs {1}",
+				//Winning Team
+				Custom String("Team {0} Won with a score of {1}",
+					Global.DefendingTeam,
+					
+					Control Mode Scoring Percentage(Global.DefendingTeam),
+
+					Null
+				),
+				
+				//Losing Team
+				Custom String("Team {0} Lost with a score of {1}",
+					Global.AttackingTeam,
+					
+					Control Mode Scoring Percentage(Global.AttackingTeam),
+
+					Null
+				),
+				
+				Null
+			
+			)
+		);
+
+
+
+    }
+}
 
 rule("Game not in progress: Tell log game done"){
     event{
