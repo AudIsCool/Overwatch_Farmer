@@ -1238,7 +1238,7 @@ rule("Report round Score not control"){
         //don't do this at game beginning
         abort if(total time elapsed < 5);
         
-		Log To Inspector(Custom String("[SCORE] {0} SCORED {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
+		Log To Inspector(Custom String("[SCORE_ALL] {0} SCORED {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
 
     }
 }
