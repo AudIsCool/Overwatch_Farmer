@@ -1,0 +1,134 @@
+[00:00:17] [ROUND_START] Started Round on Map Hanamura with Teams [Attacker: Team 2 : [Zenyatta, Lúcio, Roadhog, Zarya, Mei, McCree] [Zenyatta, Lúcio, Roadhog, Zarya, Mei, McCree] , Defender: Team 1 : [Ana, Zenyatta, Roadhog, Zarya, Mei, Bastion] [Ana, Zenyatta, Roadhog, Zarya, Mei, Bastion]]
+[00:00:34] [HERO_SWITCH] Aud (Team 1) switched to D.Va (was 0)
+[00:00:38] [FIGHT_START]
+[00:00:58] [PLAYER_KILL] Aud (D.Va, Team 1) killed Zenyatta (Zenyatta) using Primary Fire
+[00:01:01] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:01:09] [DVA REMECH] Aud (D.Va, Team 1)
+[00:01:10] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:01:13] [PLAYER_KILL] Aud (D.Va, Team 1) killed Roadhog (Roadhog) using Ultimate
+[00:01:14] [PLAYER_KILL] Bastion (Bastion, Team 1) killed McCree (McCree) using Primary Fire
+[00:01:17] [DVA REMECH] Aud (D.Va, Team 1)
+[00:01:17] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:01:18] [ENVIRNOMENTAL_KILL] Lúcio (Lúcio, Team 2) killed Mei (Mei) using Secondary Fire
+[00:01:21] [PLAYER_KILL] Aud (D.Va, Team 1) killed Mei (Mei) using Primary Fire
+[00:01:24] [DVA REMECH] Aud (D.Va, Team 1)
+[00:01:25] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:01:28] [ULT_USED] Zenyatta (Zenyatta, Team 2) used Ultimate
+[00:01:28] [PLAYER_KILL] Aud (D.Va, Team 1) killed Lúcio (Lúcio) using Ultimate
+[00:01:31] [DVA REMECH] Aud (D.Va, Team 1)
+[00:01:40] [PLAYER_KILL] Aud (D.Va, Team 1) killed Zarya (Zarya) using Primary Fire
+[00:01:41] [PLAYER_KILL] Aud (D.Va, Team 1) killed Zenyatta (Zenyatta) using Primary Fire
+[00:01:42] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:01:43] [ULT_USED] McCree (McCree, Team 2) used Ultimate
+[00:01:48] [DVA REMECH] Aud (D.Va, Team 1)
+[00:01:50] [ULT_USED] Roadhog (Roadhog, Team 2) used Ultimate
+[00:01:50] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:01:53] [PLAYER_KILL] Aud (D.Va, Team 1) killed Roadhog (Roadhog) using Ultimate
+[00:01:53] [ULT_USED] Lúcio (Lúcio, Team 2) used Ultimate
+[00:01:56] [DVA REMECH] Aud (D.Va, Team 1)
+[00:01:58] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:02:05] [PLAYER_KILL] Bastion (Bastion, Team 1) killed Lúcio (Lúcio) using Primary Fire
+[00:02:06] [DVA REMECH] Aud (D.Va, Team 1)
+[00:02:07] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:02:09] [ULT_USED] Zarya (Zarya, Team 2) used Ultimate
+[00:02:13] [DVA REMECH] Aud (D.Va, Team 1)
+[00:02:15] [ULT_USED] Bastion (Bastion, Team 1) used Ultimate
+[00:02:15] [ULT_USED] Mei (Mei, Team 2) used Ultimate
+[00:02:16] [ULT_USED] Zenyatta (Zenyatta, Team 2) used Ultimate
+[00:02:16] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:02:18] [ULT_USED] Mei (Mei, Team 1) used Ultimate
+[00:02:19] [PLAYER_KILL] Aud (D.Va, Team 1) killed McCree (McCree) using Ultimate
+[00:02:19] [PLAYER_KILL] Aud (D.Va, Team 1) killed Zarya (Zarya) using Ultimate
+[00:02:22] [ULT_USED] Roadhog (Roadhog, Team 2) used Ultimate
+[00:02:22] [DVA REMECH] Aud (D.Va, Team 1)
+[00:02:23] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:02:27] [PLAYER_KILL] Aud (D.Va, Team 1) killed Zenyatta (Zenyatta) using Primary Fire
+[00:02:30] [DVA REMECH] Aud (D.Va, Team 1)
+[00:02:32] [ULT_USED] Lúcio (Lúcio, Team 2) used Ultimate
+[00:02:33] [PLAYER_KILL] Aud (D.Va, Team 1) killed Mei (Mei) using Primary Fire
+[00:02:34] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:02:37] [PLAYER_KILL] Aud (D.Va, Team 1) killed Roadhog (Roadhog) using Ultimate
+[00:02:42] [DVA REMECH] Aud (D.Va, Team 1)
+[00:02:42] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:02:43] [PLAYER_KILL] Zarya (Zarya, Team 1) killed Lúcio (Lúcio) using Primary Fire
+[00:02:48] [DVA REMECH] Aud (D.Va, Team 1)
+[00:02:48] [FIGHT_END]
+[00:02:49] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:02:55] [FIGHT_START]
+[00:02:55] [DVA REMECH] Aud (D.Va, Team 1)
+[00:02:56] [ULT_USED] Zarya (Zarya, Team 2) used Ultimate
+[00:02:56] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:03:04] [ULT_USED] McCree (McCree, Team 2) used Ultimate
+[00:03:05] [PLAYER_KILL] Aud (D.Va, Team 1) killed Zarya (Zarya) using Primary Fire
+[00:03:07] [ULT_USED] Zenyatta (Zenyatta, Team 2) used Ultimate
+[00:03:08] [DVA REMECH] Aud (D.Va, Team 1)
+[00:03:08] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:03:11] [ULT_USED] Roadhog (Roadhog, Team 2) used Ultimate
+[00:03:11] [PLAYER_KILL] Aud (D.Va, Team 1) killed Mei (Mei) using Ultimate
+[00:03:11] [PLAYER_KILL] Aud (D.Va, Team 1) killed Roadhog (Roadhog) using Ultimate
+[00:03:12] [ULT_USED] Lúcio (Lúcio, Team 2) used Ultimate
+[00:03:13] [PLAYER_KILL] Zarya (Zarya, Team 1) killed McCree (McCree) using Primary Fire
+[00:03:15] [DVA REMECH] Aud (D.Va, Team 1)
+[00:03:22] [PLAYER_KILL] Aud (D.Va, Team 1) killed Zenyatta (Zenyatta) using Primary Fire
+[00:03:25] [PLAYER_KILL] Aud (D.Va, Team 1) killed Lúcio (Lúcio) using Melee
+[00:03:30] [FIGHT_END]
+[00:03:32] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:03:38] [DVA REMECH] Aud (D.Va, Team 1)
+[00:03:39] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:03:40] [ULT_USED] McCree (McCree, Team 2) used Ultimate
+[00:03:41] [FIGHT_START]
+[00:03:46] [ULT_USED] Zarya (Zarya, Team 2) used Ultimate
+[00:03:47] [DVA REMECH] Aud (D.Va, Team 1)
+[00:03:47] [DEMECH] Player (Team 1, Aud) was demeched by (Team 2, Mei) Secondary Fire 
+[00:03:50] [PLAYER_KILL] Aud (D.Va, Team 1) killed Zarya (Zarya) using Ultimate
+[00:03:54] [DVA REMECH] Aud (D.Va, Team 1)
+[00:03:55] [ULT_USED] Roadhog (Roadhog, Team 2) used Ultimate
+[00:03:55] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:04:01] [DVA REMECH] Aud (D.Va, Team 1)
+[00:04:01] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:04:07] [DVA REMECH] Aud (D.Va, Team 1)
+[00:04:07] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:04:09] [ULT_USED] Mei (Mei, Team 2) used Ultimate
+[00:04:09] [ULT_USED] Lúcio (Lúcio, Team 2) used Ultimate
+[00:04:10] [PLAYER_KILL] Aud (D.Va, Team 1) killed Zenyatta (Zenyatta) using Ultimate
+[00:04:12] [ULT_USED] Zenyatta (Zenyatta, Team 1) used Ultimate
+[00:04:19] [ULT_USED] Zarya (Zarya, Team 2) used Ultimate
+[00:04:20] [PLAYER_KILL] Aud (D.Va, Team 1) killed Lúcio (Lúcio) using Primary Fire
+[00:04:29] [PLAYER_KILL] Ana (Ana, Team 1) killed McCree (McCree) using Ability 2
+[00:04:38] [PLAYER_KILL] Aud (D.Va, Team 1) killed Zarya (Zarya) using Ultimate
+[00:04:38] [ULT_USED] Zenyatta (Zenyatta, Team 2) used Ultimate
+[00:04:40] [ULT_USED] Bastion (Bastion, Team 1) used Ultimate
+[00:04:40] [DVA REMECH] Aud (D.Va, Team 1)
+[00:04:40] [DVA BOMBED] Aud (D.Va, Team 1)
+[00:04:42] [ULT_USED] Ana (Ana, Team 1) used Ultimate
+[00:04:44] [FIGHT_END]
+[00:04:44] [SCORE] Team 2 SCORED 0
+[00:04:44] [ROUND_END]
+[00:05:13] [ROUND_START] Started Round on Map Hanamura with Teams [Attacker: Team 1 : [Ana, Zenyatta, Aud, Zarya, Mei, Bastion] [Ana, Zenyatta, Echo, Zarya, Mei, Bastion] , Defender: Team 2 : [Zenyatta, Lúcio, Roadhog, Zarya, Mei, McCree] [Zenyatta, Lúcio, Roadhog, Zarya, Mei, McCree]]
+[00:05:24] [FIGHT_START]
+[00:05:25] [ULT_USED] Aud (Echo, Team 1) used ultimate duplicating Zenyatta
+[00:05:47] [PLAYER_KILL] Aud (Echo, Team 1) killed Zenyatta (Zenyatta) using Secondary Fire
+[00:05:55] [PLAYER_KILL] Aud (Echo, Team 1) killed Zarya (Zarya) using Secondary Fire
+[00:06:11] [PLAYER_KILL] Aud (Echo, Team 1) killed McCree (McCree) using Primary Fire
+[00:06:15] [PLAYER_KILL] Aud (Echo, Team 1) killed Roadhog (Roadhog) using Ability 2
+[00:06:18] [EARNED_TICK] Team 1 captured 33% of Point 1
+[00:06:20] [FIGHT_END]
+[00:06:22] [FIGHT_START]
+[00:06:23] [EARNED_TICK] Team 1 captured 66% of Point 1
+[00:06:26] [PLAYER_KILL] Aud (Echo, Team 1) killed Lúcio (Lúcio) using Secondary Fire
+[00:06:30] [WON_POINT] Team 1 CAPTURED POINT 1
+[00:06:43] [ULT_USED] Aud (Echo, Team 1) used ultimate duplicating McCree
+[00:06:44] [ULT_USED] Zarya (Zarya, Team 2) used Ultimate
+[00:06:44] [ULT_USED] McCree (McCree, Team 2) used Ultimate
+[00:06:46] [ULT_USED] Lúcio (Lúcio, Team 2) used Ultimate
+[00:06:51] [ECHO_COPYING_ULT_USED] Aud (Echo, Team 1) used Ultimate (as McCree)
+[00:06:52] [ULT_USED] Roadhog (Roadhog, Team 2) used Ultimate
+[00:06:55] [PLAYER_KILL] Aud (Echo, Team 1) killed Roadhog (Roadhog) using Ultimate
+[00:06:55] [PLAYER_KILL] Aud (Echo, Team 1) killed McCree (McCree) using Ultimate
+[00:07:00] [EARNED_TICK] Team 1 captured 33% of Point 2
+[00:07:01] [ULT_USED] Zenyatta (Zenyatta, Team 2) used Ultimate
+[00:07:03] [EARNED_TICK] Team 1 captured 66% of Point 2
+[00:07:04] [PLAYER_KILL] Aud (Echo, Team 1) killed Zarya (Zarya) using Ability 2
+[00:07:07] [FIGHT_END]
+[00:07:07] [SCORE] Team 1 SCORED 2
+[00:07:07] [ROUND_END]
