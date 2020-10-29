@@ -218,7 +218,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		//If On Control don't log out the attacker and defender, just log teams
 		Skip If(Current Game Mode != Game Mode(Control), 2);
 		Log To Inspector(
-			Custom String("[ROUND_START] Started Round on Map {0} Stage {1} with Teams {2}",
+			Custom String("ROUND_START, {0}, {1}, {2}",
 				//Map
 				Current Map,
 
@@ -226,13 +226,13 @@ rule("Game in Progress: Remove HUD, Reset variables")
 				Objective Index,
 
 				//Teams 
-				Custom String("[{0} , {1}]", 
+				Custom String("{0}, {1}", 
 					//Team One
-					Custom String("{0} : {1} {2}",
+					Custom String("{0}, {1}, {2}",
 						Global.AttackingTeam,
 
 						//Player List
-						Custom String("[{0}, {1}]",
+						Custom String("{0}, {1}",
 							Custom String("{0}, {1}, {2}", Players In Slot(0, Team 1), Players In Slot(1, Team 1), Players In Slot(2, Team 1)),
 
 							Custom String("{0}, {1}, {2}", Players In Slot(3, Team 1), Players In Slot(4, Team 1), Players In Slot(5, Team 1)),
@@ -241,7 +241,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 						),
 
 						//Hero List
-						Custom String("[{0}, {1}]",
+						Custom String("{0}, {1}",
 							Custom String("{0}, {1}, {2}", Hero of(Players In Slot(0, Team 1)), Hero of(Players In Slot(1, Team 1)), Hero of(Players In Slot(2, Team 1))),
 
 							Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Team 1)), Hero of(Players In Slot(4, Team 1)), Hero of(Players In Slot(5, Team 1))),
@@ -253,11 +253,11 @@ rule("Game in Progress: Remove HUD, Reset variables")
 					),
 
 					//Team Two
-					Custom String("{0} : {1} {2}",
+					Custom String("{0}, {1}, {2}",
 						Global.DefendingTeam,
 
 						//Player List
-						Custom String("[{0}, {1}]",
+						Custom String("{0}, {1}",
 							Custom String("{0}, {1}, {2}", Players In Slot(0, Team 2), Players In Slot(1, Team 2), Players In Slot(2, Team 2)),
 
 							Custom String("{0}, {1}, {2}", Players In Slot(3, Team 2), Players In Slot(4, Team 2), Players In Slot(5, Team 2)),
@@ -266,7 +266,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 						),
 
 						//Hero List
-						Custom String("[{0}, {1}]",
+						Custom String("{0}, {1}",
 							Custom String("{0}, {1}, {2}", Hero of(Players In Slot(0, Team 2)), Hero of(Players In Slot(1, Team 2)), Hero of(Players In Slot(2, Team 2))),
 
 							Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Team 2)), Hero of(Players In Slot(4, Team 2)), Hero of(Players In Slot(5, Team 2))),
@@ -287,7 +287,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 		//If on any other type that contains attacker and defender log out those teams
 		Log To Inspector(
-		Custom String("[ROUND_START] Started Round on Map {0} with Teams {2}",
+		Custom String("ROUND_START, {0}, {2}",
 			//Map
 			Current Map,
 
@@ -295,9 +295,9 @@ rule("Game in Progress: Remove HUD, Reset variables")
 			Null,
 
 			//Teams 
-			Custom String("[Attacker: {0} , Defender: {1}]", 
+			Custom String("{0}, {1}", 
 				//Team One
-				Custom String("{0} : {1} {2}",
+				Custom String("{0}, {1}, {2}",
 					Global.AttackingTeam,
 
 					//Player List
@@ -317,7 +317,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 					)
 				),
 				//Team Two
-				Custom String("{0} : {1} {2}",
+				Custom String("{0}, {1}, {2}",
 					Global.DefendingTeam,
 
 					//Player List
@@ -424,7 +424,7 @@ disabled rule("Fight start")
 	{
         //don't do this at game beginning
         skip if (total time elapsed < 10, 1);
-		Log to Inspector(Custom String("[FIGHT_START]"));
+		Log to Inspector(Custom String("FIGHT_START"));
 	}
 }
 
@@ -445,7 +445,7 @@ disabled rule("Fight end")
 	{
         //don't do this at game beginning
         skip if (total time elapsed < 10, 1);
-		Log to Inspector(Custom String("[FIGHT_END]"));
+		Log to Inspector(Custom String("FIGHT_END"));
 	}
 }
 
@@ -519,7 +519,7 @@ rule("Track Rez"){
 
 
 		//Log out the target mercy is rezzing
-		Log To Inspector(Custom String("[RESURRECT] Team {0} Player {1} Rezzed {2}", Team Of(Event Player), Event Player, Event Player.RezTarget));
+		Log To Inspector(Custom String("RESURRECT, {0}, {1}, {2}", Team Of(Event Player), Event Player, Event Player.RezTarget));
 	}
 
 
@@ -551,8 +551,8 @@ rule("Ults used not echo or dva")
         Event Player.UltsUsed += 1;
 
         //log ult
-        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        Log to Inspector(Custom String("ULT_USED, {0}",
+        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Null,
         		Null));
 
@@ -579,8 +579,8 @@ rule("Echo used ult during copy")
 	actions
 	{
         //Log Ult
-        Log to Inspector(Custom String("[ECHO_ULTED_DURING_DUPLICATION] {0} used Ultimate (as {1})",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        Log to Inspector(Custom String("ECHO_ULTED_DURING_DUPLICATION, {0}, {1}",
+        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Hero Being Duplicated(Event Player),
         		Null));
         
@@ -610,8 +610,8 @@ rule("Echo Dup Ult Used"){
 
 		Event Player.UltsUsed += 1;
 		//Log Dup Ult
-		Log to Inspector(Custom String("[ECHO_DUPLICATE] {0} used ultimate duplicating {1}",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+		Log to Inspector(Custom String("ECHO_DUPLICATE, {0}, {1}",
+        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Hero Being Duplicated(Event Player),
         		Null));
 
@@ -640,9 +640,9 @@ rule("D.va Used Bomb | D.va Remeched")
 		//If Max HP was 600, they just started to bomb
 		Skip If(Event Player.MaxHP < 200, 5);
 			Log to Inspector(
-				Custom String("[DVA BOMBED] {0}",
+				Custom String("DVA BOMBED, {0}",
 					Custom String(
-						"{0} ({1}, {2})", 
+						"{0}, {1}, {2}", 
 						Event Player, 
 						Hero of(Event Player), 
 						Team of(Event Player)
@@ -671,8 +671,8 @@ rule("D.va Used Bomb | D.va Remeched")
 
 			//Log out remech
 			Log to Inspector(
-				Custom String("[DVA REMECH] {0}",
-					Custom String("{0} ({1}, {2})", 
+				Custom String("DVA REMECH, {0}",
+					Custom String("{0}, {1}, {2}", 
 						Event Player,
 						Hero of(Event Player),
 						Team of(Event Player)
@@ -707,9 +707,9 @@ rule("Kills | Normal"){
 	actions
 	{
 		//Log player kill
-		Log to Inspector(Custom String("[PLAYER_KILL] {0} killed {1} using {2}",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Custom String("{0} ({1})", Victim, Hero of(Victim), Null),
+		Log to Inspector(Custom String("PLAYER_KILL, {0}, {1}, {2}",
+        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0}, {1}", Victim, Hero of(Victim), Null),
         		Event Ability));
         		
 	}
@@ -731,9 +731,9 @@ rule("Kills | Environmental"){
 
     actions{
         //Log env kill
-        Log to Inspector(Custom String("[ENVIRNOMENTAL_KILL] {0} killed {1} using {2}",
-        		Custom String("{0} ({1}, {2})", Attacker, Hero of(Attacker), Team of(Attacker)),
-        		Custom String("{0} ({1})", Event Player, Hero of(Event Player), Null),
+        Log to Inspector(Custom String("ENVIRNOMENTAL_KILL, {0}, {1}, {2}",
+        		Custom String("{0}, {1}, {2}", Attacker, Hero of(Attacker), Team of(Attacker)),
+        		Custom String("{0}, {1}", Event Player, Hero of(Event Player), Null),
         		Event Ability));
 
     }
@@ -777,8 +777,8 @@ rule("Suicide | Off Cliff"){
 
     actions{
         //log suicide from fall
-        Log to Inspector(Custom String("[SUICIDE_ENVIRONMENTAL_DEATH] {0} fell from a high place",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        Log to Inspector(Custom String("SUICIDE_ENVIRONMENTAL_DEATH, {0}",
+        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Null,
         		Null));
 
@@ -803,8 +803,8 @@ rule("Suicide | Casually"){
 
     actions{
         //log suicide from self-damage
-        Log to Inspector(Custom String("[SUICIDE] {0} hurt itself in its confusion",
-        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        Log to Inspector(Custom String("SUICIDE, {0}",
+        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Null,
         		Null));
 
@@ -927,9 +927,9 @@ rule("Dva mech loss"){
 
 		//Log Demech
 		Log To Inspector(
-			Custom String("[DEMECH] Player {0} was demeched by {1} {2} ", 
-				Custom String("({0}, {1})", Team Of(Event Player), Event Player, Null), 
-				Custom String("({0}, {1})", Team Of(Attacker), Hero Of(Attacker), Null), 
+			Custom String("DEMECH, {0}, {1}, {2}", 
+				Custom String("{0}, {1}", Team Of(Event Player), Event Player, Null), 
+				Custom String("{0}, {1}", Team Of(Attacker), Hero Of(Attacker), Null), 
 				Event Ability
 			)
 		);
@@ -1066,7 +1066,7 @@ rule("Control | Point Flop"){
 	actions{
 		//Log who took the point
 		Log To Inspector(
-			Custom String("[POINT_FLIP] {0} has taken the point, currently: {1}% (vs:{2}%)", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team),Down), Round to integer(Control Mode Scoring Percentage(Opposite Team of(Control Mode Scoring Team)), Down)
+			Custom String("POINT_FLIP, {0}, {1}, {2}", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team),Down), Round to integer(Control Mode Scoring Percentage(Opposite Team of(Control Mode Scoring Team)), Down)
 			)
 		);
 
@@ -1097,7 +1097,7 @@ rule("Control | Update Percentage Increase"){
 	actions{
 		//Log update
 		Log To Inspector(
-			Custom String("[POINT_UPDATE] {0} captured {1}%", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team), Down), Null)
+			Custom String("POINT_UPDATE, {0}, {1}", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team), Down), Null)
 		);
 
 		//Save new progress
@@ -1131,7 +1131,7 @@ rule("Hybrid | Track Tick Gains"){
 		//If in control
 		//TODO LOG WHAT TEAM EARNED A TICK
 		Log To Inspector(
-			Custom String("[EARNED_TICK] {0} captured {1}%", Global.AttackingTeam, Round to integer(Point Capture Percentage,Down), Null)
+			Custom String("EARNED_TICK, {0}, {1}", Global.AttackingTeam, Round to integer(Point Capture Percentage,Down), Null)
 		);
 		
 	}
@@ -1152,7 +1152,7 @@ rule("Hybrid | Payload Gains"){
 	actions{
 		//TODO LOG WHAT TEAM WON THE POINT
 		Log To Inspector(
-			Custom String("[WON_POINT] {0} CAPTURED POINT {1}", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
+			Custom String("WON_POINT, {0}, {1}", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
 		);
 		Global.CaptureProgress = Objective Index; 
 	}
@@ -1179,7 +1179,7 @@ rule("2CP | Point Capture Progress"){
 
 	actions{
 		Log To Inspector(
-			Custom String("[EARNED_TICK] {0} captured {1}% of Point {2}", Global.AttackingTeam, Round to integer (Point Capture Percentage, Down), (Objective Index + 1))
+			Custom String("EARNED_TICK, {0}, {1}, {2}", Global.AttackingTeam, Round to integer (Point Capture Percentage, Down), (Objective Index + 1))
 		);
 	}
 }
@@ -1197,7 +1197,7 @@ rule("2CP | Point Capture"){
 
 	actions{
 		Log To Inspector(
-			Custom String("[WON_POINT] {0} CAPTURED POINT {2}", Global.AttackingTeam, Round to integer (Point Capture Percentage, Down), (Global.CaptureProgress + 1))
+			Custom String("WON_POINT, {0}, {1}, {2}", Global.AttackingTeam, Round to integer (Point Capture Percentage, Down), (Global.CaptureProgress + 1))
 		);
 		Global.CaptureProgress = Objective Index;		
 	}
@@ -1218,7 +1218,7 @@ rule("Escort | Payload Gains"){
 
 	actions{
 		Log To Inspector(
-			Custom String("[WON_POINT] {0} CAPTURED POINT {1}", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
+			Custom String("WON_POINT, {0}, {1}", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
 		);
 		Global.CaptureProgress = Objective Index; 
 	}
@@ -1238,7 +1238,7 @@ rule("Report round Score not control"){
         //don't do this at game beginning
         abort if(total time elapsed < 5);
         
-		Log To Inspector(Custom String("[SCORE_ALL] {0} SCORED {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
+		Log To Inspector(Custom String("SCORE_ALL, {0}, SCORED, {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
 
     }
 }
@@ -1261,9 +1261,9 @@ rule("Report round score control"){
 		Skip If(Control Mode Scoring Percentage(Global.AttackingTeam) < Control Mode Scoring Percentage(Global.DefendingTeam), 2);
 
 		Log To Inspector(
-			Custom String("[ROUND_END_SCORE] {0} vs {1}",
+			Custom String("ROUND_END_SCORE, {0}, {1}",
 				//Winning Team
-				Custom String("Team {0} Won with a score of {1}",
+				Custom String("{0}, {1}",
 					Global.AttackingTeam,
 					
 					Control Mode Scoring Percentage(Global.AttackingTeam),
@@ -1272,7 +1272,7 @@ rule("Report round score control"){
 				),
 				
 				//Losing Team
-				Custom String("Team {0} Lost with a score of {1}",
+				Custom String("{0}, {1}",
 					Global.DefendingTeam,
 					
 					Control Mode Scoring Percentage(Global.DefendingTeam),
@@ -1289,9 +1289,9 @@ rule("Report round score control"){
 		Abort();
 
 		Log To Inspector(
-			Custom String("[ROUND_END_SCORE] {0} vs {1}",
+			Custom String("ROUND_END_SCORE, {0}, {1}",
 				//Winning Team
-				Custom String("Team {0} Won with a score of {1}",
+				Custom String("{0}, {1}",
 					Global.DefendingTeam,
 					
 					Control Mode Scoring Percentage(Global.DefendingTeam),
@@ -1300,7 +1300,7 @@ rule("Report round score control"){
 				),
 				
 				//Losing Team
-				Custom String("Team {0} Lost with a score of {1}",
+				Custom String("{0}, {1}",
 					Global.AttackingTeam,
 					
 					Control Mode Scoring Percentage(Global.AttackingTeam),
@@ -1332,7 +1332,7 @@ rule("Game not in progress: Tell log game done"){
         skip if (total time elapsed < 5, 3);
         
 		//Global.Positions = Array();
-        Log To Inspector(Custom String("[ROUND_END]", Null, Null, Null));
+        Log To Inspector(Custom String("ROUND_END", Null, Null, Null));
 
 		//Setup Game Info
 		Global.AttackingTeam = Null;
