@@ -216,7 +216,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		wait(2.500, Ignore Condition);
 
 		//Log out what version we're on 
-		Log To Inspector(Custom String("[VERSION] We're on version [0.0.1]", Null, Null, Null))
+		Log To Inspector(Custom String("[VERSION] We're on version [0.0.1]", Null, Null, Null));
 
 		//If On Control don't log out the attacker and defender, just log teams
 		Skip If(Current Game Mode != Game Mode(Control), 2);
