@@ -3,7 +3,7 @@ Live Settings - settings
 **/
 settings{
 	main{
-		Description: "Aud's Stats Farmer, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/OW_LobbyCodes/OW_SeitaStatsFarm. For updates on Seita's lobby go to https://twitter.com/Seita"
+		Description: "Aud's Stats Farmer V0.0.2, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/OW_LobbyCodes/OW_SeitaStatsFarm. For updates on Seita's lobby go to https://twitter.com/Seita"
 	}
 
 	lobby{
@@ -45,12 +45,7 @@ settings{
 		}
 	}
 
-	
-	heroes{
-		General{
-			Spawn With Ultimate Ready: On
-		}
-	}
+
 }
 
 
@@ -214,6 +209,11 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 		//Wait to make sure everyone's in lobby
 		wait(2.500, Ignore Condition);
+
+
+		Log To Inspector(
+			Custom String("[VERSION] Running on version [0.0.2]")	
+		);
 
 		//If On Control don't log out the attacker and defender, just log teams
 		Skip If(Current Game Mode != Game Mode(Control), 2);
@@ -2020,7 +2020,7 @@ rule("Remove Assembling Heroes")
 	{
 		Set Match Time(0);
 		Wait(5, Ignore Condition);
-		Set Match Time(10);
+		Set Match Time(30);
 	}
 }
 
@@ -2397,7 +2397,7 @@ rule("Help HUD at the start of the game")
         **/
 
         //Ready Intro Text
-        Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Ready (or cancel Ready)", Null, Input Binding String(Button(Interact)), Input Binding String(Button(Crouch))), Null, Right, 22, Color(White), Color(Aqua), Color(White), Visible To and String, Default Visibility);
+        Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Ready (or cancel Ready)", Input Binding String(Button(Interact)), Input Binding String(Button(Crouch)), Null), Null, Right, 22, Color(White), Color(Aqua), Color(White), Visible To and String, Default Visibility);
 		Global.HelpHud[2] = Last Text ID;
 
         //Add Seconds
