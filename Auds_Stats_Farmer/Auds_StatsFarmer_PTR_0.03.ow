@@ -45,12 +45,6 @@ settings{
 		}
 	}
 
-	
-	heroes{
-		General{
-			Spawn With Ultimate Ready: On
-		}
-	}
 }
 
 
@@ -2023,7 +2017,7 @@ rule("Remove Assembling Heroes")
 	{
 		Set Match Time(0);
 		Wait(5, Ignore Condition);
-		Set Match Time(10);
+		Set Match Time(30);
 	}
 }
 
@@ -2400,7 +2394,7 @@ rule("Help HUD at the start of the game")
         **/
 
         //Ready Intro Text
-        Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Ready (or cancel Ready)", Null, Input Binding String(Button(Interact)), Input Binding String(Button(Crouch))), Null, Right, 22, Color(White), Color(Aqua), Color(White), Visible To and String, Default Visibility);
+        Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Ready (or cancel Ready)", Input Binding String(Button(Interact)), Input Binding String(Button(Crouch)), Null), Null, Right, 22, Color(White), Color(Aqua), Color(White), Visible To and String, Default Visibility);
 		Global.HelpHud[2] = Last Text ID;
 
         //Add Seconds
