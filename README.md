@@ -21,7 +21,7 @@ The basic premis is to log `Events` to the inspector. That's it. We track these 
 
 <br>
 
-**Example**: How many `Final Blows` does `John` earn across all of our maps played where `Maps` == `Eichenwald`. We would find this data by looking at all of the `Final Blow` events logged by the inspector when `Map` == `Eichenwald`
+**Example**: How many `Final Blows` does `John` earn across all of our maps played where `Maps` equals `Eichenwald`. We would find this data by looking at all of the `Final Blow` events logged by the inspector when `Map` equals `Eichenwald`
 
 
 
