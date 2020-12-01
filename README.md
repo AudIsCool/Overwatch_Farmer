@@ -14,7 +14,7 @@ Special thanks to [Josh](https://twitter.com/Tschoschi90) and [Aplox](https://tw
 Aud's stats farmer is a lobby built off of Seita's Scrim Lobby preset. It's designed to provide your usual lobby functions, while also allowing admins to dump the stats to the Inspector. Basically the idea is to allow for people to get easier access to stats. 
 
 ### How it works
-If you navigate to `/Auds_Stats_Farmer/Auds_StatsFarmer_...` you'll see a file that contains the code to the lobby. (There may be multiple files with that name, some for PTR some for Live, some for different versions... The logic inside of these programs are relativly the same, the syntax is just differet as the PTR and Live can change in how the Workshop parses code.)
+If you navigate to `/Auds_StatsFarmer_LIVE_0.0.x.ow` you'll see a file that contains the code to the lobby. (There may be multiple files with that name, some for PTR some for Live, some for different versions... The logic inside of these programs are relativly the same, the syntax is just differet as the PTR and Live can change in how the Workshop parses code.)
 
 <br>
 The basic premis is to log `Events` to the inspector. That's it. We track these overtime to provide basically a play by play of what happened so we can do analysis of Overwatch play over certain perameters... 
@@ -22,6 +22,7 @@ The basic premis is to log `Events` to the inspector. That's it. We track these 
 <br>
 
 **Example**: How many `Final Blows` does `John` earn across all of our maps played where `Maps` == `Eichenwald`. We would find this data by looking at all of the `Final Blow` events logged by the inspector when `Map` == `Eichenwald`
+
 
 
 #### What are events????
@@ -33,4 +34,7 @@ Basically to run that lobby code, copy the text in that file and paste it into t
 
 <br>
 
-After that just enter your scrim / game and play it through... **ONCE YOU FINISH THAT MAP SET** Send the lobby back to lobby, and open up the `Workshop Inspector`, then click the `copy log to clip board` button. You can now save that log to a file, from which you can convert to CSV or whatever data type you want. (TODO: INSERT IMAGE OF THIS PROCCESS AS WELL)
+After that just enter your scrim / game and play it through... **ONCE YOU FINISH THAT MAP SET** Send the lobby back to lobby, and open up the `Workshop Inspector`, then click the `copy log to clip board` button. You can now save that log to a file, for your own personal parsation (if you're a programmer) or use the Insights conversion tool at https://pro-v2.lab.insights.gg
+
+<br>
+The Insights tool will allow you to not only convert the Event data into raw CSV, but will allow you to break the data into much managable fight based data, making your existence as a vile spreadsheet jockey easier :) 
