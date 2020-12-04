@@ -3,7 +3,7 @@ Live Settings - settings
 **/
 settings{
 	main{
-		Description: "Aud's Stats Farmer V0.0.2, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer. For updates on Seita's lobby go to https://twitter.com/Seita"
+		Description: "Aud's Stats Farmer V0.0.3, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer. For updates on Seita's lobby go to https://twitter.com/Seita"
 	}
 
 	lobby{
@@ -385,67 +385,6 @@ rule("Damage Done & Taken")
 		Global.Fight=0;
 
 
-	}
-}
-
-//Brings variable fight to a value of 1 in 5 seconds after its initiation
-disabled rule("Chase fight variable")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.Fight==0;
-	}
-
-	actions
-	{
-		Chase global variable over time(Fight, 1, 5, None);
-	}
-}
-
-//Tracks start of Fights
-disabled rule("Fight start")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.Fight!=1;
-	}
-
-	actions
-	{
-        //don't do this at game beginning
-        skip if (total time elapsed < 10, 1);
-		Log to Inspector(Custom String("[FIGHT_START]"));
-	}
-}
-
-//Tracks End of Fights
-disabled rule("Fight end")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		OR(Global.Fight==1, Is Game In Progress!=True)==True;
-	}
-
-	actions
-	{
-        //don't do this at game beginning
-        skip if (total time elapsed < 10, 1);
-		Log to Inspector(Custom String("[FIGHT_END]"));
 	}
 }
 
@@ -869,33 +808,6 @@ rule("Player position"){
         
     }
 }**/
-
-//Log out player pos
-/**
-rule("Log Player Pos"){
-	event{
-		Ongoing - Global;
-	}
-	conditions{
-		Is Game in Progress == True;
-		Count Of(Global.Positions) >= 992;
-		Global.PositionCount < 992;
-	}
-
-	actions{
-		//Loop through and find position
-		Log To Inspector(
-			Custom String("[{0}]{1}", Value In Array(Global.Positions, Global.PositionCount),  Custom String("{0}, {1}, {2}", Value In Array(Global.Positions, Global.PositionCount + 1), Value In Array(Global.Positions, Global.PositionCount + 2), Value In Array(Global.Positions,Global.PositionCount + 3)), Null)
-		);
-
-		Global.PositionCount += 4;
-
-		Loop If Condition Is True;
-
-	}
-
-}
-**/
 
 //Track Dva demech
 rule("Dva mech loss"){
@@ -2429,5 +2341,53 @@ rule("Help HUD at the start of the game")
 		Create HUD Text(Null, Null, Null, Custom String(" "), Right, 27, Color(White), Color(White), Color(White), Visible To and String, Visible Always);
 		Global.HelpHud[5] = Last Text ID;
 
+	}
+}
+
+
+
+/**
+* Handling for when players leave // join game
+**/
+rule("When a player leaves"){
+	event{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+	}
+
+
+	actions{
+		//Log out what player left
+		Log To Inspector(
+			Custom String("Player [{0}] on team [{1}] left the game", Event Player, Team of(Event Player), Null)
+		);
+	}
+}
+
+
+
+
+rule("When a player joins"){
+	event{
+		Player Joined Match;
+		All;
+		All;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+	}
+
+
+	actions{
+		//Log out what player left
+		Log To Inspector(
+			Custom String("Player [{0}] jonined team [{1}] ", Event Player, Team of(Event Player), Null)
+		);
 	}
 }
