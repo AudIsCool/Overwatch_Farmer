@@ -212,7 +212,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 
 		Log To Inspector(
-			Custom String("[VERSION] Running on version [0.0.2]")	
+			Custom String("[VERSION] Running on version [0.0.3]")	
 		);
 
 		//If On Control don't log out the attacker and defender, just log teams
