@@ -2362,9 +2362,53 @@ rule("When a player leaves"){
 
 
 	actions{
-		//Log out what player left
+		//Log out what players are left
 		Log To Inspector(
-			Custom String("[PLAYER_LEAVE] Player [{0}] on team [{1}] left the game", Event Player, Team of(Event Player), Null)
+				Custom String("[PLAYER_LEFT] Here's who's left: Attacker: {0} , Defender: {1}", 
+				//Team One
+				Custom String("[{0}] : {1} {2}",
+					Global.AttackingTeam,
+
+					//Player List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Global.AttackingTeam), Players In Slot(1, Global.AttackingTeam), Players In Slot(2, Global.AttackingTeam)),
+
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Global.AttackingTeam), Players In Slot(4, Global.AttackingTeam), Players In Slot(5, Global.AttackingTeam)),
+
+						Null 
+					),
+
+					//Hero List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Global.AttackingTeam)), Hero of(Players In Slot(1, Global.AttackingTeam)), Hero of(Players In Slot(2, Global.AttackingTeam))),
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Global.AttackingTeam)), Hero of(Players In Slot(4, Global.AttackingTeam)), Hero of(Players In Slot(5, Global.AttackingTeam))),
+						Null 
+					)
+				),
+				//Team Two
+				Custom String("[{0}] : {1} {2}",
+					Global.DefendingTeam,
+
+					//Player List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Global.DefendingTeam), Players In Slot(1, Global.DefendingTeam), Players In Slot(2, Global.DefendingTeam)),
+
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Global.DefendingTeam), Players In Slot(4, Global.DefendingTeam), Players In Slot(5, Global.DefendingTeam)),
+
+						Null 
+					),
+
+
+					//Hero List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Global.DefendingTeam)), Hero of(Players In Slot(1, Global.DefendingTeam)), Hero of(Players In Slot(2, Global.DefendingTeam))),
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Global.DefendingTeam)), Hero of(Players In Slot(4, Global.DefendingTeam)), Hero of(Players In Slot(5, Global.DefendingTeam))),
+						Null 
+					)
+				),
+
+				Null
+			)
 		);
 	}
 }
