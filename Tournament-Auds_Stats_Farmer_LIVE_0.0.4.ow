@@ -1,0 +1,1436 @@
+/**
+Live Settings - settings
+**/
+settings{
+	main{
+		Description: "Aud's Stats Farmer V0.0.4, created for official matches, it still collects stats but treats it like a normal comp game | To parse stats go to: https://pro-v2.lab.insights.gg/ | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer."
+	}
+
+	lobby{
+		Max Spectators: 12
+	}
+
+	modes{
+		Assault{
+			enabled maps{
+			}
+		}
+
+		Control{
+			Score To Win: 3
+
+			enabled maps{
+			}
+		}
+
+		Escort{
+			enabled maps
+			{
+			}
+		}
+
+		Hybrid{
+			enabled maps
+			{
+				King's Row
+			}
+		}
+
+		General{
+			Competitive Rules: On
+			Game Mode Start: Immediately
+			Kill Cam: Off
+			Limit Roles: 2 Of Each Role Per Team
+			Skins: Off
+		}
+	}
+
+
+}
+
+
+//Intro Variables that allow us to run the game
+variables{
+	global:
+		2: GameMode
+		23: UltChargeLoop
+		24: UltChargeTable
+		25: WhoControlsPoint
+		26: CaptureProgress
+		27: AttackingTeam
+		28: DefendingTeam
+		29: UpdateTeamsNeedSide
+		31: IsOvertime
+
+	player:
+		0: DamageDone
+		1: HealingDone
+		2: UltsUsed
+		3: Deaths
+		4: DamageTaken
+		5: HeroList
+		6: RezTarget
+		7: MaxHP
+		8: H
+		9: HealingReceived
+		10: HealingSelf
+		11: LastUltCharge
+}
+
+
+/**
+* Info Collection 
+*     The code below allows us to grab info about the game
+*     and reset internal values once the game starts
+**/
+rule("Game in Progress: Remove HUD, Reset variables")
+{
+	event
+	{
+		Ongoing - Global;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		//Edit Globals
+		Global.UpdateTeamsNeedSide = True;
+		Global.WhoControlsPoint = Control Mode Scoring Team;
+		Global.CaptureProgress = Objective Position(Objective Index);
+
+		//Wait to make sure everyone's in lobby
+		wait(2.500, Ignore Condition);
+
+
+		Log To Inspector(
+			Custom String("[VERSION] Running on version [0.0.4] [Scrim] version")	
+		);
+
+		//If On Control don't log out the attacker and defender, just log teams
+		Skip If(Current Game Mode != Game Mode(Control), 2);
+		Log To Inspector(
+			Custom String("[ROUND_START_CONTROL] Started Round on Map [{0}] Stage [{1}] with Teams {2}",
+				//Map
+				Current Map,
+
+				//Stage
+				Objective Index,
+
+				//Teams 
+				Custom String("{0} , {1}", 
+					//Team One
+					Custom String("[{0}] : {1} {2}",
+						Global.AttackingTeam,
+
+						//Player List
+						Custom String("{0}, {1}",
+							Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Team 1), Players In Slot(1, Team 1), Players In Slot(2, Team 1)),
+
+							Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Team 1), Players In Slot(4, Team 1), Players In Slot(5, Team 1)),
+
+							Null 
+						),
+
+						//Hero List
+						Custom String("{0}, {1}",
+							Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Team 1)), Hero of(Players In Slot(1, Team 1)), Hero of(Players In Slot(2, Team 1))),
+
+							Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Team 1)), Hero of(Players In Slot(4, Team 1)), Hero of(Players In Slot(5, Team 1))),
+
+							Null 
+						)
+
+
+					),
+
+					//Team Two
+					Custom String("[{0}] : {1} {2}",
+						Global.DefendingTeam,
+
+						//Player List
+						Custom String("{0}, {1}",
+							Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Team 2), Players In Slot(1, Team 2), Players In Slot(2, Team 2)),
+
+							Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Team 2), Players In Slot(4, Team 2), Players In Slot(5, Team 2)),
+
+							Null 
+						),
+
+						//Hero List
+						Custom String("{0}, {1}",
+							Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Team 2)), Hero of(Players In Slot(1, Team 2)), Hero of(Players In Slot(2, Team 2))),
+
+							Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Team 2)), Hero of(Players In Slot(4, Team 2)), Hero of(Players In Slot(5, Team 2))),
+
+							Null 
+						)
+					),
+
+					Custom String(" Map type is [{0}]", Current Game Mode, Null, Null)
+				)
+			
+			
+			)
+		);
+
+		//Exit so the second log doesn't fire
+		Abort();
+
+		//If on any other type that contains attacker and defender log out those teams
+		Log To Inspector(
+		Custom String("[ROUND_START_All] Started Round on Map [{0}] with Teams {2}",
+			//Map
+			Current Map,
+
+			//Not tracking stage outside of Koth
+			Null,
+
+			//Teams 
+			Custom String("Attacker: {0} , Defender: {1}", 
+				//Team One
+				Custom String("[{0}] : {1} {2}",
+					Global.AttackingTeam,
+
+					//Player List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Global.AttackingTeam), Players In Slot(1, Global.AttackingTeam), Players In Slot(2, Global.AttackingTeam)),
+
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Global.AttackingTeam), Players In Slot(4, Global.AttackingTeam), Players In Slot(5, Global.AttackingTeam)),
+
+						Null 
+					),
+
+					//Hero List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Global.AttackingTeam)), Hero of(Players In Slot(1, Global.AttackingTeam)), Hero of(Players In Slot(2, Global.AttackingTeam))),
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Global.AttackingTeam)), Hero of(Players In Slot(4, Global.AttackingTeam)), Hero of(Players In Slot(5, Global.AttackingTeam))),
+						Null 
+					)
+				),
+				//Team Two
+				Custom String("[{0}] : {1} {2}",
+					Global.DefendingTeam,
+
+					//Player List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Global.DefendingTeam), Players In Slot(1, Global.DefendingTeam), Players In Slot(2, Global.DefendingTeam)),
+
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Global.DefendingTeam), Players In Slot(4, Global.DefendingTeam), Players In Slot(5, Global.DefendingTeam)),
+
+						Null 
+					),
+
+
+					//Hero List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Global.DefendingTeam)), Hero of(Players In Slot(1, Global.DefendingTeam)), Hero of(Players In Slot(2, Global.DefendingTeam))),
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Global.DefendingTeam)), Hero of(Players In Slot(4, Global.DefendingTeam)), Hero of(Players In Slot(5, Global.DefendingTeam))),
+						Null 
+					)
+				),
+
+				Custom String(" Map type is [{0}]", Current Game Mode, Null, Null)
+			)
+		
+		
+		)
+	);
+
+	}
+}
+
+/**	
+* Statistics Collection
+*	The code below allows us to pull data from the game and log it
+*	We track: 
+*       - Damage              (Seita)
+*       - Healing             (Seita)
+*       - Final Blows         (Us)
+*       - Ults                (Seita and Us)
+*       - Suicides            (us)
+*       - ENVIRNOMENTAL Kills (Us)
+**/
+//Tracks Damages
+rule("Damage Done & Taken")
+{
+	event
+	{
+		Player Dealt Damage;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Victim != Event Player;
+	}
+
+	actions
+	{
+        //Update Internal
+		Event Player.DamageDone += Event Damage;
+		Victim.DamageTaken += Event Damage;
+	}
+}
+
+//Tracks Healing
+//All hp gain count as healing except: temporary life (brig ult, lucio ult, sigma shift, doompassive, torb e), shields (blue life) self regen, healthpack if not hacked, payload healing, tracer recall
+rule("Healing Done")
+{
+	event
+	{
+		Player Dealt Healing;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+    	//Update Internal
+		Event Player.HealingDone += Event Healing;
+		Healee.HealingReceived += Event Healing;
+		Skip if(Event Player != Healee, 1);
+		Event Player.HealingSelf += Event Healing;
+		
+		//Update Log
+		/**
+		Log to Inspector(Custom String("[PLAYER_HEALING] {0} healed {1} for {2}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("{0} ({1})", Healee, Hero of(Healee), Null),
+        		Event Healing));
+        **/
+	}
+}
+
+
+//Tracks Rezzes
+rule("Track Rez"){
+	event{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions{
+		//Check for Mercy
+		Hero Of(Event Player) == Hero(Mercy);
+
+		//Check for Mercy Rez
+		Is Using Ability 2(Event Player) == True;
+	}
+
+	actions{
+		//Find the target being rezzed
+		Event Player.RezTarget = Sorted Array(
+			All Dead Players(
+				Team Of(Event Player)), 
+				Distance Between(
+					Ray Cast Hit Position(
+						Eye Position(Event Player),
+						Eye Position(Event Player) + Facing Direction Of(Event Player) * 2,
+						All Players(All Teams),
+						Event Player,
+						True
+					), 
+				Current Array Element
+			)
+			);
+
+
+		//Log out the target mercy is rezzing
+		Log To Inspector(Custom String("[RESURRECT] Team [{0}] Player [{1}] Rezzed {2}", Team Of(Event Player), Event Player, Custom String("[{0}] playing [{1}]", Event Player.RezTarget, Hero Of(Event Player.RezTarget))));
+	}
+
+
+
+}
+
+//Normal, When ults reach 100%
+rule("Normal | Ult is ready"){
+	event{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+
+		Ultimate Charge Percent(Event Player) == 100;
+
+		Hero Of(Event Player) != Hero(Echo);
+		Hero Of(Event Player) != Hero(D.va);
+	}
+
+	actions{
+		Log To Inspector(
+			Custom String("[ULT_READY] [NORMAL] [{0}] on [{1}] [{2}] has 100% ult charge", Event Player, Hero Of(Event Player), Team Of(Event Player))
+		);
+	}
+
+
+}
+
+
+//Echo, When ults reach 100% 
+rule("Echo | Ult is ready"){
+	event{
+		Ongoing - Each Player;
+		All;
+		Echo;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+
+		Ultimate Charge Percent(Event Player) == 100;
+	}
+
+	actions{
+		//If it's a normal ult
+		Skip If(Is Duplicating(Event Player) == True, 1);
+		Log To Inspector(
+			Custom String("[ULT_READY] [NORMAL] [{0}] on [{1}] [{2}] has 100% ult charge", Event Player, Hero Of(Event Player), Team Of(Event Player))
+		);
+	
+		//If it's a duplication ult
+		Log To Inspector(
+			Custom String("[ULT_READY] [ECHO_DUPLICATE] [{0}] on {1} (duplicated [{2}] hero) has 100% ult charge", Event Player, Custom String("[{0}] [{1}]", Hero Of(Event Player), Team Of(Event Player), Null), Hero Being Duplicated(Event Player))
+		);
+	
+	}
+}
+
+
+//DVA. When ults reach 100%
+rule("D.va | Ult is ready"){
+	event{
+		Ongoing - Each Player;
+		All;
+		D.va;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+
+		Ultimate Charge Percent(Event Player) == 100;
+	}
+
+	actions{
+		//If it's baby dva
+		Skip If(Event Player.MaxHP < 200, 1);
+		Log To Inspector(
+			Custom String("[ULT_READY] [BABY_DVA] [{0}] on [{1}] [{2}] has 100% ult charge", Event Player, Hero Of(Event Player), Team Of(Event Player))
+		);
+	
+		//If it's a duplication ult
+		Log To Inspector(
+			Custom String("[ULT_READY] [NORMAL] [{0}] on [{1}] has 100% ult charge", Event Player, Hero Of(Event Player), Team Of(Event Player))
+		);
+	
+	}
+
+
+}
+
+
+
+//Catches all unspecial ults
+rule("Ults used not echo or dva"){
+	event
+	{
+		Ongoing - Each Player;
+		All;	
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Using Ultimate(Event Player) == True;
+		Hero Of(Event Player) != Hero(D.Va);
+		Hero Of(Event Player) != Hero(Echo);
+	}
+
+	actions
+	{
+		//Increase Ult Count
+        Event Player.UltsUsed += 1;
+
+        //log ult
+        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+			Null)
+		);
+
+	}
+}
+
+//When ultimate used that's not duplicateW
+rule("Echo used ult during copy"){
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		Echo;
+	}
+
+	conditions
+	{
+		Is Game In Progress             == True;
+		Is Duplicating(Event Player)    == True;
+		Is Using Ultimate(Event Player) == True;
+	}
+
+	actions
+	{
+        //Log Ult
+        Log to Inspector(Custom String("[ECHO_ULTED_DURING_DUPLICATION] {0} used Ultimate (as [{1}])",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Hero Being Duplicated(Event Player),
+        		Null));
+        
+		//Removed the stats update "Event Player.UltsUsed += 1;" as this is an ultimate used while copied as other hero, does not count towards counting ultimates used, at most we should make a variable specifically for this case
+
+
+	}
+}
+
+//When echo uses duplication
+rule("Echo Dup Ult Used"){
+    event{
+		Ongoing - Each Player;
+		All;
+		Echo;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Duplicating(Event Player) == True;
+
+	}
+
+	actions
+	{
+
+		Event Player.UltsUsed += 1;
+		//Log Dup Ult
+		Log to Inspector(Custom String("[ECHO_DUPLICATE] {0} used ultimate duplicating [{1}]",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Hero Being Duplicated(Event Player),
+        		Null));
+
+	}
+}
+
+//TODO: Fix Baby vs Mech D.va
+rule("D.va Used Bomb | D.va Remeched"){
+	event
+	{
+		Ongoing - Each Player;
+		All;
+		D.va;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Is Using Ultimate(Event Player) == True;
+		Hero Of(Event Player) == Hero(D.va);
+	}
+
+	actions
+	{
+		//If Max HP was 600, they just started to bomb
+		Skip If(Event Player.MaxHP < 200, 5);
+			Log to Inspector(
+				Custom String("[DVA_BOMBED] {0}",
+					Custom String(
+						"[{0}] [{1}], [{2}]", 
+						Event Player, 
+						Hero of(Event Player), 
+						Team of(Event Player)
+					),
+					Null,
+					Null
+				)
+			);
+
+			//Update HP
+			Event Player.MaxHP = Max Health of Type(Event Player, Health);
+
+			//Update Stats
+			Event Player.UltsUsed += 1;
+			
+			//Exit so the following code isn't ran
+			Abort();
+
+
+        //If Max Hp was below 200, it's a remech
+		Skip(1);
+
+			//Abort if remech failed
+			Wait(2.500, Ignore Condition);
+			Abort If(Max Health of Type(Event Player, Health)< 200);
+
+			//Log out remech
+			Log to Inspector(
+				Custom String("[DVA_REMECH] {0}",
+					Custom String("[{0}] [{1}], [{2}]", 
+						Event Player,
+						Hero of(Event Player),
+						Team of(Event Player)
+					),
+					Null,
+					Null
+				)
+			);
+
+			//Update HP
+			Event Player.MaxHP = Max Health of Type(Event Player, Health);
+
+			//Update stats
+			Event Player.UltsUsed += 1;
+	}
+}
+
+//Final Blows Made
+rule("Kills | Normal"){
+    event{
+		Player Dealt Final Blow;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+		Event Was Environment != True;
+	}
+
+	actions
+	{
+		//Log player kill
+		Log to Inspector(Custom String("[PLAYER_KILL] {0} killed {1} using [{2}]",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("[{0}] [{1}]", Victim, Hero of(Victim), Null),
+        		Event Ability));
+        		
+	}
+}
+
+//Environ Kills
+rule("Kills | ENVIRNOMENTAL"){
+    event{
+        Player Died;
+        All;
+        All;
+    }
+
+    conditions{
+        Is Game In Progress == True;
+        Event Player != Attacker;
+        Event Was Environment == True;
+    }
+
+    actions{
+        //Log env kill
+        Log to Inspector(Custom String("[ENVIRNOMENTAL_KILL] {0} killed {1} using [{2}]",
+        		Custom String("[{0}] [{1}], [{2}]", Attacker, Hero of(Attacker), Team of(Attacker)),
+        		Custom String("[{0}] [{1}]", Event Player, Hero of(Event Player), Null),
+        		Event Ability));
+
+    }
+
+}
+
+//Just normal deaths
+rule("Deaths | Normal"){
+	event
+	{
+		Player Died;
+		All;
+		All;
+	}
+
+	conditions
+	{
+		Is Game In Progress == True;
+	}
+
+	actions
+	{
+		Event Player.Deaths += 1;
+	}
+}
+
+//Suicide - Off CLiff
+rule("Suicide | Off Cliff"){
+    event{
+        Player Died;
+        All;
+        All;
+    }
+
+    conditions{
+        Is Game In Progress == True;
+        Event Player == Attacker;
+        Event Was Environment == True;
+    }
+
+    actions{
+        //log suicide from fall
+        Log to Inspector(Custom String("[SUICIDE_ENVIRNOMENTAL_DEATH] {0} fell from a high place",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
+
+    }
+
+}
+
+//Suicide using ability
+rule("Suicide | Casually"){
+    event{
+        Player Died;
+        All;
+        All;
+    }
+
+    conditions{
+        Is Game In Progress == True;
+        Event Was Environment != True;
+
+        Event Player == Attacker;
+    }
+
+    actions{
+        //log suicide from self-damage
+        Log to Inspector(Custom String("[SUICIDE] {0} hurt itself in its confusion",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Null,
+        		Null));
+
+    }
+
+}
+
+//Track switches in comps
+rule("Hero Swicthes"){
+    event {
+        Ongoing - Each Player;
+        All; 
+        All;
+    }
+
+    conditions{
+        Hero Of(Event Player) != Player Variable(Event Player, H);
+    }
+
+    actions{
+		//skip log if game not in progress
+        skip if (is game in progress!=True, 1);
+        //Log
+
+		Log To Inspector(Custom String(
+			"[HERO_SWITCH] [{0}] from [{1}] swapped to [{2}]",
+			Event Player, 
+			
+			Team Of(Event Player),
+
+			Custom String("[{0}] from [{1}]", Hero of(Event Player), Event Player.H, Null)
+
+		));
+        
+        //Save new hero, changed as before it was =0 so obv did not work
+        Event Player.H = Hero of(Event Player);
+
+		Event Player.MaxHP = Max Health of Type(Event Player, Health);
+
+    }
+}
+
+//Track position
+//Disabled because I like being able to use my game lol
+
+/**
+rule("Player position"){
+    event{
+        Ongoing - Each Player;
+        All;
+        All;
+    }
+    
+    conditions{
+        Is Game in Progress == True;
+    }
+    
+    actions{
+        //Log
+        Log to Inspector(Custom String("[POS] {0} at: {1}",
+        		Custom String("{0} ({1}, {2})", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Position of(Event Player),
+        		Null));
+	
+		Wait(0.5, Ignore Condition);
+        Loop;
+        
+        
+    }
+}
+**/
+
+//Track Dva demech
+rule("Dva mech loss"){
+    event {
+        Player Took Damage;
+        All;
+        All;
+    }
+    
+    conditions{
+		//If you're on D.va
+        Hero of(Event Player)== Hero(D.va);
+
+		//If you're alive
+		Is Alive(Event Player) == True;
+
+		//If Last Max HP was not what your hp was 
+		Event Player.MaxHP !=  Max Health of Type(Event Player, Health);
+		
+    }
+
+
+	actions{
+		/**
+		* If their new max hp is LESS than 500, that means
+		* They've been demeched and are now baby d.va
+		**/
+		Abort If(Max Health of Type(Event Player, Health) > 200);
+
+		//Log Demech
+		Log To Inspector(
+			Custom String("[DEMECH] Player {0} was demeched by {1} [{2}]", 
+				Custom String("[{0}], [{1}]", Team Of(Event Player), Event Player, Null), 
+				Custom String("[{0}], [{1}]", Team Of(Attacker), Hero Of(Attacker), Null), 
+				Event Ability
+			)
+		);
+
+		//Set the new max hp
+		Event Player.MaxHP =  Max Health of Type(Event Player, Health);
+
+	}
+
+}
+
+
+/**
+* Logging Game Data
+*     Below are functions designed to log out 
+*     information about the current game, for 
+*     example how much the payload has been 
+*     moved, or how much point has been captured 
+*     or even when the point has been flipped
+**/
+
+//Check to see which team is on which side
+rule("[ALL] Check for Attack/Defense | Team 1"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is In Setup == True;
+		OR(Global.AttackingTeam == Null, Global.UpdateTeamsNeedSide == True) == True;
+		Is Team on Offense(Team(Team 1))  == True;
+	}
+
+
+	actions{
+		Global.AttackingTeam = Team(Team 1);
+		Global.DefendingTeam = Team(Team 2);
+		Global.UpdateTeamsNeedSide = False;
+
+	}
+
+}
+
+rule("[ALL] Check for Attack/Defense | Team 2"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is In Setup == True;
+		OR(Global.AttackingTeam == Null, Global.UpdateTeamsNeedSide == True) == True;
+		Is Team On Offense(Team(Team 2))  == True;
+	}
+
+
+	actions{
+		Global.AttackingTeam = Team(Team 2);
+		Global.DefendingTeam = Team(Team 1);
+		Global.UpdateTeamsNeedSide = False;
+	}
+
+}
+
+//Just for consistencies sake Team 1 is attack in control
+rule("[CONTROL] Manually set Attack/Defense"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is In Setup == True;
+		Current Game Mode == Game Mode(Control);
+		Global.UpdateTeamsNeedSide == True;
+
+	}
+
+
+	actions{
+		Global.AttackingTeam = Team(Team 1);
+		Global.DefendingTeam = Team(Team 2);
+		Global.UpdateTeamsNeedSide = False;
+	}
+
+}
+
+//If teams swap during setup change the variables
+rule("[All] Check for change in teams"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Team On Offense(Global.AttackingTeam) != True;
+	}
+
+
+	actions{
+		Global.UpdateTeamsNeedSide = True;
+	}
+
+}
+
+rule("[CONTROL] Check for change in teams"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Global.AttackingTeam != Team(Team 1);
+	}
+
+
+	actions{
+		Global.UpdateTeamsNeedSide = True;
+	}
+
+}
+
+
+
+//CONTROL
+//When someone else takes the point
+rule("Control | Point Flop"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Current Game Mode == Game Mode(Control);
+		Global.WhoControlsPoint != Control Mode Scoring Team;
+		Is Control Mode Point Locked != True;
+	}
+
+	actions{
+		//Log who took the point
+		Log To Inspector(
+			Custom String("[POINT_FLIP] [{0}] has taken the point, currently: [{1}]% (vs:[{2}]%)", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team),Down), Round to integer(Control Mode Scoring Percentage(Opposite Team of(Control Mode Scoring Team)), Down)
+			)
+		);
+
+		//Save who took point
+		Global.WhoControlsPoint = Control Mode Scoring Team;
+		Global.CaptureProgress  = Control Mode Scoring Percentage(Control Mode Scoring Team);
+	}
+
+}
+
+//Log updates in percentage
+rule("Control | Update Percentage Increase"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Current Game Mode == Game Mode(Control);
+		Is Game In Progress == True;
+		Global.WhoControlsPoint != Team(All);
+
+		Modulo(Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team),Down),10)== 0;
+		//Alternative methond: If the difference between last capture progress save and current capture progress is more than 10%
+		//(Control Mode Scoring Percentage(Control Mode Scoring Team) - Global.CaptureProgress) > 2;
+
+	}
+
+	actions{
+		//Log update
+		Log To Inspector(
+			Custom String("[POINT_UPDATE] [{0}] captured [{1}]%", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team), Down), Null)
+		);
+
+		//Save new progress
+		Global.CaptureProgress  = Control Mode Scoring Percentage(Control Mode Scoring Team);
+
+	}
+
+}
+
+//HYBRID | Control
+rule("Hybrid | Track Tick Gains"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress   == True;
+		Current Game Mode     == Game Mode(Hybrid);
+
+		//At ticks, log
+		OR(
+			AND(33.333 < Point Capture Percentage, Point Capture Percentage < 35),
+
+			AND(66.666 < Point Capture Percentage, Point Capture Percentage < 68)
+
+		) == True;
+
+	}
+
+	actions{
+		//If in control
+		//TODO LOG WHAT TEAM EARNED A TICK
+		Log To Inspector(
+			Custom String("[EARNED_TICK] [{0}] captured [{1}]%", Global.AttackingTeam, Round to integer(Point Capture Percentage,Down), Null)
+		);
+		
+	}
+}
+
+//HYBRID | Payload
+rule("Hybrid | Payload Gains"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Current Game Mode == Game Mode(Hybrid);
+		Is objective complete (Global.CaptureProgress)==True;
+	}
+
+	actions{
+		//TODO LOG WHAT TEAM WON THE POINT
+		Log To Inspector(
+			Custom String("[WON_POINT] [{0}] CAPTURED POINT [{1}]", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
+		);
+		Global.CaptureProgress = Objective Index; 
+	}
+}
+
+//2CP | Point
+rule("2CP | Point Capture Progress"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Current Game Mode   == Game Mode(Assault);
+
+		//At ticks, log
+		OR(
+			AND(33.333 < Point Capture Percentage, Point Capture Percentage < 35),
+
+			AND(66.666 < Point Capture Percentage, Point Capture Percentage < 68)
+
+		) == True;
+	}
+
+	actions{
+		Log To Inspector(
+			Custom String("[EARNED_TICK] [{0}] captured [{1}]% of Point [{2}]", Global.AttackingTeam, Round to integer (Point Capture Percentage, Down), (Objective Index + 1))
+		);
+	}
+}
+
+rule("2CP | Point Capture"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Current Game Mode   == Game Mode(Assault);
+		Is objective complete (Global.CaptureProgress)==True;
+	}
+
+	actions{
+		Log To Inspector(
+			Custom String("[WON_POINT] [{0}] CAPTURED POINT [{2}]", Global.AttackingTeam, (Global.CaptureProgress + 1), Null)
+		);
+		Global.CaptureProgress = Objective Index;		
+	}
+}
+
+
+//Escort | Payload
+rule("Escort | Payload Gains"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress    == True;
+		Current Game Mode      == Game Mode(Escort);
+		Is objective complete (Global.CaptureProgress)==True;
+	}
+
+	actions{
+		Log To Inspector(
+			Custom String("[WON_POINT] [{0}] CAPTURED POINT [{1}]", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
+		);
+		Global.CaptureProgress = Objective Index; 
+	}
+}
+
+rule("Report round Score not control"){
+    event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress != True;
+		Current Game Mode   != Game Mode(Control);
+	}
+
+    actions{
+        //don't do this at game beginning
+        abort if(total time elapsed < 5);
+        
+		Log To Inspector(Custom String("[SCORE_ALL] [{0}] SCORED [{1}]", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
+
+    }
+}
+
+rule("Report round score control"){
+    event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress != True;
+		Current Game Mode   == Game Mode(Control);
+	}
+
+    actions{
+        //don't do this at game beginning
+        abort if (total time elapsed < 5);
+        
+		//Log out which team won
+		Skip If(Control Mode Scoring Percentage(Global.AttackingTeam) < Control Mode Scoring Percentage(Global.DefendingTeam), 2);
+
+		Log To Inspector(
+			Custom String("[ROUND_END_SCORE] {0} vs {1}",
+				//Winning Team
+				Custom String("Team [{0}] Won with a score of [{1}]",
+					Global.AttackingTeam,
+					
+					Control Mode Scoring Percentage(Global.AttackingTeam),
+
+					Null
+				),
+				
+				//Losing Team
+				Custom String("Team [{0}] Lost with a score of [{1}]",
+					Global.DefendingTeam,
+					
+					Control Mode Scoring Percentage(Global.DefendingTeam),
+
+					Null
+				),
+				
+				Null
+			
+			)
+		);
+
+		//Make sure the rest of the statement doesn't fire
+		Abort();
+
+		Log To Inspector(
+			Custom String("[ROUND_END_SCORE] {0} vs {1}",
+				//Winning Team
+				Custom String("Team [{0}] Won with a score of [{1}]",
+					Global.DefendingTeam,
+					
+					Control Mode Scoring Percentage(Global.DefendingTeam),
+
+					Null
+				),
+				
+				//Losing Team
+				Custom String("Team [{0}] Lost with a score of [{1}]",
+					Global.AttackingTeam,
+					
+					Control Mode Scoring Percentage(Global.AttackingTeam),
+
+					Null
+				),
+				
+				Null
+			
+			)
+		);
+
+
+
+    }
+}
+
+/**
+	TODO: For a later version introduce this - Aud
+rule("Non Control | Log out overtime"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Match Time == 0;
+		Global.IsOvertime != True;
+
+		Current Game Mode != Game Mode(Control);
+
+	}
+
+	actions{
+		Global.IsOvertime = True;
+		Log To Inspector(
+			Custom String("[IS_OVERTIME]")
+		);
+	}
+
+}
+
+
+rule("Non Control | Overtime done"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		MatchTime != 0;
+		Global.IsOvertime == True;
+		Current Game Mode != Game Mode(Control);
+
+	}
+
+	actions{
+		Global.IsOvertime = False;
+		Log To Inspector(
+			Custom String("[IS_NOT_OVERTIME]")
+		);
+	}
+
+}
+
+
+
+rule("Control | Log out overtime"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Point Capture Percentage == 99;
+		Global.IsOvertime != True;
+
+		Current Game Mode == Game Mode(Control);
+
+	}
+
+	actions{
+		Global.IsOvertime = True;
+		Log To Inspector(
+			Custom String("[IS_OVERTIME]")
+		);
+	}
+
+}
+
+
+rule("Control | Overtime done"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		//If the game in in progress, was overtime but has a new capture %, it's no longer OT
+		Is Game In Progress == True;
+		Point Capture Percentage < 99;
+		Global.IsOvertime == True;
+
+		Current Game Mode == Game Mode(Control);
+
+	}
+
+	actions{
+		Global.IsOvertime = False;
+		Log To Inspector(
+			Custom String("[IS_NOT_OVERTIME]")
+		);
+	}
+
+}
+**/
+
+
+
+
+
+rule("Game not in progress: Tell log game done"){
+    event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress != True;
+	}
+
+    actions{
+        //don't do this at game beginning
+        skip if (total time elapsed < 5, 3);
+        
+		//Global.Positions = Array();
+        Log To Inspector(Custom String("[ROUND_END]", Null, Null, Null));
+
+		//Setup Game Info
+		Global.AttackingTeam = Null;
+		Global.DefendingTeam = Null;
+
+    }
+}
+
+
+
+
+
+/**
+* Handling for when players leave // join game
+**/
+rule("When a player leaves"){
+	event{
+		Player Left Match;
+		All;
+		All;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+	}
+
+
+	actions{
+		//Log out what players are left
+		Log To Inspector(
+				Custom String("[PLAYER_LEFT] Here's who's left: Attacker: {0} , Defender: {1}", 
+				//Team One
+				Custom String("[{0}] : {1} {2}",
+					Global.AttackingTeam,
+
+					//Player List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Global.AttackingTeam), Players In Slot(1, Global.AttackingTeam), Players In Slot(2, Global.AttackingTeam)),
+
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Global.AttackingTeam), Players In Slot(4, Global.AttackingTeam), Players In Slot(5, Global.AttackingTeam)),
+
+						Null 
+					),
+
+					//Hero List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Global.AttackingTeam)), Hero of(Players In Slot(1, Global.AttackingTeam)), Hero of(Players In Slot(2, Global.AttackingTeam))),
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Global.AttackingTeam)), Hero of(Players In Slot(4, Global.AttackingTeam)), Hero of(Players In Slot(5, Global.AttackingTeam))),
+						Null 
+					)
+				),
+				//Team Two
+				Custom String("[{0}] : {1} {2}",
+					Global.DefendingTeam,
+
+					//Player List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Global.DefendingTeam), Players In Slot(1, Global.DefendingTeam), Players In Slot(2, Global.DefendingTeam)),
+
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Global.DefendingTeam), Players In Slot(4, Global.DefendingTeam), Players In Slot(5, Global.DefendingTeam)),
+
+						Null 
+					),
+
+
+					//Hero List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Global.DefendingTeam)), Hero of(Players In Slot(1, Global.DefendingTeam)), Hero of(Players In Slot(2, Global.DefendingTeam))),
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Global.DefendingTeam)), Hero of(Players In Slot(4, Global.DefendingTeam)), Hero of(Players In Slot(5, Global.DefendingTeam))),
+						Null 
+					)
+				),
+
+				Null
+			)
+		);
+	}
+}
+
+
+
+
+rule("When a player joins"){
+	event{
+		Player Joined Match;
+		All;
+		All;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+	}
+
+
+	actions{
+		//Log out what player left
+		Log To Inspector(
+			Custom String("[PLAYER_JOIN] Player [{0}] jonined team [{1}] ", Event Player, Team of(Event Player), Null)
+		);
+	}
+}
+
