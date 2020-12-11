@@ -3,7 +3,7 @@ Live Settings - settings
 **/
 settings{
 	main{
-		Description: "Aud's Stats Farmer, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/OW_LobbyCodes/OW_SeitaStatsFarm. For updates on Seita's lobby go to https://twitter.com/Seita"
+		Description: "Aud's Stats Farmer V0.0.4, the Scrim version, built off of Seita's Scrim Lobby (Version 1.22) | To parse stats go to: https://pro-v2.lab.insights.gg/ | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer. For updates on Seita's lobby go to https://twitter.com/Seita"
 	}
 
 	lobby{
@@ -45,12 +45,7 @@ settings{
 		}
 	}
 
-	
-	heroes{
-		General{
-			Spawn With Ultimate Ready: On
-		}
-	}
+
 }
 
 
@@ -141,9 +136,7 @@ variables
 		27: AttackingTeam
 		28: DefendingTeam
 		29: UpdateTeamsNeedSide
-		30: Fight
-		//25: Positions
-		//26: PositionCount
+		31: IsOvertime
 
 	player:
 		0: DamageDone
@@ -157,6 +150,7 @@ variables
 		8: H
 		9: HealingReceived
 		10: HealingSelf
+		11: LastUltCharge
 }
 
 
@@ -207,7 +201,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		Destroy HUD Text(Global.HelpHud[5]);
 		Destroy HUD Text(Global.HelpHud[6]);
 		Destroy HUD Text(Global.HelpHud[7]);
-		Destroy HUD Text(Global.HelpHud[8]);
 		Destroy HUD Text(Global.HelpHud[9]);
 		Destroy HUD Text(Global.HelpHud[10]);
 
@@ -215,10 +208,15 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		//Wait to make sure everyone's in lobby
 		wait(2.500, Ignore Condition);
 
+
+		Log To Inspector(
+			Custom String("[VERSION] Running on version [0.0.4] [Scrim] version")	
+		);
+
 		//If On Control don't log out the attacker and defender, just log teams
 		Skip If(Current Game Mode != Game Mode(Control), 2);
 		Log To Inspector(
-			Custom String("ROUND_START, {0}, {1}, {2}",
+			Custom String("[ROUND_START_CONTROL] Started Round on Map [{0}] Stage [{1}] with Teams {2}",
 				//Map
 				Current Map,
 
@@ -226,25 +224,25 @@ rule("Game in Progress: Remove HUD, Reset variables")
 				Objective Index,
 
 				//Teams 
-				Custom String("{0}, {1}", 
+				Custom String("{0} , {1}", 
 					//Team One
-					Custom String("{0}, {1}, {2}",
+					Custom String("[{0}] : {1} {2}",
 						Global.AttackingTeam,
 
 						//Player List
 						Custom String("{0}, {1}",
-							Custom String("{0}, {1}, {2}", Players In Slot(0, Team 1), Players In Slot(1, Team 1), Players In Slot(2, Team 1)),
+							Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Team 1), Players In Slot(1, Team 1), Players In Slot(2, Team 1)),
 
-							Custom String("{0}, {1}, {2}", Players In Slot(3, Team 1), Players In Slot(4, Team 1), Players In Slot(5, Team 1)),
+							Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Team 1), Players In Slot(4, Team 1), Players In Slot(5, Team 1)),
 
 							Null 
 						),
 
 						//Hero List
 						Custom String("{0}, {1}",
-							Custom String("{0}, {1}, {2}", Hero of(Players In Slot(0, Team 1)), Hero of(Players In Slot(1, Team 1)), Hero of(Players In Slot(2, Team 1))),
+							Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Team 1)), Hero of(Players In Slot(1, Team 1)), Hero of(Players In Slot(2, Team 1))),
 
-							Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Team 1)), Hero of(Players In Slot(4, Team 1)), Hero of(Players In Slot(5, Team 1))),
+							Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Team 1)), Hero of(Players In Slot(4, Team 1)), Hero of(Players In Slot(5, Team 1))),
 
 							Null 
 						)
@@ -253,29 +251,29 @@ rule("Game in Progress: Remove HUD, Reset variables")
 					),
 
 					//Team Two
-					Custom String("{0}, {1}, {2}",
+					Custom String("[{0}] : {1} {2}",
 						Global.DefendingTeam,
 
 						//Player List
 						Custom String("{0}, {1}",
-							Custom String("{0}, {1}, {2}", Players In Slot(0, Team 2), Players In Slot(1, Team 2), Players In Slot(2, Team 2)),
+							Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Team 2), Players In Slot(1, Team 2), Players In Slot(2, Team 2)),
 
-							Custom String("{0}, {1}, {2}", Players In Slot(3, Team 2), Players In Slot(4, Team 2), Players In Slot(5, Team 2)),
+							Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Team 2), Players In Slot(4, Team 2), Players In Slot(5, Team 2)),
 
 							Null 
 						),
 
 						//Hero List
 						Custom String("{0}, {1}",
-							Custom String("{0}, {1}, {2}", Hero of(Players In Slot(0, Team 2)), Hero of(Players In Slot(1, Team 2)), Hero of(Players In Slot(2, Team 2))),
+							Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Team 2)), Hero of(Players In Slot(1, Team 2)), Hero of(Players In Slot(2, Team 2))),
 
-							Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Team 2)), Hero of(Players In Slot(4, Team 2)), Hero of(Players In Slot(5, Team 2))),
+							Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Team 2)), Hero of(Players In Slot(4, Team 2)), Hero of(Players In Slot(5, Team 2))),
 
 							Null 
 						)
 					),
 
-					Null
+					Custom String(" Map type is [{0}]", Current Game Mode, Null, Null)
 				)
 			
 			
@@ -287,7 +285,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 		//If on any other type that contains attacker and defender log out those teams
 		Log To Inspector(
-		Custom String("ROUND_START, {0}, {2}",
+		Custom String("[ROUND_START_All] Started Round on Map [{0}] with Teams {2}",
 			//Map
 			Current Map,
 
@@ -295,50 +293,50 @@ rule("Game in Progress: Remove HUD, Reset variables")
 			Null,
 
 			//Teams 
-			Custom String("{0}, {1}", 
+			Custom String("Attacker: {0} , Defender: {1}", 
 				//Team One
-				Custom String("{0}, {1}, {2}",
+				Custom String("[{0}] : {1} {2}",
 					Global.AttackingTeam,
 
 					//Player List
-					Custom String("[{0}, {1}]",
-						Custom String("{0}, {1}, {2}", Players In Slot(0, Global.AttackingTeam), Players In Slot(1, Global.AttackingTeam), Players In Slot(2, Global.AttackingTeam)),
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Global.AttackingTeam), Players In Slot(1, Global.AttackingTeam), Players In Slot(2, Global.AttackingTeam)),
 
-						Custom String("{0}, {1}, {2}", Players In Slot(3, Global.AttackingTeam), Players In Slot(4, Global.AttackingTeam), Players In Slot(5, Global.AttackingTeam)),
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Global.AttackingTeam), Players In Slot(4, Global.AttackingTeam), Players In Slot(5, Global.AttackingTeam)),
 
 						Null 
 					),
 
 					//Hero List
-					Custom String("[{0}, {1}]",
-						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(0, Global.AttackingTeam)), Hero of(Players In Slot(1, Global.AttackingTeam)), Hero of(Players In Slot(2, Global.AttackingTeam))),
-						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Global.AttackingTeam)), Hero of(Players In Slot(4, Global.AttackingTeam)), Hero of(Players In Slot(5, Global.AttackingTeam))),
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Global.AttackingTeam)), Hero of(Players In Slot(1, Global.AttackingTeam)), Hero of(Players In Slot(2, Global.AttackingTeam))),
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Global.AttackingTeam)), Hero of(Players In Slot(4, Global.AttackingTeam)), Hero of(Players In Slot(5, Global.AttackingTeam))),
 						Null 
 					)
 				),
 				//Team Two
-				Custom String("{0}, {1}, {2}",
+				Custom String("[{0}] : {1} {2}",
 					Global.DefendingTeam,
 
 					//Player List
-					Custom String("[{0}, {1}]",
-						Custom String("{0}, {1}, {2}", Players In Slot(0, Global.DefendingTeam), Players In Slot(1, Global.DefendingTeam), Players In Slot(2, Global.DefendingTeam)),
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Global.DefendingTeam), Players In Slot(1, Global.DefendingTeam), Players In Slot(2, Global.DefendingTeam)),
 
-						Custom String("{0}, {1}, {2}", Players In Slot(3, Global.DefendingTeam), Players In Slot(4, Global.DefendingTeam), Players In Slot(5, Global.DefendingTeam)),
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Global.DefendingTeam), Players In Slot(4, Global.DefendingTeam), Players In Slot(5, Global.DefendingTeam)),
 
 						Null 
 					),
 
 
 					//Hero List
-					Custom String("[{0}, {1}]",
-						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(0, Global.DefendingTeam)), Hero of(Players In Slot(1, Global.DefendingTeam)), Hero of(Players In Slot(2, Global.DefendingTeam))),
-						Custom String("{0}, {1}, {2}", Hero of(Players In Slot(3, Global.DefendingTeam)), Hero of(Players In Slot(4, Global.DefendingTeam)), Hero of(Players In Slot(5, Global.DefendingTeam))),
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Global.DefendingTeam)), Hero of(Players In Slot(1, Global.DefendingTeam)), Hero of(Players In Slot(2, Global.DefendingTeam))),
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Global.DefendingTeam)), Hero of(Players In Slot(4, Global.DefendingTeam)), Hero of(Players In Slot(5, Global.DefendingTeam))),
 						Null 
 					)
 				),
 
-				Null
+				Custom String(" Map type is [{0}]", Current Game Mode, Null, Null)
 			)
 		
 		
@@ -357,7 +355,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 *       - Final Blows         (Us)
 *       - Ults                (Seita and Us)
 *       - Suicides            (us)
-*       - Environmental Kills (Us)
+*       - ENVIRNOMENTAL Kills (Us)
 **/
 //Tracks Damages
 rule("Damage Done & Taken")
@@ -380,72 +378,6 @@ rule("Damage Done & Taken")
         //Update Internal
 		Event Player.DamageDone += Event Damage;
 		Victim.DamageTaken += Event Damage;
-
-		//When someone deals damage variable fight is initiated
-		Global.Fight=0;
-
-
-	}
-}
-
-//Brings variable fight to a value of 1 in 5 seconds after its initiation
-disabled rule("Chase fight variable")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.Fight==0;
-	}
-
-	actions
-	{
-		Chase global variable over time(Fight, 1, 5, None);
-	}
-}
-
-//Tracks start of Fights
-disabled rule("Fight start")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Global.Fight!=1;
-	}
-
-	actions
-	{
-        //don't do this at game beginning
-        skip if (total time elapsed < 10, 1);
-		Log to Inspector(Custom String("FIGHT_START"));
-	}
-}
-
-//Tracks End of Fights
-disabled rule("Fight end")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		OR(Global.Fight==1, Is Game In Progress!=True)==True;
-	}
-
-	actions
-	{
-        //don't do this at game beginning
-        skip if (total time elapsed < 10, 1);
-		Log to Inspector(Custom String("FIGHT_END"));
 	}
 }
 
@@ -519,21 +451,109 @@ rule("Track Rez"){
 
 
 		//Log out the target mercy is rezzing
-		Log To Inspector(Custom String("RESURRECT, {0}, {1}, {2}", Team Of(Event Player), Event Player, Event Player.RezTarget));
+		Log To Inspector(Custom String("[RESURRECT] Team [{0}] Player [{1}] Rezzed {2}", Team Of(Event Player), Event Player, Custom String("[{0}] playing [{1}]", Event Player.RezTarget, Hero Of(Event Player.RezTarget))));
 	}
 
 
 
 }
 
+//Normal, When ults reach 100%
+rule("Normal | Ult is ready"){
+	event{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+
+		Ultimate Charge Percent(Event Player) == 100;
+
+		Hero Of(Event Player) != Hero(Echo);
+		Hero Of(Event Player) != Hero(D.va);
+	}
+
+	actions{
+		Log To Inspector(
+			Custom String("[ULT_READY] [NORMAL] [{0}] on [{1}] [{2}] has 100% ult charge", Event Player, Hero Of(Event Player), Team Of(Event Player))
+		);
+	}
+
+
+}
+
+
+//Echo, When ults reach 100% 
+rule("Echo | Ult is ready"){
+	event{
+		Ongoing - Each Player;
+		All;
+		Echo;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+
+		Ultimate Charge Percent(Event Player) == 100;
+	}
+
+	actions{
+		//If it's a normal ult
+		Skip If(Is Duplicating(Event Player) == True, 1);
+		Log To Inspector(
+			Custom String("[ULT_READY] [NORMAL] [{0}] on [{1}] [{2}] has 100% ult charge", Event Player, Hero Of(Event Player), Team Of(Event Player))
+		);
+	
+		//If it's a duplication ult
+		Log To Inspector(
+			Custom String("[ULT_READY] [ECHO_DUPLICATE] [{0}] on {1} (duplicated [{2}] hero) has 100% ult charge", Event Player, Custom String("[{0}] [{1}]", Hero Of(Event Player), Team Of(Event Player), Null), Hero Being Duplicated(Event Player))
+		);
+	
+	}
+}
+
+
+//DVA. When ults reach 100%
+rule("D.va | Ult is ready"){
+	event{
+		Ongoing - Each Player;
+		All;
+		D.va;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+
+		Ultimate Charge Percent(Event Player) == 100;
+	}
+
+	actions{
+		//If it's baby dva
+		Skip If(Event Player.MaxHP < 200, 1);
+		Log To Inspector(
+			Custom String("[ULT_READY] [BABY_DVA] [{0}] on [{1}] [{2}] has 100% ult charge", Event Player, Hero Of(Event Player), Team Of(Event Player))
+		);
+	
+		//If it's a duplication ult
+		Log To Inspector(
+			Custom String("[ULT_READY] [NORMAL] [{0}] on [{1}] has 100% ult charge", Event Player, Hero Of(Event Player), Team Of(Event Player))
+		);
+	
+	}
+
+
+}
+
+
 
 //Catches all unspecial ults
-rule("Ults used not echo or dva")
-{
+rule("Ults used not echo or dva"){
 	event
 	{
 		Ongoing - Each Player;
-		All;
+		All;	
 		All;
 	}
 
@@ -551,17 +571,17 @@ rule("Ults used not echo or dva")
         Event Player.UltsUsed += 1;
 
         //log ult
-        Log to Inspector(Custom String("ULT_USED, {0}",
-        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
+        Log to Inspector(Custom String("[ULT_USED] {0} used Ultimate",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Null,
-        		Null));
+			Null)
+		);
 
 	}
 }
 
-//When ultimate used that's not duplicate
-rule("Echo used ult during copy")
-{
+//When ultimate used that's not duplicateW
+rule("Echo used ult during copy"){
 	event
 	{
 		Ongoing - Each Player;
@@ -579,8 +599,8 @@ rule("Echo used ult during copy")
 	actions
 	{
         //Log Ult
-        Log to Inspector(Custom String("ECHO_ULTED_DURING_DUPLICATION, {0}, {1}",
-        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
+        Log to Inspector(Custom String("[ECHO_ULTED_DURING_DUPLICATION] {0} used Ultimate (as [{1}])",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Hero Being Duplicated(Event Player),
         		Null));
         
@@ -610,8 +630,8 @@ rule("Echo Dup Ult Used"){
 
 		Event Player.UltsUsed += 1;
 		//Log Dup Ult
-		Log to Inspector(Custom String("ECHO_DUPLICATE, {0}, {1}",
-        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
+		Log to Inspector(Custom String("[ECHO_DUPLICATE] {0} used ultimate duplicating [{1}]",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Hero Being Duplicated(Event Player),
         		Null));
 
@@ -619,8 +639,7 @@ rule("Echo Dup Ult Used"){
 }
 
 //TODO: Fix Baby vs Mech D.va
-rule("D.va Used Bomb | D.va Remeched")
-{
+rule("D.va Used Bomb | D.va Remeched"){
 	event
 	{
 		Ongoing - Each Player;
@@ -640,9 +659,9 @@ rule("D.va Used Bomb | D.va Remeched")
 		//If Max HP was 600, they just started to bomb
 		Skip If(Event Player.MaxHP < 200, 5);
 			Log to Inspector(
-				Custom String("DVA BOMBED, {0}",
+				Custom String("[DVA_BOMBED] {0}",
 					Custom String(
-						"{0}, {1}, {2}", 
+						"[{0}] [{1}], [{2}]", 
 						Event Player, 
 						Hero of(Event Player), 
 						Team of(Event Player)
@@ -671,8 +690,8 @@ rule("D.va Used Bomb | D.va Remeched")
 
 			//Log out remech
 			Log to Inspector(
-				Custom String("DVA REMECH, {0}",
-					Custom String("{0}, {1}, {2}", 
+				Custom String("[DVA_REMECH] {0}",
+					Custom String("[{0}] [{1}], [{2}]", 
 						Event Player,
 						Hero of(Event Player),
 						Team of(Event Player)
@@ -707,16 +726,16 @@ rule("Kills | Normal"){
 	actions
 	{
 		//Log player kill
-		Log to Inspector(Custom String("PLAYER_KILL, {0}, {1}, {2}",
-        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
-        		Custom String("{0}, {1}", Victim, Hero of(Victim), Null),
+		Log to Inspector(Custom String("[PLAYER_KILL] {0} killed {1} using [{2}]",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
+        		Custom String("[{0}] [{1}]", Victim, Hero of(Victim), Null),
         		Event Ability));
         		
 	}
 }
 
 //Environ Kills
-rule("Kills | Environmental"){
+rule("Kills | ENVIRNOMENTAL"){
     event{
         Player Died;
         All;
@@ -731,9 +750,9 @@ rule("Kills | Environmental"){
 
     actions{
         //Log env kill
-        Log to Inspector(Custom String("ENVIRNOMENTAL_KILL, {0}, {1}, {2}",
-        		Custom String("{0}, {1}, {2}", Attacker, Hero of(Attacker), Team of(Attacker)),
-        		Custom String("{0}, {1}", Event Player, Hero of(Event Player), Null),
+        Log to Inspector(Custom String("[ENVIRNOMENTAL_KILL] {0} killed {1} using [{2}]",
+        		Custom String("[{0}] [{1}], [{2}]", Attacker, Hero of(Attacker), Team of(Attacker)),
+        		Custom String("[{0}] [{1}]", Event Player, Hero of(Event Player), Null),
         		Event Ability));
 
     }
@@ -741,8 +760,7 @@ rule("Kills | Environmental"){
 }
 
 //Just normal deaths
-rule("Deaths | Normal")
-{
+rule("Deaths | Normal"){
 	event
 	{
 		Player Died;
@@ -777,8 +795,8 @@ rule("Suicide | Off Cliff"){
 
     actions{
         //log suicide from fall
-        Log to Inspector(Custom String("SUICIDE_ENVIRONMENTAL_DEATH, {0}",
-        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
+        Log to Inspector(Custom String("[SUICIDE_ENVIRNOMENTAL_DEATH] {0} fell from a high place",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Null,
         		Null));
 
@@ -803,8 +821,8 @@ rule("Suicide | Casually"){
 
     actions{
         //log suicide from self-damage
-        Log to Inspector(Custom String("SUICIDE, {0}",
-        		Custom String("{0}, {1}, {2}", Event Player, Hero of(Event Player), Team of(Event Player)),
+        Log to Inspector(Custom String("[SUICIDE] {0} hurt itself in its confusion",
+        		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Null,
         		Null));
 
@@ -828,10 +846,16 @@ rule("Hero Swicthes"){
 		//skip log if game not in progress
         skip if (is game in progress!=True, 1);
         //Log
-        Log to Inspector(Custom String("[HERO_SWITCH] {0} switched to {1} (was {2})",
-        		Custom String("{0} ({1})", Event Player, Team of(Event Player), Null),
-        		Hero of(Event Player),
-        		Event Player.H));
+
+		Log To Inspector(Custom String(
+			"[HERO_SWITCH] [{0}] from [{1}] swapped to [{2}]",
+			Event Player, 
+			
+			Team Of(Event Player),
+
+			Custom String("[{0}] from [{1}]", Hero of(Event Player), Event Player.H, Null)
+
+		));
         
         //Save new hero, changed as before it was =0 so obv did not work
         Event Player.H = Hero of(Event Player);
@@ -868,32 +892,6 @@ rule("Player position"){
         
         
     }
-}**/
-
-//Log out player pos
-/**
-rule("Log Player Pos"){
-	event{
-		Ongoing - Global;
-	}
-	conditions{
-		Is Game in Progress == True;
-		Count Of(Global.Positions) >= 992;
-		Global.PositionCount < 992;
-	}
-
-	actions{
-		//Loop through and find position
-		Log To Inspector(
-			Custom String("[{0}]{1}", Value In Array(Global.Positions, Global.PositionCount),  Custom String("{0}, {1}, {2}", Value In Array(Global.Positions, Global.PositionCount + 1), Value In Array(Global.Positions, Global.PositionCount + 2), Value In Array(Global.Positions,Global.PositionCount + 3)), Null)
-		);
-
-		Global.PositionCount += 4;
-
-		Loop If Condition Is True;
-
-	}
-
 }
 **/
 
@@ -927,9 +925,9 @@ rule("Dva mech loss"){
 
 		//Log Demech
 		Log To Inspector(
-			Custom String("DEMECH, {0}, {1}, {2}", 
-				Custom String("{0}, {1}", Team Of(Event Player), Event Player, Null), 
-				Custom String("{0}, {1}", Team Of(Attacker), Hero Of(Attacker), Null), 
+			Custom String("[DEMECH] Player {0} was demeched by {1} [{2}]", 
+				Custom String("[{0}], [{1}]", Team Of(Event Player), Event Player, Null), 
+				Custom String("[{0}], [{1}]", Team Of(Attacker), Hero Of(Attacker), Null), 
 				Event Ability
 			)
 		);
@@ -940,6 +938,7 @@ rule("Dva mech loss"){
 	}
 
 }
+
 
 /**
 * Logging Game Data
@@ -1066,7 +1065,7 @@ rule("Control | Point Flop"){
 	actions{
 		//Log who took the point
 		Log To Inspector(
-			Custom String("POINT_FLIP, {0}, {1}, {2}", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team),Down), Round to integer(Control Mode Scoring Percentage(Opposite Team of(Control Mode Scoring Team)), Down)
+			Custom String("[POINT_FLIP] [{0}] has taken the point, currently: [{1}]% (vs:[{2}]%)", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team),Down), Round to integer(Control Mode Scoring Percentage(Opposite Team of(Control Mode Scoring Team)), Down)
 			)
 		);
 
@@ -1097,7 +1096,7 @@ rule("Control | Update Percentage Increase"){
 	actions{
 		//Log update
 		Log To Inspector(
-			Custom String("POINT_UPDATE, {0}, {1}", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team), Down), Null)
+			Custom String("[POINT_UPDATE] [{0}] captured [{1}]%", Control Mode Scoring Team, Round to integer(Control Mode Scoring Percentage(Control Mode Scoring Team), Down), Null)
 		);
 
 		//Save new progress
@@ -1131,7 +1130,7 @@ rule("Hybrid | Track Tick Gains"){
 		//If in control
 		//TODO LOG WHAT TEAM EARNED A TICK
 		Log To Inspector(
-			Custom String("EARNED_TICK, {0}, {1}", Global.AttackingTeam, Round to integer(Point Capture Percentage,Down), Null)
+			Custom String("[EARNED_TICK] [{0}] captured [{1}]%", Global.AttackingTeam, Round to integer(Point Capture Percentage,Down), Null)
 		);
 		
 	}
@@ -1152,7 +1151,7 @@ rule("Hybrid | Payload Gains"){
 	actions{
 		//TODO LOG WHAT TEAM WON THE POINT
 		Log To Inspector(
-			Custom String("WON_POINT, {0}, {1}", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
+			Custom String("[WON_POINT] [{0}] CAPTURED POINT [{1}]", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
 		);
 		Global.CaptureProgress = Objective Index; 
 	}
@@ -1179,7 +1178,7 @@ rule("2CP | Point Capture Progress"){
 
 	actions{
 		Log To Inspector(
-			Custom String("EARNED_TICK, {0}, {1}, {2}", Global.AttackingTeam, Round to integer (Point Capture Percentage, Down), (Objective Index + 1))
+			Custom String("[EARNED_TICK] [{0}] captured [{1}]% of Point [{2}]", Global.AttackingTeam, Round to integer (Point Capture Percentage, Down), (Objective Index + 1))
 		);
 	}
 }
@@ -1197,7 +1196,7 @@ rule("2CP | Point Capture"){
 
 	actions{
 		Log To Inspector(
-			Custom String("WON_POINT, {0}, {1}, {2}", Global.AttackingTeam, Round to integer (Point Capture Percentage, Down), (Global.CaptureProgress + 1))
+			Custom String("[WON_POINT] [{0}] CAPTURED POINT [{2}]", Global.AttackingTeam, (Global.CaptureProgress + 1), Null)
 		);
 		Global.CaptureProgress = Objective Index;		
 	}
@@ -1218,7 +1217,7 @@ rule("Escort | Payload Gains"){
 
 	actions{
 		Log To Inspector(
-			Custom String("WON_POINT, {0}, {1}", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
+			Custom String("[WON_POINT] [{0}] CAPTURED POINT [{1}]", Global.AttackingTeam, Global.CaptureProgress + 1, Null)
 		);
 		Global.CaptureProgress = Objective Index; 
 	}
@@ -1238,7 +1237,7 @@ rule("Report round Score not control"){
         //don't do this at game beginning
         abort if(total time elapsed < 5);
         
-		Log To Inspector(Custom String("SCORE_ALL, {0}, SCORED, {1}", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
+		Log To Inspector(Custom String("[SCORE_ALL] [{0}] SCORED [{1}]", Global.AttackingTeam, Team Score(Global.AttackingTeam), Null));
 
     }
 }
@@ -1261,9 +1260,9 @@ rule("Report round score control"){
 		Skip If(Control Mode Scoring Percentage(Global.AttackingTeam) < Control Mode Scoring Percentage(Global.DefendingTeam), 2);
 
 		Log To Inspector(
-			Custom String("ROUND_END_SCORE, {0}, {1}",
+			Custom String("[ROUND_END_SCORE] {0} vs {1}",
 				//Winning Team
-				Custom String("{0}, {1}",
+				Custom String("Team [{0}] Won with a score of [{1}]",
 					Global.AttackingTeam,
 					
 					Control Mode Scoring Percentage(Global.AttackingTeam),
@@ -1272,7 +1271,7 @@ rule("Report round score control"){
 				),
 				
 				//Losing Team
-				Custom String("{0}, {1}",
+				Custom String("Team [{0}] Lost with a score of [{1}]",
 					Global.DefendingTeam,
 					
 					Control Mode Scoring Percentage(Global.DefendingTeam),
@@ -1289,9 +1288,9 @@ rule("Report round score control"){
 		Abort();
 
 		Log To Inspector(
-			Custom String("ROUND_END_SCORE, {0}, {1}",
+			Custom String("[ROUND_END_SCORE] {0} vs {1}",
 				//Winning Team
-				Custom String("{0}, {1}",
+				Custom String("Team [{0}] Won with a score of [{1}]",
 					Global.DefendingTeam,
 					
 					Control Mode Scoring Percentage(Global.DefendingTeam),
@@ -1300,7 +1299,7 @@ rule("Report round score control"){
 				),
 				
 				//Losing Team
-				Custom String("{0}, {1}",
+				Custom String("Team [{0}] Lost with a score of [{1}]",
 					Global.AttackingTeam,
 					
 					Control Mode Scoring Percentage(Global.AttackingTeam),
@@ -1318,6 +1317,109 @@ rule("Report round score control"){
     }
 }
 
+/**
+	TODO: For a later version introduce this - Aud
+rule("Non Control | Log out overtime"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Match Time == 0;
+		Global.IsOvertime != True;
+
+		Current Game Mode != Game Mode(Control);
+
+	}
+
+	actions{
+		Global.IsOvertime = True;
+		Log To Inspector(
+			Custom String("[IS_OVERTIME]")
+		);
+	}
+
+}
+
+
+rule("Non Control | Overtime done"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		MatchTime != 0;
+		Global.IsOvertime == True;
+		Current Game Mode != Game Mode(Control);
+
+	}
+
+	actions{
+		Global.IsOvertime = False;
+		Log To Inspector(
+			Custom String("[IS_NOT_OVERTIME]")
+		);
+	}
+
+}
+
+
+
+rule("Control | Log out overtime"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Point Capture Percentage == 99;
+		Global.IsOvertime != True;
+
+		Current Game Mode == Game Mode(Control);
+
+	}
+
+	actions{
+		Global.IsOvertime = True;
+		Log To Inspector(
+			Custom String("[IS_OVERTIME]")
+		);
+	}
+
+}
+
+
+rule("Control | Overtime done"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		//If the game in in progress, was overtime but has a new capture %, it's no longer OT
+		Is Game In Progress == True;
+		Point Capture Percentage < 99;
+		Global.IsOvertime == True;
+
+		Current Game Mode == Game Mode(Control);
+
+	}
+
+	actions{
+		Global.IsOvertime = False;
+		Log To Inspector(
+			Custom String("[IS_NOT_OVERTIME]")
+		);
+	}
+
+}
+**/
+
+
+
+
+
 rule("Game not in progress: Tell log game done"){
     event{
 		Ongoing - Global;
@@ -1332,7 +1434,7 @@ rule("Game not in progress: Tell log game done"){
         skip if (total time elapsed < 5, 3);
         
 		//Global.Positions = Array();
-        Log To Inspector(Custom String("ROUND_END", Null, Null, Null));
+        Log To Inspector(Custom String("[ROUND_END]", Null, Null, Null));
 
 		//Setup Game Info
 		Global.AttackingTeam = Null;
@@ -1994,7 +2096,6 @@ rule("Setup Seita Scrim lobby text")
 		Global.HelpHud[5] = -1;
 		Global.HelpHud[6] = -1;
 		Global.HelpHud[7] = -1;
-		Global.HelpHud[8] = -1;
 		Global.HelpHud[9] = -1;
 		Global.HelpHud[10] = -1;
 
@@ -2020,7 +2121,7 @@ rule("Remove Assembling Heroes")
 	{
 		Set Match Time(0);
 		Wait(5, Ignore Condition);
-		Set Match Time(10);
+		Set Match Time(30);
 	}
 }
 
@@ -2042,12 +2143,17 @@ rule("Both Teams Ready: Match starts in 5 sec, Remove HUD, Reset variables")
 	{
 		Set Match Time(5);
 		Wait(1, Ignore Condition);
+
 		Global.Team1Ready = False;
 		Global.Team2Ready = False;
+
 		Global.TimeCooldown = 0;
 		Global.BreakCooldown = 0;
+		
 		Global.T1ReadyCD = 0;
 		Global.T2ReadyCD = 0;
+
+		Global.IsOvertime = False;
 
 		Destroy HUD Text(Global.Team1Hud[0]);
 		Destroy HUD Text(Global.Team1Hud[1]);
@@ -2063,7 +2169,6 @@ rule("Both Teams Ready: Match starts in 5 sec, Remove HUD, Reset variables")
 		Destroy HUD Text(Global.HelpHud[5]);
 		Destroy HUD Text(Global.HelpHud[6]);
 		Destroy HUD Text(Global.HelpHud[7]);
-		Destroy HUD Text(Global.HelpHud[8]);
 		Destroy HUD Text(Global.HelpHud[9]);
 		Destroy HUD Text(Global.HelpHud[10]);
 
@@ -2368,24 +2473,18 @@ rule("Help HUD at the start of the game")
 	{
         /**
         * Info Texts
-        *    - Stats are only for specs
-        *    - How Stats work | Tanks & DPS
-        *    - How Stats work | Supports
+        *    - Branding and info
         **/
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("Aud's Overwatch Farmer"), Right, 20, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+        Global.HelpHud[0] = Last Text ID;
 
-        //Stats are only for specs
-		Create HUD Text(Null, Null, Custom String("Statistics are only shown to Spectators"), Null, Right, 28, Color(White), Color(Aqua), Color(White), Visible To and String, Visible Always);
-		Global.HelpHud[6] = Last Text ID;
+        	
 
-        //How stats work | DPS & Tanks
-		Create HUD Text(Null, Null, Custom String("DPS&Tanks: Damage Done - Damage Taken - Ults used  - Deaths"), Null, Right, 29, Color(White), Color(White), Color(White), Visible To and String, Visible Always);
-		Global.HelpHud[7] = Last Text ID;
-
-        //How Stats work | Supports
-		Create HUD Text(Null, Null, Custom String("Supports: Damage Done - Healing Done - Ults used - Deaths"), Null, Right, 30, Color(White), Color(White), Color(White), Visible To and String, Visible Always);
-		Global.HelpHud[8] = Last Text ID;
-
-
+		Create HUD Text(All Players(All Teams), Null, Custom String("Stats can be found in the Inspector, make sure you read the intro section at https://pro-v2.lab.insights.gg/"), Null, Right, 21, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+        Global.HelpHud[1] = Last Text ID;
+		
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String(" "), Right, 22, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+        Global.HelpHud[2] = Last Text ID;
 
 		/**
         * Control Texts
@@ -2396,38 +2495,35 @@ rule("Help HUD at the start of the game")
         *    - Controls | Change Heroes
         **/
 
+
+		//Instructions title
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("Player Control Instructions"), Right, 23, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+        Global.HelpHud[3] = Last Text ID;
+
         //Ready Intro Text
-        Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Ready (or cancel Ready)", Null, Input Binding String(Button(Interact)), Input Binding String(Button(Crouch))), Null, Right, 22, Color(White), Color(Aqua), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[2] = Last Text ID;
-
-        //Add Seconds
-		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} : adds extra 20 seconds to setup", Input Binding String(Button(Ultimate))), Null, Right, 23, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[3] = Last Text ID;
-
-        //Add 5 mins
-		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Adds 5 min break timer", Input Binding String(Button(Interact)), Input Binding String(Button(Ultimate))), Null, Right, 24, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+        Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Ready (or cancel Ready)", Input Binding String(Button(Interact)), Input Binding String(Button(Crouch)), Null), Null, Right, 24, Color(White), Color(Aqua), Color(White), Visible To and String, Default Visibility);
 		Global.HelpHud[4] = Last Text ID;
 
+        //Add Seconds
+		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} : adds extra 20 seconds to setup", Input Binding String(Button(Ultimate))), Null, Right, 25, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+		Global.HelpHud[5] = Last Text ID;
+
+        //Add 5 mins
+		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Adds 5 min break timer", Input Binding String(Button(Interact)), Input Binding String(Button(Ultimate))), Null, Right, 26, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+		Global.HelpHud[6] = Last Text ID;
+
         //Teleport Prompt BROKEN BELOW "EXPECTED ( AFTER OR"
-		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} : Teleport (works only in Defense, in spawn)", Input Binding String(Button(Melee))), Null, Right, 25, Color(White), Color(Orange), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[9] = Last Text ID;
+		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} : Teleport (works only in Defense, in spawn)", Input Binding String(Button(Melee))), Null, Right, 27, Color(White), Color(Orange), Color(White), Visible To and String, Default Visibility);
+		Global.HelpHud[7] = Last Text ID;
 
         //Change heroes
-		Create HUD Text(All Players(All Teams), Null, Custom String("Hold {0} : Change hero (works only in Defense)", Input Binding String(Button(Reload))), Null, Right, 26, Color(White), Color(Yellow), Color(White), Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Custom String("Hold {0} : Change hero (works only in Defense)", Input Binding String(Button(Reload))), Null, Right, 28, Color(White), Color(Yellow), Color(White), Visible To and String, Default Visibility);
 		Global.HelpHud[10] = Last Text ID;
 
-        /**
-        * Barrier Texts
-        *    Barrier texts for sure lmao
-        **/ 
-        Create HUD Text(All Players(All Teams), Null, Custom String(" "), Null, Right, 20, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-        Global.HelpHud[0] = Last Text ID;
-	
-        Create HUD Text(All Players(All Teams), Null, Custom String(" "), Null, Right, 21, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-        Global.HelpHud[1] = Last Text ID;
 
-		Create HUD Text(Null, Null, Null, Custom String(" "), Right, 27, Color(White), Color(White), Color(White), Visible To and String, Visible Always);
-		Global.HelpHud[5] = Last Text ID;
+
 
 	}
 }
+
+
