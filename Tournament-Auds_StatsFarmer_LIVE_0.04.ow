@@ -3,7 +3,7 @@ Live Settings - settings
 **/
 settings{
 	main{
-		Description: "Aud's Stats Farmer V0.0.4, the tournament version, built off of Seita's Scrim Lobby (Version 1.22) | To parse stats go to: https://pro-v2.lab.insights.gg/ | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer. For updates on Seita's lobby go to https://twitter.com/Seita"
+		Description: "Aud's Stats Farmer V0.0.4, created for official matches, it still collects stats but treats it like a normal comp game | To parse stats go to: https://pro-v2.lab.insights.gg/ | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer."
 	}
 
 	lobby{
