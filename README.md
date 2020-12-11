@@ -14,7 +14,7 @@ This is [Aud](https://twitter.com/MrCoachAud)'s Overwatch Workshop Farmer, an op
 You can find more info on our [website](https://pro-v2.lab.insights.gg), which also happens to be the place where you can convert the logs created by this workshop to usable CSV.
 
 # Explaining the Farmer
-The farmer uses the `Log To Inspector` feature to push `Events` to a log, which the website then translates to CSV, which you can use inside of your typical spreadsheet jocky experiements if you like that stuff ;) 
+The farmer uses the `Log To Inspector` feature to push `Events` to a log, which the website then translates to CSV, which you can use inside of your typical spreadsheet jocky experiments if you like that stuff ;) 
 
 You can read the detailed version of what all of that jazz means on the [site](https://pro-v2.lab.insights.gg), for this is meant to explain the code itself.
 
