@@ -355,7 +355,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 *       - Final Blows         (Us)
 *       - Ults                (Seita and Us)
 *       - Suicides            (us)
-*       - ENVIRNOMENTAL Kills (Us)
+*       - Environmental Kills (Us)
 **/
 //Tracks Damages
 rule("Damage Done & Taken")
@@ -735,7 +735,7 @@ rule("Kills | Normal"){
 }
 
 //Environ Kills
-rule("Kills | ENVIRNOMENTAL"){
+rule("Kills | ENVIRONMENTAL"){
     event{
         Player Died;
         All;
@@ -750,7 +750,7 @@ rule("Kills | ENVIRNOMENTAL"){
 
     actions{
         //Log env kill
-        Log to Inspector(Custom String("[ENVIRNOMENTAL_KILL] {0} killed {1} using [{2}]",
+        Log to Inspector(Custom String("[ENVIRONMENTAL_KILL] {0} killed {1} using [{2}]",
         		Custom String("[{0}] [{1}], [{2}]", Attacker, Hero of(Attacker), Team of(Attacker)),
         		Custom String("[{0}] [{1}]", Event Player, Hero of(Event Player), Null),
         		Event Ability));
@@ -795,7 +795,7 @@ rule("Suicide | Off Cliff"){
 
     actions{
         //log suicide from fall
-        Log to Inspector(Custom String("[SUICIDE_ENVIRNOMENTAL_DEATH] {0} fell from a high place",
+        Log to Inspector(Custom String("[SUICIDE_ENVIRONMENTAL_DEATH] {0} fell from a high place",
         		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Null,
         		Null));
