@@ -3,7 +3,7 @@ Live Settings - settings
 **/
 settings{
 	main{
-		Description: "Aud's Stats Farmer V0.0.4, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer. For updates on Seita's lobby go to https://twitter.com/Seita"
+		Description: "Aud's Stats Farmer V0.0.4, the Scrim version, built off of Seita's Scrim Lobby (Version 1.22) | To parse stats go to: https://pro-v2.lab.insights.gg/ | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer. For updates on Seita's lobby go to https://twitter.com/Seita"
 	}
 
 	lobby{
@@ -136,9 +136,7 @@ variables
 		27: AttackingTeam
 		28: DefendingTeam
 		29: UpdateTeamsNeedSide
-		30: Fight
-		//25: Positions
-		//26: PositionCount
+		31: IsOvertime
 
 	player:
 		0: DamageDone
@@ -152,6 +150,7 @@ variables
 		8: H
 		9: HealingReceived
 		10: HealingSelf
+		11: LastUltCharge
 }
 
 
@@ -212,7 +211,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 
 		Log To Inspector(
-			Custom String("[VERSION] Running on version [0.0.4]")	
+			Custom String("[VERSION] Running on version [0.0.4] [Scrim] version")	
 		);
 
 		//If On Control don't log out the attacker and defender, just log teams
@@ -275,7 +274,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 						)
 					),
 
-					Null
+					Custom String(" Map type is [{0}]", Current Game Mode, Null, Null)
 				)
 			
 			
@@ -338,7 +337,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 					)
 				),
 
-				Null
+				Custom String(" Map type is [{0}]", Current Game Mode, Null, Null)
 			)
 		
 		
@@ -380,11 +379,6 @@ rule("Damage Done & Taken")
         //Update Internal
 		Event Player.DamageDone += Event Damage;
 		Victim.DamageTaken += Event Damage;
-
-		//When someone deals damage variable fight is initiated
-		Global.Fight=0;
-
-
 	}
 }
 
@@ -467,8 +461,7 @@ rule("Track Rez"){
 
 
 //Catches all unspecial ults
-rule("Ults used not echo or dva")
-{
+rule("Ults used not echo or dva"){
 	event
 	{
 		Ongoing - Each Player;
@@ -499,8 +492,7 @@ rule("Ults used not echo or dva")
 }
 
 //When ultimate used that's not duplicate
-rule("Echo used ult during copy")
-{
+rule("Echo used ult during copy"){
 	event
 	{
 		Ongoing - Each Player;
@@ -558,8 +550,7 @@ rule("Echo Dup Ult Used"){
 }
 
 //TODO: Fix Baby vs Mech D.va
-rule("D.va Used Bomb | D.va Remeched")
-{
+rule("D.va Used Bomb | D.va Remeched"){
 	event
 	{
 		Ongoing - Each Player;
@@ -680,8 +671,7 @@ rule("Kills | Environmental"){
 }
 
 //Just normal deaths
-rule("Deaths | Normal")
-{
+rule("Deaths | Normal"){
 	event
 	{
 		Player Died;
@@ -807,7 +797,8 @@ rule("Player position"){
         
         
     }
-}**/
+}
+**/
 
 //Track Dva demech
 rule("Dva mech loss"){
@@ -852,6 +843,46 @@ rule("Dva mech loss"){
 	}
 
 }
+
+//Track Ult Charge | Eventually we'll be logging everytime ult charge updates
+rule("Ult Charge Update"){
+	event{
+		Ongoing - Each Player;
+		All;
+		All;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+	}
+
+	actions{
+		//If we didn't
+		Skip If(Ultimate Charge Percent(Event Player) != 100, 2);
+		//If we just hit ult max
+		Skip If( Ultimate Charge Percent(Event Player) == 100 &&  Event Player.LastUltCharge == 100 , 1);
+
+		Log To Inspector(
+			Custom String("[MAX_ULT_CHARGE] [{0}]'s [{1}] playing [{2}] just hit 100% on their ult charge",
+				Team Of(Event Player),
+
+				Event Player,
+
+				Hero Of(Event Player)
+			)
+		);
+
+		//Update the ult charge
+		Event Player.LastUltCharge = Ultimate Charge Percent(Event Player);
+
+
+		wait(0.5, Ignore Condition);
+		Loop;
+
+
+	}
+}
+
 
 /**
 * Logging Game Data
@@ -1229,6 +1260,48 @@ rule("Report round score control"){
 
     }
 }
+
+
+rule("Log out overtime"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		Match Time == 0;
+		Global.IsOvertime != True;
+	}
+
+	actions{
+		Global.IsOvertime = True;
+		Log To Inspector(
+			Custom String("[IS_OVERTIME]")
+		);
+	}
+
+}
+
+rule("Overtime done"){
+	event{
+		Ongoing - Global;
+	}
+
+	conditions{
+		Is Game In Progress == True;
+		MatchTime != 0;
+		Global.IsOvertime == True;
+	}
+
+	actions{
+		Global.IsOvertime = False;
+		Log To Inspector(
+			Custom String("[IS_NOT_OVERTIME]")
+		);
+	}
+
+}
+
 
 rule("Game not in progress: Tell log game done"){
     event{
@@ -1954,12 +2027,17 @@ rule("Both Teams Ready: Match starts in 5 sec, Remove HUD, Reset variables")
 	{
 		Set Match Time(5);
 		Wait(1, Ignore Condition);
+
 		Global.Team1Ready = False;
 		Global.Team2Ready = False;
+
 		Global.TimeCooldown = 0;
 		Global.BreakCooldown = 0;
+		
 		Global.T1ReadyCD = 0;
 		Global.T2ReadyCD = 0;
+
+		Global.IsOvertime = False;
 
 		Destroy HUD Text(Global.Team1Hud[0]);
 		Destroy HUD Text(Global.Team1Hud[1]);
