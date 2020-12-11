@@ -3,7 +3,7 @@ Live Settings - settings
 **/
 settings{
 	main{
-		Description: "Aud's Stats Farmer V0.0.2, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer. For updates on Seita's lobby go to https://twitter.com/Seita"
+		Description: "Aud's Stats Farmer V0.0.3, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer. For updates on Seita's lobby go to https://twitter.com/Seita"
 	}
 
 	lobby{
@@ -44,7 +44,6 @@ settings{
 			Skins: Off
 		}
 	}
-
 
 }
 
@@ -212,7 +211,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 
 
 		Log To Inspector(
-			Custom String("[VERSION] Running on version [0.0.2]")	
+			Custom String("[VERSION] Running on version [0.0.3]")	
 		);
 
 		//If On Control don't log out the attacker and defender, just log teams
