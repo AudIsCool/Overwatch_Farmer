@@ -201,7 +201,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		Destroy HUD Text(Global.HelpHud[5]);
 		Destroy HUD Text(Global.HelpHud[6]);
 		Destroy HUD Text(Global.HelpHud[7]);
-		Destroy HUD Text(Global.HelpHud[8]);
 		Destroy HUD Text(Global.HelpHud[9]);
 		Destroy HUD Text(Global.HelpHud[10]);
 
@@ -1979,7 +1978,6 @@ rule("Setup Seita Scrim lobby text")
 		Global.HelpHud[5] = -1;
 		Global.HelpHud[6] = -1;
 		Global.HelpHud[7] = -1;
-		Global.HelpHud[8] = -1;
 		Global.HelpHud[9] = -1;
 		Global.HelpHud[10] = -1;
 
@@ -2053,7 +2051,6 @@ rule("Both Teams Ready: Match starts in 5 sec, Remove HUD, Reset variables")
 		Destroy HUD Text(Global.HelpHud[5]);
 		Destroy HUD Text(Global.HelpHud[6]);
 		Destroy HUD Text(Global.HelpHud[7]);
-		Destroy HUD Text(Global.HelpHud[8]);
 		Destroy HUD Text(Global.HelpHud[9]);
 		Destroy HUD Text(Global.HelpHud[10]);
 
@@ -2358,24 +2355,18 @@ rule("Help HUD at the start of the game")
 	{
         /**
         * Info Texts
-        *    - Stats are only for specs
-        *    - How Stats work | Tanks & DPS
-        *    - How Stats work | Supports
+        *    - Branding and info
         **/
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("Aud's Overwatch Farmer"), Right, 20, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+        Global.HelpHud[0] = Last Text ID;
 
-        //Stats are only for specs
-		Create HUD Text(Null, Null, Custom String("Statistics are only shown to Spectators"), Null, Right, 28, Color(White), Color(Aqua), Color(White), Visible To and String, Visible Always);
-		Global.HelpHud[6] = Last Text ID;
+        	
 
-        //How stats work | DPS & Tanks
-		Create HUD Text(Null, Null, Custom String("DPS&Tanks: Damage Done - Damage Taken - Ults used  - Deaths"), Null, Right, 29, Color(White), Color(White), Color(White), Visible To and String, Visible Always);
-		Global.HelpHud[7] = Last Text ID;
-
-        //How Stats work | Supports
-		Create HUD Text(Null, Null, Custom String("Supports: Damage Done - Healing Done - Ults used - Deaths"), Null, Right, 30, Color(White), Color(White), Color(White), Visible To and String, Visible Always);
-		Global.HelpHud[8] = Last Text ID;
-
-
+		Create HUD Text(All Players(All Teams), Null, Custom String("Stats can be found in the Inspector, make sure you read the intro section at https://pro-v2.lab.insights.gg/"), Null, Right, 21, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+        Global.HelpHud[1] = Last Text ID;
+		
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String(" "), Right, 22, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+        Global.HelpHud[2] = Last Text ID;
 
 		/**
         * Control Texts
@@ -2386,38 +2377,33 @@ rule("Help HUD at the start of the game")
         *    - Controls | Change Heroes
         **/
 
+
+		//Instructions title
+		Create HUD Text(All Players(All Teams), Null, Null, Custom String("Player Control Instructions"), Right, 23, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+        Global.HelpHud[3] = Last Text ID;
+
         //Ready Intro Text
-        Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Ready (or cancel Ready)", Input Binding String(Button(Interact)), Input Binding String(Button(Crouch)), Null), Null, Right, 22, Color(White), Color(Aqua), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[2] = Last Text ID;
-
-        //Add Seconds
-		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} : adds extra 20 seconds to setup", Input Binding String(Button(Ultimate))), Null, Right, 23, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[3] = Last Text ID;
-
-        //Add 5 mins
-		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Adds 5 min break timer", Input Binding String(Button(Interact)), Input Binding String(Button(Ultimate))), Null, Right, 24, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+        Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Ready (or cancel Ready)", Input Binding String(Button(Interact)), Input Binding String(Button(Crouch)), Null), Null, Right, 24, Color(White), Color(Aqua), Color(White), Visible To and String, Default Visibility);
 		Global.HelpHud[4] = Last Text ID;
 
+        //Add Seconds
+		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} : adds extra 20 seconds to setup", Input Binding String(Button(Ultimate))), Null, Right, 25, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+		Global.HelpHud[5] = Last Text ID;
+
+        //Add 5 mins
+		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Adds 5 min break timer", Input Binding String(Button(Interact)), Input Binding String(Button(Ultimate))), Null, Right, 26, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
+		Global.HelpHud[6] = Last Text ID;
+
         //Teleport Prompt BROKEN BELOW "EXPECTED ( AFTER OR"
-		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} : Teleport (works only in Defense, in spawn)", Input Binding String(Button(Melee))), Null, Right, 25, Color(White), Color(Orange), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[9] = Last Text ID;
+		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} : Teleport (works only in Defense, in spawn)", Input Binding String(Button(Melee))), Null, Right, 27, Color(White), Color(Orange), Color(White), Visible To and String, Default Visibility);
+		Global.HelpHud[7] = Last Text ID;
 
         //Change heroes
-		Create HUD Text(All Players(All Teams), Null, Custom String("Hold {0} : Change hero (works only in Defense)", Input Binding String(Button(Reload))), Null, Right, 26, Color(White), Color(Yellow), Color(White), Visible To and String, Default Visibility);
+		Create HUD Text(All Players(All Teams), Null, Custom String("Hold {0} : Change hero (works only in Defense)", Input Binding String(Button(Reload))), Null, Right, 28, Color(White), Color(Yellow), Color(White), Visible To and String, Default Visibility);
 		Global.HelpHud[10] = Last Text ID;
 
-        /**
-        * Barrier Texts
-        *    Barrier texts for sure lmao
-        **/ 
-        Create HUD Text(All Players(All Teams), Null, Custom String(" "), Null, Right, 20, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-        Global.HelpHud[0] = Last Text ID;
-	
-        Create HUD Text(All Players(All Teams), Null, Custom String(" "), Null, Right, 21, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-        Global.HelpHud[1] = Last Text ID;
 
-		Create HUD Text(Null, Null, Null, Custom String(" "), Right, 27, Color(White), Color(White), Color(White), Visible To and String, Visible Always);
-		Global.HelpHud[5] = Last Text ID;
+
 
 	}
 }
