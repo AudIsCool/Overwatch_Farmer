@@ -3,7 +3,7 @@ Live Settings - settings
 **/
 settings{
 	main{
-		Description: "Aud's Stats Farmer V0.0.4, the Scrim version, built off of Seita's Scrim Lobby (Version 1.22) | To parse stats go to: https://pro-v2.lab.insights.gg/ | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer. For updates on Seita's lobby go to https://twitter.com/Seita"
+		Description: "Aud's Stats Farmer V0.0.4, created for official matches, it still collects stats but treats it like a normal comp game | To parse stats go to: https://pro-v2.lab.insights.gg/ | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer."
 	}
 
 	lobby{
@@ -49,86 +49,10 @@ settings{
 }
 
 
-
-/**
-Dev - Settings
-settings
-{
-	main
-	{
-		Description: "Aud's Stats Farmer, built off of Seita's Scrim Lobby (Version 1.22) | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/OW_LobbyCodes/OW_SeitaStatsFarm. For updates on Seita's lobby go to https://twitter.com/Seita"
-	}
-
-	lobby
-	{
-		Max Spectators: 12
-	}
-
-	modes
-	{
-		disabled Assault
-		{
-			Competitive Rules: On
-		}
-
-		disabled Control
-		{
-			Competitive Rules: On
-			Score To Win: 3
-		}
-
-		disabled Escort
-		{
-			Competitive Rules: On
-		}
-
-		disabled Hybrid
-		{
-			Competitive Rules: On
-		}
-
-		Practice Range
-
-		General
-		{
-			Game Mode Start: Immediately
-			Hero Limit: 2 Per Team
-			Kill Cam: Off
-			Limit Roles: 2 Of Each Role Per Team
-			Skins: Off
-		}
-	}
-
-	heroes
-	{
-		General
-		{
-			Spawn With Ultimate Ready: On
-		}
-	}
-}
-**/
-
-
 //Intro Variables that allow us to run the game
-variables
-{
+variables{
 	global:
-		0: Team1Ready
-		1: Team2Ready
 		2: GameMode
-		3: ScoreModified
-		4: TimeCooldown
-		5: BreakCooldown
-		6: T1ReadyCD
-		7: T2ReadyCD
-		8: Team1Hud
-		10: HelpHud
-		11: Team2Hud
-		17: FirstRoundDone
-		20: Disconnect
-		21: DcSlot
-		22: DcTeam
 		23: UltChargeLoop
 		24: UltChargeTable
 		25: WhoControlsPoint
@@ -177,33 +101,6 @@ rule("Game in Progress: Remove HUD, Reset variables")
 		Global.UpdateTeamsNeedSide = True;
 		Global.WhoControlsPoint = Control Mode Scoring Team;
 		Global.CaptureProgress = Objective Position(Objective Index);
-
-		Global.Team1Ready = False;
-		Global.Team2Ready = False;
-
-		Global.TimeCooldown = 0;
-		Global.BreakCooldown = 0;
-
-		Global.T1ReadyCD = 0;
-		Global.T2ReadyCD = 0;
-
-		Destroy HUD Text(Global.Team1Hud[0]);
-		Destroy HUD Text(Global.Team1Hud[1]);
-		Destroy HUD Text(Global.Team1Hud[2]);
-		Destroy HUD Text(Global.Team2Hud[0]);
-		Destroy HUD Text(Global.Team2Hud[1]);
-		Destroy HUD Text(Global.Team2Hud[2]);
-		Destroy HUD Text(Global.HelpHud[0]);
-		Destroy HUD Text(Global.HelpHud[1]);
-		Destroy HUD Text(Global.HelpHud[2]);
-		Destroy HUD Text(Global.HelpHud[3]);
-		Destroy HUD Text(Global.HelpHud[4]);
-		Destroy HUD Text(Global.HelpHud[5]);
-		Destroy HUD Text(Global.HelpHud[6]);
-		Destroy HUD Text(Global.HelpHud[7]);
-		Destroy HUD Text(Global.HelpHud[9]);
-		Destroy HUD Text(Global.HelpHud[10]);
-
 
 		//Wait to make sure everyone's in lobby
 		wait(2.500, Ignore Condition);
@@ -355,7 +252,7 @@ rule("Game in Progress: Remove HUD, Reset variables")
 *       - Final Blows         (Us)
 *       - Ults                (Seita and Us)
 *       - Suicides            (us)
-*       - ENVIRNOMENTAL Kills (Us)
+*       - Environmental Kills (Us)
 **/
 //Tracks Damages
 rule("Damage Done & Taken")
@@ -735,7 +632,7 @@ rule("Kills | Normal"){
 }
 
 //Environ Kills
-rule("Kills | ENVIRNOMENTAL"){
+rule("Kills | ENVIRONMENTAL"){
     event{
         Player Died;
         All;
@@ -750,7 +647,7 @@ rule("Kills | ENVIRNOMENTAL"){
 
     actions{
         //Log env kill
-        Log to Inspector(Custom String("[ENVIRNOMENTAL_KILL] {0} killed {1} using [{2}]",
+        Log to Inspector(Custom String("[ENVIRONMENTAL_KILL] {0} killed {1} using [{2}]",
         		Custom String("[{0}] [{1}], [{2}]", Attacker, Hero of(Attacker), Team of(Attacker)),
         		Custom String("[{0}] [{1}]", Event Player, Hero of(Event Player), Null),
         		Event Ability));
@@ -795,7 +692,7 @@ rule("Suicide | Off Cliff"){
 
     actions{
         //log suicide from fall
-        Log to Inspector(Custom String("[SUICIDE_ENVIRNOMENTAL_DEATH] {0} fell from a high place",
+        Log to Inspector(Custom String("[SUICIDE_ENVIRONMENTAL_DEATH] {0} fell from a high place",
         		Custom String("[{0}] [{1}], [{2}]", Event Player, Hero of(Event Player), Team of(Event Player)),
         		Null,
         		Null));
@@ -1445,1085 +1342,95 @@ rule("Game not in progress: Tell log game done"){
 
 
 
+
+
 /**
-* Quality of Life Changes
-*     Below are a bunch of quality of life changes 
-*     made to custom scrim lobbies that I stole straight
-*     from Seita (credit where credit due :D)
-*     It includes:
-*         - hold reload to change hero on defense
-*         - hold melee to teleport to first point 
-*         - And score sets to max upon round change 
+* Handling for when players leave // join game
 **/
-rule("Hold Reload: Change hero for Defense team")
-{
-	event
-	{
-		Ongoing - Each Player;
+rule("When a player leaves"){
+	event{
+		Player Left Match;
 		All;
 		All;
 	}
 
-	conditions
-	{
-		Is In Setup == True;
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Reload)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-		Match Time >= 1;
+	conditions{
+		Is Game In Progress == True;
 	}
 
-	actions
-	{
-		Wait(0.200, Abort When False);
-		Small Message(Event Player, Custom String("keep holding reload to change hero"));
-		Wait(0.700, Abort When False);
-		Event Player.HeroList = All Heroes;
-		Modify Player Variable(Event Player, HeroList, Remove From Array By Value, Hero Of(Event Player));
-		Set Player Allowed Heroes(Event Player, Event Player.HeroList);
-		Wait(0.100, Ignore Condition);
-		Set Player Allowed Heroes(Event Player, All Heroes);
-	}
-}
 
-rule("First attack done")
-{
-	event
-	{
-		Ongoing - Global;
-	}
+	actions{
+		//Log out what players are left
+		Log To Inspector(
+				Custom String("[PLAYER_LEFT] Here's who's left: Attacker: {0} , Defender: {1}", 
+				//Team One
+				Custom String("[{0}] : {1} {2}",
+					Global.AttackingTeam,
 
-	conditions
-	{
-		Is Between Rounds == True;
-		Is Team On Offense(Team 2) == True;
-		Global.ScoreModified == 0;
-	}
+					//Player List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Global.AttackingTeam), Players In Slot(1, Global.AttackingTeam), Players In Slot(2, Global.AttackingTeam)),
 
-	actions
-	{
-		Wait(15, Ignore Condition);
-		Global.FirstRoundDone = True;
-	}
-}
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Global.AttackingTeam), Players In Slot(4, Global.AttackingTeam), Players In Slot(5, Global.AttackingTeam)),
 
-rule("Set Team Score: Escort & Hybrid")
-{
-	event
-	{
-		Ongoing - Global;
-	}
+						Null 
+					),
 
-	conditions
-	{
-		Global.FirstRoundDone == True;
-		Global.GameMode == 1;
-	}
+					//Hero List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Global.AttackingTeam)), Hero of(Players In Slot(1, Global.AttackingTeam)), Hero of(Players In Slot(2, Global.AttackingTeam))),
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Global.AttackingTeam)), Hero of(Players In Slot(4, Global.AttackingTeam)), Hero of(Players In Slot(5, Global.AttackingTeam))),
+						Null 
+					)
+				),
+				//Team Two
+				Custom String("[{0}] : {1} {2}",
+					Global.DefendingTeam,
 
-	actions
-	{
-		Set Team Score(Team 2, 3);
-		Global.ScoreModified = 1;
-	}
-}
+					//Player List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(0, Global.DefendingTeam), Players In Slot(1, Global.DefendingTeam), Players In Slot(2, Global.DefendingTeam)),
 
-rule("Set Team Score: Assault")
-{
-	event
-	{
-		Ongoing - Global;
-	}
+						Custom String("[{0}], [{1}], [{2}]", Players In Slot(3, Global.DefendingTeam), Players In Slot(4, Global.DefendingTeam), Players In Slot(5, Global.DefendingTeam)),
 
-	conditions
-	{
-		Global.FirstRoundDone == True;
-		Global.GameMode == 2;
-	}
+						Null 
+					),
 
-	actions
-	{
-		Set Team Score(Team 2, 2);
-		Global.ScoreModified = 1;
-	}
-}
 
-/**
-* Game Mode Check
-*	Check to see what game mode we're on and update the score accordingly
-**/
+					//Hero List
+					Custom String("{0}, {1}",
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(0, Global.DefendingTeam)), Hero of(Players In Slot(1, Global.DefendingTeam)), Hero of(Players In Slot(2, Global.DefendingTeam))),
+						Custom String("[{0}], [{1}], [{2}]", Hero of(Players In Slot(3, Global.DefendingTeam)), Hero of(Players In Slot(4, Global.DefendingTeam)), Hero of(Players In Slot(5, Global.DefendingTeam))),
+						Null 
+					)
+				),
 
-rule("Game Mode check: Escort")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Current Game Mode == Game Mode(Escort);
-	}
-
-	actions
-	{
-		Global.GameMode = 1;
-	}
-}
-
-rule("Game Mode check: Hybrid")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Current Game Mode == Game Mode(Hybrid);
-	}
-
-	actions
-	{
-		Global.GameMode = 1;
-	}
-}
-
-rule("Game Mode check: Assault")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Current Game Mode == Game Mode(Assault);
-	}
-
-	actions
-	{
-		Global.GameMode = 2;
-	}
-}
-
-rule("Game Mode check: Control")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Current Game Mode == Game Mode(Control);
-	}
-
-	actions
-	{
-		Global.GameMode = 3;
+				Null
+			)
+		);
 	}
 }
 
 
-/**
-* Seita's Teleportation 
-*     Below is seita's teleportion tech that allows users
-*     to teleport to a place on the map when on defence to make 
-*     setup faster.
-**/
-rule("Press Melee: Blizz World (Press Melee for all of the maps)")
-{
-	event
-	{
-		Ongoing - Each Player;
+
+
+rule("When a player joins"){
+	event{
+		Player Joined Match;
 		All;
 		All;
 	}
 
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Blizzard World);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
+	conditions{
+		Is Game In Progress == True;
 	}
 
-	actions
-	{
-		Teleport(Event Player, Vector(-8.171, 3.824, 65.861));
+
+	actions{
+		//Log out what player left
+		Log To Inspector(
+			Custom String("[PLAYER_JOIN] Player [{0}] jonined team [{1}] ", Event Player, Team of(Event Player), Null)
+		);
 	}
 }
-
-rule("Eichen")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Eichenwalde);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(13.226, 12.981, -83.655));
-	}
-}
-
-rule("Hollywood")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Hollywood);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(-19.248, 8.007, -9.802));
-	}
-}
-
-rule("Kings")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(King's Row);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(-37.185, 10.346, -15.058));
-	}
-}
-
-rule("Numbani")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Numbani);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(93.044, 5.530, -22.723));
-	}
-}
-
-rule("Hanamura")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Hanamura);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(13.079, 1.346, -24.267));
-	}
-}
-
-rule("Horizon")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Horizon Lunar Colony);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(42.356, 15.840, -79.798));
-	}
-}
-
-rule("Paris")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Paris);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(-40.379, 16.500, -14.259));
-	}
-}
-
-rule("Anubis")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Temple of Anubis);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(-23.909, 3.312, 46.940));
-	}
-}
-
-rule("Volskaya")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Volskaya Industries);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(-35.545, -1.433, 73.561));
-	}
-}
-
-rule("Dorado")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Dorado);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(57.088, 9.241, -16.884));
-	}
-}
-
-rule("Havana")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Havana);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(-18.059, 9.184, -70.117));
-	}
-}
-
-rule("Junkertown")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Junkertown);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(-28.382, 14.223, -68.289));
-	}
-}
-
-rule("Rialto")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Rialto);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(55.603, 2.452, -44.947));
-	}
-}
-
-rule("Route")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Route 66);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(33.662, 10.325, -5.514));
-	}
-}
-
-rule("Gibraltar")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is In Setup == True;
-		Current Map == Map(Watchpoint: Gibraltar);
-		Is Team On Defense(Team Of(Event Player)) == True;
-		Is In Spawn Room(Event Player) == True;
-		Has Spawned(Event Player) == True;
-		Is Button Held(Event Player, Button(Melee)) == True;
-		Is Alive(Event Player) == True;
-		Hero Of(Event Player) == True;
-	}
-
-	actions
-	{
-		Teleport(Event Player, Vector(32.488, 4.692, -71.941));
-	}
-}
-
-
-/**
-*   Scrim Lobby Controls
-*       These are the controls that allow for 
-*       Seita's unique custom scrim lobby design 
-**/ 
-rule("Setup Seita Scrim lobby text")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	actions
-	{
-		//Disable Inspector Recording;
-		Global.Team1Hud[0] = -1;
-		Global.Team1Hud[1] = -1;
-		Global.Team1Hud[2] = -1;
-		Global.Team2Hud[0] = -1;
-		Global.Team2Hud[1] = -1;
-		Global.Team2Hud[2] = -1;
-
-		Global.HelpHud[0] = -1;
-		Global.HelpHud[1] = -1;
-		Global.HelpHud[2] = -1;
-		Global.HelpHud[3] = -1;
-		Global.HelpHud[4] = -1;
-		Global.HelpHud[5] = -1;
-		Global.HelpHud[6] = -1;
-		Global.HelpHud[7] = -1;
-		Global.HelpHud[9] = -1;
-		Global.HelpHud[10] = -1;
-
-		//Global.Positions = Array();
-		//Global.PositionCount = 0;
-
-	}
-}
-
-rule("Remove Assembling Heroes")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Is Assembling Heroes == True;
-	}
-
-	actions
-	{
-		Set Match Time(0);
-		Wait(5, Ignore Condition);
-		Set Match Time(30);
-	}
-}
-
-rule("Both Teams Ready: Match starts in 5 sec, Remove HUD, Reset variables")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Global.Team1Ready == True;
-		Global.Team2Ready == True;
-	}
-
-	actions
-	{
-		Set Match Time(5);
-		Wait(1, Ignore Condition);
-
-		Global.Team1Ready = False;
-		Global.Team2Ready = False;
-
-		Global.TimeCooldown = 0;
-		Global.BreakCooldown = 0;
-		
-		Global.T1ReadyCD = 0;
-		Global.T2ReadyCD = 0;
-
-		Global.IsOvertime = False;
-
-		Destroy HUD Text(Global.Team1Hud[0]);
-		Destroy HUD Text(Global.Team1Hud[1]);
-		Destroy HUD Text(Global.Team1Hud[2]);
-		Destroy HUD Text(Global.Team2Hud[0]);
-		Destroy HUD Text(Global.Team2Hud[1]);
-		Destroy HUD Text(Global.Team2Hud[2]);
-		Destroy HUD Text(Global.HelpHud[0]);
-		Destroy HUD Text(Global.HelpHud[1]);
-		Destroy HUD Text(Global.HelpHud[2]);
-		Destroy HUD Text(Global.HelpHud[3]);
-		Destroy HUD Text(Global.HelpHud[4]);
-		Destroy HUD Text(Global.HelpHud[5]);
-		Destroy HUD Text(Global.HelpHud[6]);
-		Destroy HUD Text(Global.HelpHud[7]);
-		Destroy HUD Text(Global.HelpHud[9]);
-		Destroy HUD Text(Global.HelpHud[10]);
-
-        //Print out what round we're on
-        //Log to Inspector(Custom String("[ROUND_START] Started Round: {0} on Map: {1}", Current Map, Match Round));
-
-        
-	}
-}
-
-rule("Ultimate: +20s match time while in setup")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Match Time >= 1;
-		Hero Of(Event Player) == True;
-		Is Button Held(Event Player, Button(Ultimate)) == True;
-		Is Button Held(Event Player, Button(Interact)) == False;
-		Global.TimeCooldown == 0;
-	}
-
-	actions
-	{
-		Global.TimeCooldown = 2;
-		Set Match Time(Match Time + 20);
-		Chase Global Variable At Rate(TimeCooldown, 0, 1, Destination and Rate);
-		Small Message(All Players(All Teams), String("{0} {1}", Event Player, Custom String("added 20 seconds")));
-	}
-}
-
-rule("Interact + Ultimate: +5min match time while in setup")
-{
-	event
-	{
-		Ongoing - Each Player;
-		All;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Match Time >= 1;
-		Hero Of(Event Player) == True;
-		Is Button Held(Event Player, Button(Ultimate)) == True;
-		Is Button Held(Event Player, Button(Interact)) == True;
-		Global.BreakCooldown == 0;
-	}
-
-	actions
-	{
-		Global.BreakCooldown = 10;
-		Global.TimeCooldown = 10;
-		Set Match Time(Match Time + 300);
-		Chase Global Variable At Rate(BreakCooldown, 0, 1, Destination and Rate);
-		Chase Global Variable At Rate(TimeCooldown, 0, 1, Destination and Rate);
-		Small Message(All Players(All Teams), String("{0} {1}", Event Player, Custom String("added 5 mins")));
-	}
-}
-
-rule("Crouch + Interact: Team 1 Ready")
-{
-	event
-	{
-		Ongoing - Each Player;
-		Team 1;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Match Time > 5;
-		Hero Of(Event Player) == True;
-		Is Button Held(Event Player, Button(Crouch)) == True;
-		Is Button Held(Event Player, Button(Interact)) == True;
-		Global.Team1Ready == False;
-		Global.T1ReadyCD == 0;
-	}
-
-	actions
-	{
-		Global.T1ReadyCD = 1;
-		Wait(0.100, Ignore Condition);
-		Global.Team1Ready = True;
-		Chase Global Variable At Rate(T1ReadyCD, 0, 1, Destination and Rate);
-		Chase Global Variable At Rate(T2ReadyCD, 0, 1, Destination and Rate);
-		Small Message(All Players(All Teams), String("{0} {1}", Event Player, Custom String("readied their team")));
-	}
-}
-
-rule("Crouch + Interact: Team 1 Not Ready")
-{
-	event
-	{
-		Ongoing - Each Player;
-		Team 1;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Match Time > 5;
-		Hero Of(Event Player) == True;
-		Is Button Held(Event Player, Button(Crouch)) == True;
-		Is Button Held(Event Player, Button(Interact)) == True;
-		Global.Team1Ready == True;
-		Global.T1ReadyCD == 0;
-	}
-
-	actions
-	{
-		Global.T1ReadyCD = 1;
-		Wait(0.100, Ignore Condition);
-		Global.Team1Ready = False;
-		Chase Global Variable At Rate(T1ReadyCD, 0, 1, Destination and Rate);
-		Chase Global Variable At Rate(T2ReadyCD, 0, 1, Destination and Rate);
-		Small Message(All Players(All Teams), String("{0} {1}", Event Player, Custom String("unreadied their team")));
-	}
-}
-
-rule("Crouch + Interact: Team 2 Ready")
-{
-	event
-	{
-		Ongoing - Each Player;
-		Team 2;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Match Time > 5;
-		Hero Of(Event Player) == True;
-		Is Button Held(Event Player, Button(Crouch)) == True;
-		Is Button Held(Event Player, Button(Interact)) == True;
-		Global.Team2Ready == False;
-		Global.T2ReadyCD == 0;
-	}
-
-	actions
-	{
-		Global.T2ReadyCD = 1;
-		Wait(0.100, Ignore Condition);
-		Global.Team2Ready = True;
-		Chase Global Variable At Rate(T1ReadyCD, 0, 1, Destination and Rate);
-		Chase Global Variable At Rate(T2ReadyCD, 0, 1, Destination and Rate);
-		Small Message(All Players(All Teams), String("{0} {1}", Event Player, Custom String("readied their team")));
-	}
-}
-
-rule("Crouch + Interact: Team 2 Not Ready")
-{
-	event
-	{
-		Ongoing - Each Player;
-		Team 2;
-		All;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Match Time > 5;
-		Hero Of(Event Player) == True;
-		Is Button Held(Event Player, Button(Crouch)) == True;
-		Is Button Held(Event Player, Button(Interact)) == True;
-		Global.Team2Ready == True;
-		Global.T2ReadyCD == 0;
-	}
-
-	actions
-	{
-		Global.T2ReadyCD = 1;
-		Wait(0.100, Ignore Condition);
-		Global.Team2Ready = False;
-		Chase Global Variable At Rate(T1ReadyCD, 0, 1, Destination and Rate);
-		Chase Global Variable At Rate(T2ReadyCD, 0, 1, Destination and Rate);
-		Small Message(All Players(All Teams), String("{0} {1}", Event Player, Custom String("unreadied their team")));
-	}
-}
-
-rule("HUD: Team 1 Ready")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Global.Team1Ready == True;
-	}
-
-	actions
-	{
-		Create HUD Text(All Players(Team 1), Custom String("Your team is ready"), Null, Null, Top, 20, Color(Green), Color(White), Color(White),
-			Visible To and String, Visible Never);
-		Global.Team1Hud[0] = Last Text ID;
-		Create HUD Text(All Players(Team 2), Custom String("Enemy team is ready"), Null, Null, Top, 20, Color(Red), Color(White), Color(White),
-			Visible To and String, Visible Never);
-		Global.Team1Hud[1] = Last Text ID;
-		Create HUD Text(Null, Custom String("Blue team is ready"), Null, Null, Top, 0, Color(Blue), Color(White), Color(White), Visible To and String,
-			Visible Always);
-		Global.Team1Hud[2] = Last Text ID;
-	}
-}
-
-rule("HUD: Team 1 Not Ready")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Global.Team1Ready == False;
-	}
-
-	actions
-	{
-		Destroy HUD Text(Global.Team1Hud[0]);
-		Destroy HUD Text(Global.Team1Hud[1]);
-		Destroy HUD Text(Global.Team1Hud[2]);
-	}
-}
-
-rule("HUD: Team 2 Ready")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Global.Team2Ready == True;
-	}
-
-	actions
-	{
-		Create HUD Text(All Players(Team 2), Custom String("Your team is ready"), Null, Null, Top, 20, Color(Green), Color(White), Color(White),
-			Visible To and String, Visible Never);
-		Global.Team2Hud[0] = Last Text ID;
-		Create HUD Text(All Players(Team 1), Custom String("Enemy team is ready"), Null, Null, Top, 20, Color(Red), Color(White), Color(White),
-			Visible To and String, Visible Never);
-		Global.Team2Hud[1] = Last Text ID;
-		Create HUD Text(Null, Custom String("Red team is ready"), Null, Null, Top, 0, Color(Red), Color(White), Color(White), Visible To and String,
-			Visible Always);
-		Global.Team2Hud[2] = Last Text ID;
-	}
-}
-
-rule("HUD: Team 2 Not Ready")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	conditions
-	{
-		Is Game In Progress == False;
-		Global.Team2Ready == False;
-	}
-
-	actions
-	{
-		Destroy HUD Text(Global.Team2Hud[0]);
-		Destroy HUD Text(Global.Team2Hud[1]);
-		Destroy HUD Text(Global.Team2Hud[2]);
-	}
-}
-
-
-/**
-* Intro Texts
-*     The code below allows us to 
-**/
-rule("Help HUD at the start of the game")
-{
-	event
-	{
-		Ongoing - Global;
-	}
-
-	actions
-	{
-        /**
-        * Info Texts
-        *    - Branding and info
-        **/
-		Create HUD Text(All Players(All Teams), Null, Null, Custom String("Aud's Overwatch Farmer"), Right, 20, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-        Global.HelpHud[0] = Last Text ID;
-
-        	
-
-		Create HUD Text(All Players(All Teams), Null, Custom String("Stats can be found in the Inspector, make sure you read the intro section at https://pro-v2.lab.insights.gg/"), Null, Right, 21, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-        Global.HelpHud[1] = Last Text ID;
-		
-		Create HUD Text(All Players(All Teams), Null, Null, Custom String(" "), Right, 22, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-        Global.HelpHud[2] = Last Text ID;
-
-		/**
-        * Control Texts
-        *    - Controls | Ready Up
-        *    - Controls | Add Seconds
-        *    - Controls | Add Mins
-        *    - Controls | Teleport
-        *    - Controls | Change Heroes
-        **/
-
-
-		//Instructions title
-		Create HUD Text(All Players(All Teams), Null, Null, Custom String("Player Control Instructions"), Right, 23, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-        Global.HelpHud[3] = Last Text ID;
-
-        //Ready Intro Text
-        Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Ready (or cancel Ready)", Input Binding String(Button(Interact)), Input Binding String(Button(Crouch)), Null), Null, Right, 24, Color(White), Color(Aqua), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[4] = Last Text ID;
-
-        //Add Seconds
-		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} : adds extra 20 seconds to setup", Input Binding String(Button(Ultimate))), Null, Right, 25, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[5] = Last Text ID;
-
-        //Add 5 mins
-		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} + {1}: Adds 5 min break timer", Input Binding String(Button(Interact)), Input Binding String(Button(Ultimate))), Null, Right, 26, Color(White), Color(White), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[6] = Last Text ID;
-
-        //Teleport Prompt BROKEN BELOW "EXPECTED ( AFTER OR"
-		Create HUD Text(All Players(All Teams), Null, Custom String("Press {0} : Teleport (works only in Defense, in spawn)", Input Binding String(Button(Melee))), Null, Right, 27, Color(White), Color(Orange), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[7] = Last Text ID;
-
-        //Change heroes
-		Create HUD Text(All Players(All Teams), Null, Custom String("Hold {0} : Change hero (works only in Defense)", Input Binding String(Button(Reload))), Null, Right, 28, Color(White), Color(Yellow), Color(White), Visible To and String, Default Visibility);
-		Global.HelpHud[10] = Last Text ID;
-
-
-
-
-	}
-}
-
 
