@@ -1,5 +1,4 @@
 # Overwatch_Lobby_Datatracking
-
 This is  [Aud](https://twitter.com/MrCoachAud)'s code storage repo designed to hold all of Lobby Codes that he likes, modifies or creates. At the end of the day this is to serve as a learning process for both Aud and the rest of the community. Lots of this code wouldn't be possible without reading [Seita's Code](https://twitter.com/Seita_ow) and everyone sitting in my streams helping me through dumb bugs. [Twitch plug xddd](https://twitch.com/audisbad)
 
 <br>
@@ -34,7 +33,9 @@ Basically to run that lobby code, copy the text in that file and paste it into t
 
 <br>
 
-After that just enter your scrim / game and play it through... **ONCE YOU FINISH THAT MAP SET** Send the lobby back to lobby, and open up the `Workshop Inspector`, then click the `copy log to clip board` button. You can now save that log to a file, for your own personal parsation (if you're a programmer) or use the Insights conversion tool at https://pro-v2.lab.insights.gg
+# Event Definitions
+I'm a bit too busy to really flesh this out to where it needs to be so here's a google sheet that does sort of a good job, and the gaps can be filled in by us at the server [Sheet](https://docs.google.com/spreadsheets/d/1wkhDj_AX6Kkyy7WTaon6nTkx0dmwAGISNb6HoEtyIzI/edit?usp=sharing)
+
 
 <br>
 The Insights tool will allow you to not only convert the Event data into raw CSV, but will allow you to break the data into much managable fight based data, making your existence as a vile spreadsheet jockey easier :) 
