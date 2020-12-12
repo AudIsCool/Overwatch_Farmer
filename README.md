@@ -1,6 +1,6 @@
-# Overwatch_Farmer
+# Overwatch_Lobby_Datatracking
+This is  [Aud](https://twitter.com/MrCoachAud)'s code storage repo designed to hold all of Lobby Codes that he likes, modifies or creates. At the end of the day this is to serve as a learning process for both Aud and the rest of the community. Lots of this code wouldn't be possible without reading [Seita's Code](https://twitter.com/Seita_ow) and everyone sitting in my streams helping me through dumb bugs. [Twitch plug xddd](https://twitch.com/audisbad)
 
-This is [Aud](https://twitter.com/MrCoachAud)'s Overwatch Workshop Farmer, an open source workshop lobby designed to revolutionize Overwatch analytics, specifically by providing a new way to get data such as kills, elims, ults, etc from the game. Within this repository you'll find the lobby codes that will allow you to do so. 
 
 ## Lobby Codes if you're in a hurry
 - [LIVE] Converted Seita Lobby: **KVKR7**
@@ -31,6 +31,8 @@ There are two different versions of the logic flow within the Overwatch Workshop
 <br>
 The tournament version doesn't have that at all, and is just the pure stats- It's intended for exactly what the name implies, tournaments. Or at least that's the plan :)
 
+# Event Definitions
+I'm a bit too busy to really flesh this out to where it needs to be so here's a google sheet that does sort of a good job, and the gaps can be filled in by us at the server [Sheet](https://docs.google.com/spreadsheets/d/1wkhDj_AX6Kkyy7WTaon6nTkx0dmwAGISNb6HoEtyIzI/edit?usp=sharing)
 
 # Contributing to the project
 Checkout [here](https://github.com/AudIsCool/Overwatch_Farmer/blob/main/.github/CONTRIBUTING.md) for details on how to contribute to the project!!
