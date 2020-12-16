@@ -1,0 +1,15 @@
+/* File:  ScrimCode.ostw
+   Author: Aud#9488
+   Description: This file contains the setup for the scrim version of the Overwatch_Farmer 
+*/ 
+
+// Imports
+import "./ScrimSettings.json";   //Lobby Settings 
+
+//Seita's Components
+import "./SeitaComponents/SetupRules.ostw";
+
+rule: "Aud hates life" {
+    LogToInspector("Fucking hell");
+
+}

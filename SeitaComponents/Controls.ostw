@@ -1,0 +1,324 @@
+/*
+*   Name:        Controls.ostw
+*   Author:      Aud#9488
+*   Description: This file holds all of the controls that allow users to use  
+*                the QoL changes Seita made in his original lobby
+*/
+
+
+//Setup Player Vars
+playervar define HeroList = AllHeroes(); //We define it here and not in ScrimCode or SetupRules so I don't have to see annoying red text saying it doesn't exist
+
+//Global vars 
+globalvar define Team1ReadyText = [];
+globalvar define Team2ReadyText = [];
+
+
+
+/*
+*  @name        ChangeHeroForDefense
+*  @description If on defense allow the players to go back to hero select in spawn
+*/
+rule: "ChangeHeroForDefense"
+    //For event players
+    Event.OngoingPlayer
+    
+    //Checks
+    if(IsInSetup())                                 // If in setup
+    if(IsTeamOnDefense(TeamOf(EventPlayer())))      // If the player is on defense
+    if(HasSpawned(EventPlayer()))                   // If they spawned
+    if(IsButtonHeld(EventPlayer(), Button.Reload))  // If they're holding reload
+    if(IsAlive(EventPlayer()))                      // If they're alive
+    if(HeroOf(EventPlayer()))                       // If they've selected a hero... I think
+    if(MatchTime() >= 1)                            // If match is actually on
+    
+    //Actual Function
+    if(true){
+        //Wait to see if they're just pressing the key
+        Wait(0.2, WaitBehavior.AbortWhenFalse);
+
+        //Double check that they're not just pressing the key
+        SmallMessage(EventPlayer(), "Keep holding reload to change heroes");
+        Wait(0.7, WaitBehavior.AbortWhenFalse);
+
+        //Reset their hero list
+        EventPlayer().HeroList = [];
+        
+        //Force the hero selection screen by disalowing their current hero
+        foreach(define Hero in AllHeroes()){
+            if(Hero != HeroOf(EventPlayer())){
+                EventPlayer().HeroList[CountOf(EventPlayer().HeroList)] = Hero;
+            }
+        }
+
+        SetAllowedHeroes(EventPlayer(), EventPlayer().HeroList);
+
+        Wait(0.1, WaitBehavior.IgnoreCondition);
+
+        SetAllowedHeroes(EventPlayer(), AllHeroes());
+    }
+
+/*
+*   @name        Add20InSetup
+*   @description Adds 20 seconds while in setup to allow for more time to discuss
+*/
+rule: "Add20InSetup"
+    //For each player
+    Event.OngoingPlayer
+
+    //Checks
+    if(!IsGameInProgress())                           // If game isn't in progress
+    if(MatchTime() >= 1)                              // If game exists
+    if(HeroOf(EventPlayer()))                         // If they've selected a hero
+
+    if(IsButtonHeld(EventPlayer(), Button.Ultimate))  // If they're pressing ult
+    if(!IsButtonHeld(EventPlayer(), Button.Interact)) // but not pressing interact so we don't activate the other function 
+
+    if(TimeCooldown == 0)                             // If not on cooldown
+
+    //Actual Function
+    if(true){
+        //Reset CD to prevent spam
+        TimeCooldown = 2;
+
+        //Add time
+        SetMatchTime(MatchTime() + 20);
+
+        //Set decrease for time
+        ChaseVariableAtRate(TimeCooldown, 0, 1, RateChaseReevaluation.DestinationAndRate);
+
+        //Tell everyone the time add
+        SmallMessage(AllPlayers(), <"<0> added 20 seconds", EventPlayer()>);
+    }
+
+
+/*
+*   @name        Add20InSetup
+*   @description Adds 5 mins while in setup to allow for more time to use the restroom
+*/
+rule: "Add5InSetup"
+    //For each player
+    Event.OngoingPlayer
+
+    //Checks
+    if(!IsGameInProgress())                          //If the game isn't in progress
+    if(MatchTime() >= 1)                             //If match time even exist
+    if(HeroOf(EventPlayer()))                        //If player has selected hero
+
+    if(IsButtonHeld(EventPlayer(), Button.Ultimate)) //If player is pressing Ult
+    if(IsButtonHeld(EventPlayer(), Button.Interact)) //If player is pressing interact
+
+    if(BreakCooldown == 0)                           //If break is not on cooldown
+
+    //Actual Function
+    if(true){
+        //Reset cool downs to prevent spam
+        BreakCooldown = 10;
+        TimeCooldown  = 10;
+
+        //Add time
+        SetMatchTime(MatchTime() + 300);
+
+        //Set decrease for time
+        ChaseVariableAtRate(BreakCooldown, 0, 1, RateChaseReevaluation.DestinationAndRate);
+        ChaseVariableAtRate(TimeCooldown, 0, 1, RateChaseReevaluation.DestinationAndRate);
+
+        //Tell everyone about the time add
+        SmallMessage(AllPlayers(), <"<0> added 5 mins", EventPlayer()>);
+    }
+
+
+
+
+
+/*
+*   @name        Team1ChangeReady
+*   @description Allows the player to say that their team is ready or unready
+*/
+rule: "Team1ChangeReady"
+    //For each player on team 1
+    Event.OngoingPlayer
+    Team.Team1
+
+    //Checks
+    if(!IsGameInProgress())                          // If the game isn't in progress
+    if(MatchTime() > 5)                              // If the match time exists
+    if(HeroOf(EventPlayer()))                        // If the player hasselected a hero
+
+    if(IsButtonHeld(EventPlayer(), Button.Crouch))   // If pressing crouch
+    if(IsButtonHeld(EventPlayer(), Button.Interact)) // If pressing interact
+
+    if(T1ReadyCD == 0)                               // If the cool down isn't active
+
+    if(true){
+        //Set a cooldown
+        T1ReadyCD = 1;
+
+        //Wait 
+        Wait(0.1, WaitBehavior.IgnoreCondition);
+
+        //Setup time for cooldown to decrease
+        ChaseVariableAtRate(T1ReadyCD, 0, 1, RateChaseReevaluation.DestinationAndRate);
+        ChaseVariableAtRate(T2ReadyCD, 0, 1, RateChaseReevaluation.DestinationAndRate);
+    
+        //Control whether it's a ready up or ready down
+
+        //Ready Up
+        if(Team1Ready){
+            //Ready
+            Team1Ready = false;
+
+            //Say that they're ready
+            SmallMessage(AllPlayers(), <"<0> unreadied their team", EventPlayer()>);
+
+            //Remove hud text 
+        }
+
+        //Ready down
+        else{
+            //Ready
+            Team1Ready = true;
+
+            //Say that they're ready
+            SmallMessage(AllPlayers(), <"<0> readied their team", EventPlayer()>);
+
+            //Create hud text 
+            CreateHudText(AllPlayers(Team.Team1),
+                Location: Location.Top,
+
+                Header: "Your Team is ready",
+                HeaderColor: Color.Green,
+
+
+                Reevaluation: HudTextRev.VisibleToAndString,
+                Spectators: Spectators.VisibleNever
+            );
+            Team1ReadyText[CountOf(Team1ReadyText)] = LastTextID();
+
+
+            //Create team two text
+            CreateHudText(AllPlayers(Team.Team2),
+                Location: Location.Top,
+
+                Header: "Their Team is ready",
+                HeaderColor: Color.Red,
+
+                Reevaluation: HudTextRev.VisibleToAndString,
+                Spectators: Spectators.VisibleNever
+            );
+            Team1ReadyText[CountOf(Team1ReadyText)] = LastTextID();
+
+            //Create spectator text
+            CreateHudText(null,
+                Location: Location.Top,
+                Header: "Team 1 is ready",
+
+                Reevaluation: HudTextRev.VisibleToAndString,
+                Spectators: Spectators.VisibleAlways
+            );
+            Team1ReadyText[CountOf(Team1ReadyText)] = LastTextID();
+
+
+        }
+
+     
+}
+
+
+
+/*
+*   @name        Team2ChangeReady
+*   @description Allows the player to say that their team is ready or unready
+*/
+rule: "Team2ChangeReady"
+    //For each player on team 1
+    Event.OngoingPlayer
+    Team.Team2
+
+    //Checks
+    if(!IsGameInProgress())                          // If the game isn't in progress
+    if(MatchTime() > 5)                              // If the match time exists
+    if(HeroOf(EventPlayer()))                        // If the player hasselected a hero
+
+    if(IsButtonHeld(EventPlayer(), Button.Crouch))   // If pressing crouch
+    if(IsButtonHeld(EventPlayer(), Button.Interact)) // If pressing interact
+
+    if(T2ReadyCD == 0)                               // If the cool down isn't active
+
+    if(true){
+        //Set a cooldown
+        T2ReadyCD = 1;
+
+        //Wait 
+        Wait(0.1, WaitBehavior.IgnoreCondition);
+
+        //Setup time for cooldown to decrease
+        ChaseVariableAtRate(T1ReadyCD, 0, 1, RateChaseReevaluation.DestinationAndRate);
+        ChaseVariableAtRate(T2ReadyCD, 0, 1, RateChaseReevaluation.DestinationAndRate);
+    
+        //Control whether it's a ready up or ready down
+
+        //Ready Up
+        if(Team2Ready){
+            //Ready
+            Team2Ready = false;
+
+            //Say that they're ready
+            SmallMessage(AllPlayers(), <"<0> unreadied their team", EventPlayer()>);
+
+            //Remove past text 
+            DestroyTextInList(Team2ReadyText);
+
+            
+        }
+
+        //Ready down
+        else{
+            //Ready
+            Team2Ready = true;
+
+            //Say that they're ready
+            SmallMessage(AllPlayers(), <"<0> readied their team", EventPlayer()>);
+
+
+            //Create hud text
+            CreateHudText(AllPlayers(Team.Team2),
+                Location: Location.Top,
+
+                Header: "Your Team is ready",
+                HeaderColor: Color.Green,
+
+                Reevaluation: HudTextRev.VisibleToAndString,
+                Spectators: Spectators.VisibleNever
+            );
+            Team2ReadyText[CountOf(Team1ReadyText)] = LastTextID();
+
+            //Create team two text
+            CreateHudText(AllPlayers(Team.Team1),
+                Location: Location.Top,
+
+                Header: "Their Team is ready",
+                HeaderColor: Color.Red,
+
+                Reevaluation: HudTextRev.VisibleToAndString,
+                Spectators: Spectators.VisibleNever
+            );
+            Team2ReadyText[CountOf(Team1ReadyText)] = LastTextID();
+
+
+            //Create spectator text
+            CreateHudText(null,
+                Location: Location.Top,
+                Header: "Team 2 is ready",
+
+                Reevaluation: HudTextRev.VisibleToAndString,
+                Spectators: Spectators.VisibleAlways
+            );
+            Team2ReadyText[CountOf(Team1ReadyText)] = LastTextID();
+
+        }
+
+     
+    }
+
+

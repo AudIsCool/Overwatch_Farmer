@@ -1,0 +1,39 @@
+{
+    "Lobby" : {
+        "Max Spectators" : 12
+    },
+
+    "Description" : "Aud's Stats Farmer V0.0.5, the Scrim version, built off of Seita's Scrim Lobby (Version 1.22) | To parse stats go to: https://pro-v2.lab.insights.gg/ | For updates on this code: https://twitter.com/MrCoachAud || https://github.com/audiscool/Overwatch_Farmer. For updates on Seita's lobby go to https://twitter.com/Seita",
+    
+    "Modes": {
+        "All": {
+            "Game Mode Start" : "Immediately",
+            "Skins" : false,
+            "Kill Cam" : false,
+            "Limit Roles" : "2 Of Each Role Per Team"
+        },
+
+        "Assault" : {
+            "Competitive Rules" : true,
+            "Enabled Maps": []
+        },
+
+        "Control" : {
+            "Competitive Rules" : true,
+            "Score To Win" : 3,
+            "Enabled Maps": []
+            
+        },
+
+        "Hybrid": {
+            "Competitive Rules" : true,
+            "Enabled Maps": ["King's Row"]
+        },
+
+        "Escort" : {
+            "Competitive Rules" : true,
+            "Enabled Maps": []
+        }
+    }
+
+}

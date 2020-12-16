@@ -1,0 +1,7 @@
+void DestroyTextInList(define Array){
+    //For every text saved in TextToBeDestroyed, destroy it
+    foreach(define TextIds in Array){
+        DestroyHudText(TextIds);
+    }
+}
+

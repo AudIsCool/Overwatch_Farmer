@@ -1,0 +1,201 @@
+/* Name: Setup.ostw
+*  Author: Aud#9488
+*  Description: This sets up the scrim version of the Overwatch_Farmer custon lobby
+*/
+
+
+import "SetupFunctions.ostw"; //For functions dedicated to the setup of seita lobby
+import "Controls.ostw";       //For controls Seita made to make scrimming easier
+
+//Setup ready-up system
+globalvar define Team1Ready = false;
+globalvar define Team2Ready = false;
+
+globalvar define TimeCooldown  = 0;
+globalvar define BreakCooldown = 0;
+
+globalvar define T1ReadyCD = 0;
+globalvar define T2ReadyCD = 0;
+
+//Setup Text to be destroyed later
+globalvar define TextToBeDestroyed = []; //Holds all menu text items that will be destroyed later
+
+
+/* @rule        SetupInfoMenuText
+*  @description Sets up the info menu that'll be displayed to the user before the match has 
+*               started
+*/              
+rule: "SetupInfoMenuText"{
+    //Setup Lobby Definition Strings
+    define LobbyName      = "Aud's Overwatch Farmer";
+    define Description    = "Stats can be found in the Inspector, make sure you read the intro section at https://pro-v2.lab.insights.gg/"; 
+
+    //Setup lobby control strings
+    define ControlsHeader   = "Player Controls";
+    define ReadyUpHeader    = "Ready Up List";
+   
+    //Setup empty space to create padding inbetween text blocks
+    define EmptySpace  = " ";
+
+
+    //Build Lobby Intro Text | Header
+    CreateHudText(AllPlayers(), 
+        Location: Location.Right,
+        SortOrder : 20,
+
+        Text: LobbyName, 
+    
+        TextColor: Color.White
+    );
+
+    TextToBeDestroyed[CountOf(TextToBeDestroyed)] = (LastTextID()); //Why not just do Append(Array, Item)? Idk OSTW was not sending it to the final workshop script
+     
+
+    //Build Lobby Intro Text | Sub Header
+    CreateHudText(AllPlayers(), 
+        Location: Location.Right,
+        SortOrder: 21,
+
+        Subheader: Description,
+        SubheaderColor: Color.White
+    );
+    TextToBeDestroyed[CountOf(TextToBeDestroyed)] = (LastTextID());
+
+
+
+    //Add empty space in between header and controls
+    CreateHudText(AllPlayers(),
+        Location: Location.Right,
+        SortOrder: 22,
+
+        Text: EmptySpace
+    );
+    TextToBeDestroyed[CountOf(TextToBeDestroyed)] = (LastTextID());
+
+
+
+
+    //Build Lobby Controls | Header
+    CreateHudText(AllPlayers(),
+        Location: Location.Right, 
+        SortOrder: 23,
+
+        Text: ControlsHeader
+    );
+    TextToBeDestroyed[CountOf(TextToBeDestroyed)] = (LastTextID());
+
+
+
+
+
+    //Build Lobby Controls | Ready up
+    CreateHudText(AllPlayers(),
+        Location: Location.Right, 
+        SortOrder: 24,
+
+        Subheader: <"Press <0> + <1>: Ready (or cancel Ready)", InputBindingString(Button.Interact), InputBindingString(Button.Crouch)>
+    );
+    TextToBeDestroyed[CountOf(TextToBeDestroyed)] = (LastTextID());
+
+
+
+
+    //Build Lobby Controls | Add Time
+    CreateHudText(AllPlayers(),
+        Location: Location.Right, 
+        SortOrder: 25,
+
+        Subheader: <"Press <0>: adds extra 20 seconds to setup", InputBindingString(Button.Ultimate)>
+    );
+    TextToBeDestroyed[CountOf(TextToBeDestroyed)] = (LastTextID());
+
+
+
+
+    //Build Lobby Controls | Break
+    CreateHudText(AllPlayers(),
+        Location: Location.Right, 
+        SortOrder: 26,
+
+        Subheader: <"Press <0> + <1>: Adds 5 min break timer", InputBindingString(Button.Interact), InputBindingString(Button.Ultimate)>
+    );
+    TextToBeDestroyed[CountOf(TextToBeDestroyed)] = (LastTextID());
+
+
+
+
+    //Build Lobby Controls | Teleport
+    CreateHudText(AllPlayers(),
+        Location: Location.Right, 
+        SortOrder: 27,
+
+        Subheader: <"Press <0> : Teleport (works only in Defense, in spawn)", InputBindingString(Button.Melee)>
+    );
+    TextToBeDestroyed[CountOf(TextToBeDestroyed)] = (LastTextID());
+
+
+
+    //Build Lobby Controls | Change Hero
+    CreateHudText(AllPlayers(),
+        Location: Location.Right, 
+        SortOrder: 28,
+
+        Subheader: <"Hold <0>: Change hero (works only in Defense)", InputBindingString(Button.Reload)>
+    );
+    TextToBeDestroyed[CountOf(TextToBeDestroyed)] = (LastTextID());
+
+
+
+
+}
+
+
+/*
+*   @rule        RemoveAssemblingHeroes
+*   @description Speeds up the process by skipping the time you have to wait in the traditional
+*                Overwatch "Assembling Heroes" mode
+*/
+rule: "RemoveAssemblingHeroes" if(IsAssemblingHeroes()) {
+    //Set match time to zero, wait then reset match time
+    SetMatchTime(0);
+    Wait(5, WaitBehavior.IgnoreCondition);
+    SetMatchTime(30);
+}
+
+/*
+* @rule        BothTeamsAreReadyStart
+* @description Starts the game :)
+*/
+rule: "BothTeamsAreReadyStart" if(!IsGameInProgress() && Team1Ready && Team2Ready){
+    //Setup the match
+    SetMatchTime(5);
+    Wait(1, WaitBehavior.IgnoreCondition);
+
+}
+
+/*
+* @rule        GameHasStarted
+* @description If the game has started, remove info text and reset vairables
+*/
+rule: "GameHasStarted" if(IsGameInProgress()){
+    //Reset Variables
+    Team1Ready = false;
+    Team2Ready = false;
+
+    TimeCooldown  = 0;
+    BreakCooldown = 0;
+
+    T1ReadyCD = 0;
+    T2ReadyCD = 0;
+
+    //Destroy text
+    DestroyTextInList(TextToBeDestroyed);
+
+    DestroyTextInList(Team1ReadyText);
+    DestroyTextInList(Team2ReadyText);
+
+
+
+}
+
+
