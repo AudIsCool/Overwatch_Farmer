@@ -1,0 +1,81 @@
+/*
+*   Name:        ScoreModifications.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds all the rules for Seita's 
+*                Score Modifications
+*/
+
+globalvar define GameModeVar = 0;
+
+globalvar define ScoreModifiedVar = 0;
+globalvar define FirstRoundDoneVar = false;
+
+/*
+*  @name        GameModeCheck:Escort
+*  @description Sets GameMode variable for Escort
+*/
+rule: "GameModeCheck:Escort"
+    if(CurrentGameMode() == GameMode.Escort) {
+        GameModeVar = 1;
+    }
+
+/*
+*  @name        GameModeCheck:Hybrid
+*  @description Sets GameMode variable for Hybrid
+*/
+rule: "GameModeCheck:Hybrid"
+    if(CurrentGameMode() == GameMode.Hybrid) {
+        GameModeVar = 1;
+    }
+
+/*
+*  @name        GameModeCheck:Assualt
+*  @description Sets GameMode variable for Assualt
+*/
+rule: "GameModeCheck:Assualt"
+    if(CurrentGameMode() == GameMode.Assault) {
+        GameModeVar = 2;
+    }
+
+/*
+*  @name        GameModeCheck:Control
+*  @description Sets GameMode variable for Control
+*/
+rule: "GameModeCheck:Control"
+    if(CurrentGameMode() == GameMode.Control) {
+        GameModeVar = 3;
+    }
+
+/*
+*  @name        FirstAttackDone
+*  @description Sets first round done when finished
+*/
+rule: "FirstAttackDone"
+    if(IsBetweenRounds())
+    if(IsTeamOnOffense(Team.Team2))
+    if(ScoreModifiedVar == 0) {
+        Wait(15, WaitBehavior.IgnoreCondition);
+        FirstRoundDoneVar = true;
+    }
+
+/*
+*  @name        SetTeamScore:Escort&Hybrid
+*  @description Set team score for escort and hybrid maps
+*/
+rule: "SetTeamScore:Escort&Hybrid"
+    if(FirstRoundDoneVar)
+    if(GameModeVar == 1) {
+        SetTeamScore(Team.Team2, 3);
+        ScoreModifiedVar = 1;
+    }
+
+/*
+*  @name        SetTeamScore:Assault
+*  @description Set team score for assault maps
+*/
+rule: "SetTeamScore:Assault"
+    if(FirstRoundDoneVar)
+    if(GameModeVar == 2) {
+        SetTeamScore(Team.Team2, 2);
+        ScoreModifiedVar = 1;
+    }
