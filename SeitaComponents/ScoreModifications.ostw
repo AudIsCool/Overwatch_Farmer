@@ -7,8 +7,8 @@
 
 globalvar define GameModeVar = 0;
 
-globalvar define ScoreModifiedVar = 0;
-globalvar define FirstRoundDoneVar = false;
+globalvar define ScoreModified = 0;
+globalvar define FirstRoundDone = false;
 
 /*
 *  @name        GameModeCheck:Escort
@@ -53,9 +53,9 @@ rule: "GameModeCheck:Control"
 rule: "FirstAttackDone"
     if(IsBetweenRounds())
     if(IsTeamOnOffense(Team.Team2))
-    if(ScoreModifiedVar == 0) {
+    if(ScoreModified == 0) {
         Wait(15, WaitBehavior.IgnoreCondition);
-        FirstRoundDoneVar = true;
+        FirstRoundDone = true;
     }
 
 /*
@@ -63,10 +63,10 @@ rule: "FirstAttackDone"
 *  @description Set team score for escort and hybrid maps
 */
 rule: "SetTeamScore:Escort&Hybrid"
-    if(FirstRoundDoneVar)
+    if(FirstRoundDone)
     if(GameModeVar == 1) {
         SetTeamScore(Team.Team2, 3);
-        ScoreModifiedVar = 1;
+        ScoreModified = 1;
     }
 
 /*
@@ -74,8 +74,8 @@ rule: "SetTeamScore:Escort&Hybrid"
 *  @description Set team score for assault maps
 */
 rule: "SetTeamScore:Assault"
-    if(FirstRoundDoneVar)
+    if(FirstRoundDone)
     if(GameModeVar == 2) {
         SetTeamScore(Team.Team2, 2);
-        ScoreModifiedVar = 1;
+        ScoreModified = 1;
     }
