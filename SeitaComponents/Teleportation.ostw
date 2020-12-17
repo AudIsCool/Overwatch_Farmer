@@ -1,0 +1,62 @@
+/*
+*   Name:        Controls.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds all the rules for Seita's QoL Teleportation
+*/
+
+globalvar define maps_list! = [
+    Map.Blizzard_World,
+    Map.Eichenwalde,
+    Map.Hollywood,
+    Map.Kings_Row,
+    Map.Numbani,
+    Map.Hanamura,
+    Map.Horizon_Lunar_Colony,
+    Map.Paris,
+    Map.Temple_of_Anubis,
+    Map.Volskaya_Industries,
+    Map.Dorado,
+    Map.Havana,
+    Map.Junkertown,
+    Map.Rialto,
+    Map.Route_66,
+    Map.Watchpoint_Gibraltar
+];
+
+globalvar define locations_list! = [
+    Vector(-8.171, 3.824, 65.861),
+    Vector(13.226, 12.981, -83.655),
+    Vector(-19.248, 8.007, -9.802),
+    Vector(-37.185, 10.346, -15.058),
+    Vector(93.044, 5.530, -22.723),
+    Vector(13.079, 1.346, -24.267),
+    Vector(42.356, 15.840, -79.798),
+    Vector(-40.379, 16.500, -14.259),
+    Vector(-23.909, 3.312, 46.940),
+    Vector(-35.545, -1.433, 73.561),
+    Vector(57.088, 9.241, -16.884),
+    Vector(-18.059, 9.184, -70.117),
+    Vector(-28.382, 14.223, -68.289),
+    Vector(55.603, 2.452, -44.947),
+    Vector(33.662, 10.325, -5.514),
+    Vector(32.488, 4.692, -71.941)
+];
+
+/*
+*  @name        TeleportPlayer
+*  @description If on defense allow the players to teleport from spawn to start faster
+*/
+    
+rule: "TeleportPlayer" Event.OngoingPlayer 
+    //Checks
+    if(IsInSetup())                                 // If in setup
+    if(IsTeamOnDefense(TeamOf(EventPlayer())))      // If the player is on defense
+    if(HasSpawned(EventPlayer()))                   // If they spawned
+    if(IsButtonHeld(EventPlayer(), Button.Melee))  // If they're holding melee
+    if(IsAlive(EventPlayer()))                      // If they're alive
+    if(HeroOf(EventPlayer()))                       // If they've selected a hero... I think
+    if(MatchTime() >= 1)                            // If match is actually on
+    if(ArrayContains(maps_list,CurrentMap())) {
+        Teleport(EventPlayer(), locations_list[IndexOfArrayValue(maps_list, CurrentMap())]);
+    }
+    

@@ -6,6 +6,7 @@
 
 import "SetupFunctions.ostw"; //For functions dedicated to the setup of seita lobby
 import "Controls.ostw";       //For controls Seita made to make scrimming easier
+import "Teleportation.ostw";  //For Seita defender teleportation
 
 //Setup ready-up system
 globalvar define Team1Ready = false;
