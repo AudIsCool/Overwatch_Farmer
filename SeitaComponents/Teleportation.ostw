@@ -6,7 +6,7 @@
 
 //List of maps to be used for teleportation
 //Map list has same order as teleportation list
-globalvar define maps_list! = [
+globalvar define MapsList! = [
     Map.Blizzard_World,
     Map.Eichenwalde,
     Map.Hollywood,
@@ -27,7 +27,7 @@ globalvar define maps_list! = [
 
 //List of Vectors to be used for map teleportation
 //Locations list has same order as map list
-globalvar define locations_list! = [
+globalvar define LocationsList! = [
     Vector(-8.171, 3.824, 65.861),
     Vector(13.226, 12.981, -83.655),
     Vector(-19.248, 8.007, -9.802),
@@ -61,7 +61,7 @@ rule: "TeleportPlayer" Event.OngoingPlayer
     if(HeroOf(EventPlayer()))                       // If they've selected a hero... I think
     if(MatchTime() >= 1)                            // If match is actually on
     //Teleport to location based on map (if map has teleport location)
-    if(ArrayContains(maps_list,CurrentMap())) {
-        Teleport(EventPlayer(), locations_list[IndexOfArrayValue(maps_list, CurrentMap())]);
+    if(ArrayContains(MapsList,CurrentMap())) {
+        Teleport(EventPlayer(), LocationsList[IndexOfArrayValue(MapsList, CurrentMap())]);
     }
     
