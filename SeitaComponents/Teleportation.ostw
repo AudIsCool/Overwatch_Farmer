@@ -1,9 +1,11 @@
 /*
-*   Name:        Controls.ostw
+*   Name:        Teleportation.ostw
 *   Author:      leguminote#5816
 *   Description: This file holds all the rules for Seita's QoL Teleportation
 */
 
+//List of maps to be used for teleportation
+//Map list has same order as teleportation list
 globalvar define maps_list! = [
     Map.Blizzard_World,
     Map.Eichenwalde,
@@ -23,6 +25,8 @@ globalvar define maps_list! = [
     Map.Watchpoint_Gibraltar
 ];
 
+//List of Vectors to be used for map teleportation
+//Locations list has same order as map list
 globalvar define locations_list! = [
     Vector(-8.171, 3.824, 65.861),
     Vector(13.226, 12.981, -83.655),
@@ -56,6 +60,7 @@ rule: "TeleportPlayer" Event.OngoingPlayer
     if(IsAlive(EventPlayer()))                      // If they're alive
     if(HeroOf(EventPlayer()))                       // If they've selected a hero... I think
     if(MatchTime() >= 1)                            // If match is actually on
+    //Teleport to location based on map (if map has teleport location)
     if(ArrayContains(maps_list,CurrentMap())) {
         Teleport(EventPlayer(), locations_list[IndexOfArrayValue(maps_list, CurrentMap())]);
     }
