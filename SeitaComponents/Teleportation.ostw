@@ -55,11 +55,11 @@ rule: "TeleportPlayer" Event.OngoingPlayer
     //Checks
     if(IsInSetup())                                 // If in setup
     if(IsTeamOnDefense(TeamOf(EventPlayer())))      // If the player is on defense
+    if(IsInSpawnRoom(EventPlayer()))                // If the player is in spawn
     if(HasSpawned(EventPlayer()))                   // If they spawned
-    if(IsButtonHeld(EventPlayer(), Button.Melee))  // If they're holding melee
+    if(IsButtonHeld(EventPlayer(), Button.Melee))   // If they're holding melee
     if(IsAlive(EventPlayer()))                      // If they're alive
     if(HeroOf(EventPlayer()))                       // If they've selected a hero... I think
-    if(MatchTime() >= 1)                            // If match is actually on
     //Teleport to location based on map (if map has teleport location)
     if(ArrayContains(MapsList,CurrentMap())) {
         Teleport(EventPlayer(), LocationsList[IndexOfArrayValue(MapsList, CurrentMap())]);
