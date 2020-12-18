@@ -1,0 +1,132 @@
+/*
+*   Name:        GameState.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds the code to keep track of game state
+*/
+playervar define PrintTempFlag = true;
+playervar define PlayerStatus = [];
+playervar define PlayerAbilityStatus = [];
+globalvar define RoundState = [];
+
+
+/*
+*  @name        PlayerStatusTransition
+*  @description Updates Player Status array whenever the values change
+*               Only starts when game is in progress
+*               Status remains on death and resets on spawn
+*               The intent is to read these values on death and clear them
+*  Array Indexs: 0  :  isAsleep?
+*                1  :  isBurning?
+*                2  :  isFrozen?
+*                3  :  isHacked?
+*                4  :  isInvincible?
+*                5  :  isKnockedDown?
+*                6  :  isPhasedOut?
+*                7  :  isRooted?
+*                8  :  isStunned?
+*                9  :  isUnkillable?
+*                10 :  isInSpawn?
+*                11 :  isInAlternateForm?
+*                12 :  heroBeingDuplicated?
+*                13 :  isReloading?
+*                14 :  isCrouching?
+*                15 :  isJumping?
+*/
+rule: "PlayerStatusTransition" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsAlive())
+    //if(EventPlayer() == HostPlayer())
+    if(PlayerStatus != [HasStatus(EventPlayer(),Status.Asleep),
+                        HasStatus(EventPlayer(),Status.Burning),
+                        HasStatus(EventPlayer(),Status.Frozen),
+                        HasStatus(EventPlayer(),Status.Hacked),
+                        HasStatus(EventPlayer(),Status.Invincible),
+                        HasStatus(EventPlayer(),Status.KnockedDown),
+                        HasStatus(EventPlayer(),Status.PhasedOut),
+                        HasStatus(EventPlayer(),Status.Rooted),
+                        HasStatus(EventPlayer(),Status.Stunned),
+                        HasStatus(EventPlayer(),Status.Unkillable),
+                        IsInSpawnRoom(EventPlayer()),
+                        IsInAlternateForm(EventPlayer()),
+                        HeroBeingDuplicated(EventPlayer()),
+                        IsReloading(EventPlayer()),
+                        IsCrouching(EventPlayer()),
+                        IsJumping(EventPlayer())])
+    {
+        PlayerStatus = [HasStatus(EventPlayer(),Status.Asleep),
+                        HasStatus(EventPlayer(),Status.Burning),
+                        HasStatus(EventPlayer(),Status.Frozen),
+                        HasStatus(EventPlayer(),Status.Hacked),
+                        HasStatus(EventPlayer(),Status.Invincible),
+                        HasStatus(EventPlayer(),Status.KnockedDown),
+                        HasStatus(EventPlayer(),Status.PhasedOut),
+                        HasStatus(EventPlayer(),Status.Rooted),
+                        HasStatus(EventPlayer(),Status.Stunned),
+                        HasStatus(EventPlayer(),Status.Unkillable),
+                        IsInSpawnRoom(EventPlayer()),
+                        IsInAlternateForm(EventPlayer()),
+                        HeroBeingDuplicated(EventPlayer()),
+                        IsReloading(EventPlayer()),
+                        IsCrouching(EventPlayer()),
+                        IsJumping(EventPlayer())];
+    }
+
+
+
+//************************************************************************
+//Helper functions for testing only | Remove for actual code
+rule: "LogPlayerStatus" Event.OngoingPlayer
+    if(PrintTempFlag)
+    if(IsButtonHeld(EventPlayer(), Button.Interact))
+    {
+        PrintTempFlag = false;
+        LogToInspector(<"Changed <0>:~ a:<1> b:<2> f:<3> h:<4> i:<5> kd:<6> po:<7> r:<8> s:<9> unk:<10> spwn:<11> af:<12> hdup:<13> rld:<14> crch:<15> jmp:<16>",
+                        EventPlayer(), 
+                        PlayerStatus[0], 
+                        PlayerStatus[1],
+                        PlayerStatus[2], 
+                        PlayerStatus[3],
+                        PlayerStatus[4], 
+                        PlayerStatus[5],
+                        PlayerStatus[6], 
+                        PlayerStatus[7],
+                        PlayerStatus[8], 
+                        PlayerStatus[9],
+                        PlayerStatus[10],
+                        PlayerStatus[11],
+                        PlayerStatus[12],
+                        PlayerStatus[13],
+                        PlayerStatus[14],
+                        PlayerStatus[15]>);
+    }
+
+rule: "ResetPrintFlag" Event.OngoingPlayer
+    if(Not(PrintTempFlag))
+    if(IsButtonHeld(EventPlayer(), Button.Crouch))
+    {
+        PrintTempFlag = true;
+    }
+    
+rule: "PrintStatusOnDeath" Event.OnDeath
+    {
+        LogToInspector(<"Changed <0>:~ a:<1> b:<2> f:<3> h:<4> i:<5> kd:<6> po:<7> r:<8> s:<9> unk:<10> spwn:<11> af:<12> hdup:<13> rld:<14> crch:<15> jmp:<16>",
+                        EventPlayer(), 
+                        PlayerStatus[0], 
+                        PlayerStatus[1],
+                        PlayerStatus[2], 
+                        PlayerStatus[3],
+                        PlayerStatus[4], 
+                        PlayerStatus[5],
+                        PlayerStatus[6], 
+                        PlayerStatus[7],
+                        PlayerStatus[8], 
+                        PlayerStatus[9],
+                        PlayerStatus[10],
+                        PlayerStatus[11],
+                        PlayerStatus[12],
+                        PlayerStatus[13],
+                        PlayerStatus[14],
+                        PlayerStatus[15]>);
+    }
+
+
