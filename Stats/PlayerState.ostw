@@ -1,0 +1,165 @@
+/*
+*   Name:        PlayerState.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds the PlayerState Class and Enum
+*/
+
+class PlayerState
+{
+    /*
+    *   Name:        PlayerState <Class>
+    *   Description: This Class handles player state data to be used on death, demech,
+    *                and duplicate ending. This is needed because these player state
+    *                transistions cause the loss of player state info.
+    */
+
+    //*****************************************************//
+    // fields                                              //
+    //*****************************************************//
+    private define player;              //Player who's info is being stored
+    private define PlayerStateArray;    //Player info that is being stored
+
+    //*****************************************************//
+    // constructors                                        //
+    //*****************************************************//
+    /*
+    *  @name        PlayerState
+    *  @description <Constructor> sets this.player and initializes
+    *               PlayerStateArray to player's current values
+    *  
+    */
+    public PlayerState(Player player_arg)
+    {
+        player = player_arg;
+        PlayerStateArray = GetUpdated();
+    }
+
+    //*****************************************************//
+    // public functions                                    //
+    //*****************************************************//
+
+    /*
+    *  @name        DuplicateEndedEvent
+    *  @description Returns when true if duplicate ends
+    *  <Condition>
+    */
+    public define DuplicateEndedEvent()
+    {
+        return HeroOf(player) == Hero.Echo &&
+            (PlayerStateArray[PlayerStateEnum.HeroBeingDuplicated] != HeroBeingDuplicated(player)) &&
+            (HeroBeingDuplicated(player) == false);
+    }
+
+    /*
+    *  @name        DemechEvent
+    *  @description Returns true if acting as d.va and transition to alternate form
+    *               Acting as d.va includes being d.va or being a duplicated d.va
+    *  <Condition>
+    */
+    public define DemechEvent()
+    {
+        return (HeroOf(player) == Hero.Dva || HeroBeingDuplicated(player) == Hero.Dva) &&
+                IsInAlternateForm(player) &&
+                (PlayerStateArray[PlayerStateEnum.IsInAlternateForm] != IsInAlternateForm(player));
+    }
+
+    /*
+    *  @name        IsStale
+    *  @description Returns true if PlayerStateArray[index] is outdated
+    *  <Condition>
+    */
+    public define IsStale(define Kind)
+    {
+        return PlayerStateArray[Kind] != GetUpdated()[Kind];
+    }
+
+    /*
+    *  @name        IsStale
+    *  @description Returns true if PlayerStateArray is outdated
+    *  <Condition>
+    */
+    public define IsStale()
+    {
+        return PlayerStateArray != GetUpdated();  
+    }
+
+    /*
+    *  @name        Update
+    *  @description Updates PlayerStateArray with current values
+    *               Note: This does not check if the player is dead
+    *  
+    */
+    public void Update()
+    {
+        PlayerStateArray = GetUpdated();
+    }
+
+    /*
+    *  @name        GetStatus
+    *  @description Returns status from PlayerStateArray give index
+    *               Use PlayerStateEnum for indices
+    *  
+    */
+    public define GetState(define Kind)
+    {
+        return PlayerStateArray[Kind];   
+    }
+
+    /*
+    *  @name        GetUpdated
+    *  @description Returns updated PlayerStateArray for this.player
+    *  
+    */
+    public define GetUpdated()
+    {
+        return [HasStatus(player,Status.Asleep),
+                HasStatus(player,Status.Burning),
+                HasStatus(player,Status.Frozen),
+                HasStatus(player,Status.Hacked),
+                HasStatus(player,Status.KnockedDown),
+                HasStatus(player,Status.Rooted),
+                HasStatus(player,Status.Stunned),
+                IsInAlternateForm(player),
+                HeroBeingDuplicated(player),
+                IsReloading(player)];
+    }
+
+    //*****************************************************//
+    // debugging / developer functions                     //
+    //*****************************************************//
+    public define LogState()
+    {
+        return <"Changed <0>:~ a:<1> b:<2> f:<3> h:<4> kd:<5> r:<6> s:<7> af:<8> hd:<9> rld:<10>",
+                        EventPlayer(), 
+                        PlayerStateArray[0], 
+                        PlayerStateArray[1],
+                        PlayerStateArray[2], 
+                        PlayerStateArray[3],
+                        PlayerStateArray[4], 
+                        PlayerStateArray[5],
+                        PlayerStateArray[6], 
+                        PlayerStateArray[7],
+                        PlayerStateArray[8],
+                        PlayerStateArray[9]>;
+    }
+}
+
+/*
+*  @name        PlayerStateEnum
+*  @description Enum with name of information being stored in
+*               Note: Enums are guaranteed to default to 0,1,...
+*  
+*/
+enum PlayerStateEnum
+{
+    IsAlseep,               //1
+    IsBurning,              //2
+    IsFrozen,               //3
+    IsHacked,               //4
+    IsKnockedDown,          //5
+    IsRooted,               //6
+    IsStunned,              //7
+    IsInAlternateForm,      //8
+    HeroBeingDuplicated,    //9
+    IsReloading             //10
+}
