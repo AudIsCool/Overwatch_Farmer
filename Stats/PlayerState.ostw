@@ -121,7 +121,22 @@ class PlayerState
                 HasStatus(player,Status.Stunned),
                 IsInAlternateForm(player),
                 HeroBeingDuplicated(player),
-                IsReloading(player)];
+                IsReloading(player),
+                IsScoped()];
+    }
+
+    private static define IsScopedHero(define ActingAs)
+    {
+        return IndexOfArrayValue([Hero.Widowmaker, Hero.Ashe, Hero.Ana], ActingAs) >= 0;
+    }
+
+    private define IsScoped()
+    {
+        return (IndexOfArrayValue([Hero.Widowmaker, Hero.Ashe, Hero.Ana], HeroOf(player)) >= 0 ||
+            (HeroBeingDuplicated(player) != false &&
+            IndexOfArrayValue([Hero.Widowmaker, Hero.Ashe, Hero.Ana], HeroBeingDuplicated(player)) >= 0)) &&
+            IsButtonHeld(player, Button.SecondaryFire);
+
     }
 
     //*****************************************************//
@@ -129,7 +144,7 @@ class PlayerState
     //*****************************************************//
     public define LogState()
     {
-        return <"Changed <0>:~ a:<1> b:<2> f:<3> h:<4> kd:<5> r:<6> s:<7> af:<8> hd:<9> rld:<10>",
+        return <"Changed <0>:~ a:<1> b:<2> f:<3> h:<4> kd:<5> r:<6> s:<7> af:<8> hd:<9> rld:<10> scp:<11>",
                         EventPlayer(), 
                         PlayerStateArray[0], 
                         PlayerStateArray[1],
@@ -140,7 +155,8 @@ class PlayerState
                         PlayerStateArray[6], 
                         PlayerStateArray[7],
                         PlayerStateArray[8],
-                        PlayerStateArray[9]>;
+                        PlayerStateArray[9],
+                        PlayerStateArray[10]>;
     }
 }
 
@@ -161,5 +177,6 @@ enum PlayerStateEnum
     IsStunned,              //7
     IsInAlternateForm,      //8
     HeroBeingDuplicated,    //9
-    IsReloading             //10
+    IsReloading,            //10
+    IsScoped
 }
