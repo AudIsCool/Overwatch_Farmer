@@ -1,10 +1,12 @@
 /*
-*   Name:        Controls.ostw
+*   Name:        Teleportation.ostw
 *   Author:      leguminote#5816
 *   Description: This file holds all the rules for Seita's QoL Teleportation
 */
 
-globalvar define maps_list! = [
+//List of maps to be used for teleportation
+//Map list has same order as teleportation list
+globalvar define MapsList! = [
     Map.Blizzard_World,
     Map.Eichenwalde,
     Map.Hollywood,
@@ -23,7 +25,9 @@ globalvar define maps_list! = [
     Map.Watchpoint_Gibraltar
 ];
 
-globalvar define locations_list! = [
+//List of Vectors to be used for map teleportation
+//Locations list has same order as map list
+globalvar define LocationsList! = [
     Vector(-8.171, 3.824, 65.861),
     Vector(13.226, 12.981, -83.655),
     Vector(-19.248, 8.007, -9.802),
@@ -51,12 +55,13 @@ rule: "TeleportPlayer" Event.OngoingPlayer
     //Checks
     if(IsInSetup())                                 // If in setup
     if(IsTeamOnDefense(TeamOf(EventPlayer())))      // If the player is on defense
+    if(IsInSpawnRoom(EventPlayer()))                // If the player is in spawn
     if(HasSpawned(EventPlayer()))                   // If they spawned
-    if(IsButtonHeld(EventPlayer(), Button.Melee))  // If they're holding melee
+    if(IsButtonHeld(EventPlayer(), Button.Melee))   // If they're holding melee
     if(IsAlive(EventPlayer()))                      // If they're alive
     if(HeroOf(EventPlayer()))                       // If they've selected a hero... I think
-    if(MatchTime() >= 1)                            // If match is actually on
-    if(ArrayContains(maps_list,CurrentMap())) {
-        Teleport(EventPlayer(), locations_list[IndexOfArrayValue(maps_list, CurrentMap())]);
+    //Teleport to location based on map (if map has teleport location)
+    if(ArrayContains(MapsList,CurrentMap())) {
+        Teleport(EventPlayer(), LocationsList[IndexOfArrayValue(MapsList, CurrentMap())]);
     }
     
