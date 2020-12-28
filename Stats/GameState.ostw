@@ -3,25 +3,8 @@
 *   Author:      leguminote#5816
 *   Description: This file holds the code to keep track of game state
 */
-import "PlayerState.ostw";
-
-playervar define PrintTempFlag = true;
-playervar define PlayerStateInitialized = false;
-playervar PlayerState CurrentPlayerState;
-// globalvar define RoundState = [];
-
-/*
-*  @name        InitPlayerStatus
-*  @description Initializes CurrentPlayerStatus
-*  
-*/
-rule: "InitPlayerStatus" Event.OngoingPlayer
-    if(IsGameInProgress())
-    if(Not(PlayerStateInitialized))
-    {
-        PlayerStateInitialized = true;
-        CurrentPlayerState = new PlayerState(EventPlayer());
-    }
+import "./Classes/PlayerStateClass.ostw";
+import "./PlayerStateInitRules.ostw";
 
 /*
 *  @name        PrintStatusOnDeath
@@ -30,6 +13,7 @@ rule: "InitPlayerStatus" Event.OngoingPlayer
 */
 rule: "PrintStatusOnDeath" Event.OnDeath
     {
+        LogToInspector("Death:");
         LogToInspector(CurrentPlayerState.LogState());
     }
 
@@ -41,8 +25,55 @@ rule: "PrintStatusOnDeath" Event.OnDeath
 rule: "PrintStatusOnDemech" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsAlive())
-    if(CurrentPlayerState.DemechEvent())
+    if(HasSpawned())
+    if(Not(IsInSpawnRoom()))
+    if(HeroOf() == Hero.Dva)
+    if(Not(IsInAlternateForm()))
+    if(Not(CurrentPlayerState.GetState(PlayerStateEnum.InSpawn)))
+    if(Health() < 0.5)
     {
+        LogToInspector("Demech:");
+        LogToInspector(CurrentPlayerState.LogState());
+    }
+
+rule: "PrintStatusOnDuplicateDemech" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsAlive())
+    if(HasSpawned())
+    if(Not(CurrentPlayerState.GetState(PlayerStateEnum.InSpawn)))
+    if(HeroOf() == Hero.Echo)
+    if(CurrentPlayerState.GetState(PlayerStateEnum.HeroBeingDuplicated) == Hero.Dva ||
+        PlayerState.ActualHeroBeingDuplicated(EventPlayer()) == Hero.Dva)
+    if(Not(PlayerState.ActualAlternateForm(EventPlayer())))
+    if(Health() < 0.5)
+    {
+        LogToInspector("Duplicate Demech:");
+        LogToInspector(CurrentPlayerState.LogState());
+        CurrentPlayerState.Update();
+    }
+
+rule: "TestDuplicate" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsAlive())
+    if(HeroOf() == Hero.Echo)
+    if(IsDuplicating())
+    {
+        LogToInspector(<"IS DUPLICATING <0>", PlayerState.ActualHeroBeingDuplicated(EventPlayer())>); 
+        LogToInspector(CurrentPlayerState.LogState());
+    }
+
+
+/*
+*  @name        PrintStatusOnDuplicateStart
+*  @description Logs status on echo duplicate start
+*  
+*/
+rule: "PrintStatusOnDuplicateStart" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsAlive())
+    if(CurrentPlayerState.DuplicateStartEvent())
+    {
+        LogToInspector("DupStart:");
         LogToInspector(CurrentPlayerState.LogState());
     }
 
@@ -56,46 +87,14 @@ rule: "PrintStatusOnDuplicateEnd" Event.OngoingPlayer
     if(IsAlive())
     if(CurrentPlayerState.DuplicateEndedEvent())
     {
+        LogToInspector("DupEnd:");
         LogToInspector(CurrentPlayerState.LogState());
     }
 
-/*
-*  @name        PlayerStatusTransition
-*  @description Updates Player State whenever the values change
-*               Only starts when game is in progress
-*               Status remains on death and resets on spawn
-*               The intent is to read these values on death
-*
-*  Note: This rule must be after the prints as to not overwrite
-*/
-rule: "PlayerStatusTransition" Event.OngoingPlayer
+rule: "AMMO" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsAlive())
-    if(PlayerStateInitialized)
-    //if(EventPlayer() == HostPlayer())
-    if(CurrentPlayerState.IsStale())
+    if(IsButtonHeld(EventPlayer(), Button.Reload))
     {
-        //LogToInspector(CurrentPlayerState.LogState());//
-        CurrentPlayerState.Update();
+        LogToInspector(<"MAX: <0>, CUR: <1>",MaxAmmo(), Ammo()>);
     }
-
-//************************************************************************
-//Helper functions for testing only | Remove for actual code
-rule: "LogPlayerStatus" Event.OngoingPlayer
-    if(PrintTempFlag)
-    if(IsButtonHeld(EventPlayer(), Button.Interact))
-    {
-        PrintTempFlag = false;
-        CurrentPlayerState.LogState();
-    }
-
-rule: "ResetPrintFlag" Event.OngoingPlayer
-    if(Not(PrintTempFlag))
-    if(IsButtonHeld(EventPlayer(), Button.Crouch))
-    {
-        PrintTempFlag = true;
-    }
-    
-
-
-
