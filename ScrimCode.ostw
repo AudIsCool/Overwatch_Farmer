@@ -10,7 +10,7 @@ import "./ScrimSettings.json";   //Lobby Settings
 import "./SeitaComponents/SetupRules.ostw";
 
 //Stats
-import "./Stats/GameState.ostw";                    //Test Remove later
+//import stats code here
 import "./Stats/PlayerStateUpdateRules.ostw";       //Import Last
 
 rule: "Aud hates life" {
