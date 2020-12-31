@@ -10,6 +10,8 @@ import "./ScrimSettings.json";   //Lobby Settings
 import "./SeitaComponents/SetupRules.ostw";
 
 //Stats
+import "./Stats/RoundLogs.ostw";
+import "./Stats/ObjectiveLogs.ostw";
 //import stats code here
 import "./Stats/PlayerStateUpdateRules.ostw";       //Import Last
 

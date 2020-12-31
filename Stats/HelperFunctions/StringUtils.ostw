@@ -1,0 +1,27 @@
+/*
+*   Name:        StringUtils.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds the code to create commonly used strings for logging
+*/
+
+/*
+*  @name        TeamString
+*  @description Gets string with [Team] : <[player]s> <[hero]es>
+*  <Macro>
+*/
+define TeamString(Team team):
+    <"[<0>] : [<1>], [<2>], [<3>], [<4>], [<5>], [<6>] [<7>], [<8>], [<9>], [<10>], [<11>], [<12>]",
+        team,
+        PlayersInSlot(0, team),
+        PlayersInSlot(1, team),
+        PlayersInSlot(2, team),
+        PlayersInSlot(3, team),
+        PlayersInSlot(4, team),
+        PlayersInSlot(5, team),
+        HeroOf(PlayersInSlot(0, team)),
+        HeroOf(PlayersInSlot(1, team)),
+        HeroOf(PlayersInSlot(2, team)),
+        HeroOf(PlayersInSlot(3, team)),
+        HeroOf(PlayersInSlot(4, team)),
+        HeroOf(PlayersInSlot(5, team))
+    >;

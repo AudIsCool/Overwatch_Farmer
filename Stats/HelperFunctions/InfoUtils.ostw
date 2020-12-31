@@ -1,0 +1,45 @@
+/*
+*   Name:        InfoUtils.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds the code to get commonly needed information
+*/
+
+/*
+*  @name        AttackingTeam
+*  @description Get attacking team
+*  Note:        Requires non control map
+*  <Macro>
+*/
+define AttackingTeam():
+    IsTeamOnOffense(Team.Team1) ? Team.Team1 : Team.Team2;
+
+/*
+*  @name        DefendingTeam
+*  @description Get defending team
+*  Note:        Requires non control map
+*  <Macro>
+*/
+define DefendingTeam():
+    IsTeamOnDefense(Team.Team1) ? Team.Team1 : Team.Team2;
+
+/*
+*  @name        ControlWinningTeam
+*  @description Get control winning team
+*  Note:        Requires control map
+*  <Macro>
+*/
+define ControlWinningTeam():
+    ControlModeScoringPercentage(Team.Team1) > ControlModeScoringPercentage(Team.Team2) ?
+        Team.Team1 : 
+        Team.Team2;
+
+/*
+*  @name        ControlLosingTeam
+*  @description Get control lsoing team
+*  Note:        Requires control map
+*  <Macro>
+*/
+define ControlLosingTeam():
+    ControlModeScoringPercentage(Team.Team1) > ControlModeScoringPercentage(Team.Team2) ?
+        Team.Team2 : 
+        Team.Team1;
