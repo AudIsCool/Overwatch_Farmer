@@ -1,0 +1,23 @@
+/*
+*   Name:        PlayerStateInitRules.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds the code to initialize player state
+*   NOTE:        IMPORT BEFORE ANYTHING THAT USES PLAYER STATE
+*/
+import "./Classes/PlayerStateClass.ostw";
+
+playervar define PlayerStateInitialized = false;
+playervar PlayerState CurrentPlayerState;
+
+/*
+*  @name        InitPlayerState
+*  @description Initializes CurrentPlayerState
+*  
+*/
+rule: "InitPlayerState" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(Not(PlayerStateInitialized))
+    {
+        PlayerStateInitialized = true;
+        CurrentPlayerState = new PlayerState(EventPlayer());
+    }
