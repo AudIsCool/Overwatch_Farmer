@@ -12,6 +12,8 @@ import "./SeitaComponents/SetupRules.ostw";
 //Stats
 import "./Stats/RoundLogs.ostw";
 import "./Stats/ObjectiveLogs.ostw";
+//import stats code here
+import "./Stats/PlayerStateUpdateRules.ostw";       //Import Last
 
 rule: "Aud hates life" {
     LogToInspector("Fucking hell");
