@@ -1,0 +1,122 @@
+/*
+*   Name:        ObjectiveLogs.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds the code to log objective info
+*/
+
+import "./HelperFunctions/StringUtils.ostw";
+import "./HelperFunctions/InfoUtils.ostw";
+
+globalvar define CaptureProgress = 0;
+globalvar define WhoControlsPoint = Team.All;
+globalvar define NextTick = 0;
+
+/*
+*  @name        ControlPointFlip
+*  @description Log control point flip and update who controls point
+*/
+rule: "ControlPointFlip"
+    if(IsGameInProgress())
+    if(CurrentGameMode() == GameMode.Control)
+    if(Not(IsControlModePointLocked()))
+    if(WhoControlsPoint != ControlModeScoringTeam())
+    {
+        LogToInspector(<"[POINT_FLIP] [<0>] has taken the point, currently: [<1>]% (vs:[<2>]%)",
+            ControlModeScoringTeam(),
+            RoundToInteger(ControlModeScoringPercentage(ControlModeScoringTeam()), Rounding.Down),
+            RoundToInteger(ControlModeScoringPercentage(OppositeTeamOf(ControlModeScoringTeam())))
+        >);
+        WhoControlsPoint = ControlModeScoringTeam();
+    }
+
+/*
+*  @name        ControlUpdatePercentageIncrease
+*  @description Log control update percentage increase
+*/
+rule: "ControlUpdatePercentageIncrease"
+    if(CurrentGameMode() == GameMode.Control)
+    if(IsGameInProgress())
+    if(WhoControlsPoint != Team.All)
+    if(RoundToInteger(ControlModeScoringPercentage(ControlModeScoringTeam()), Rounding.Down) % 10 == 0)
+    {
+        LogToInspector(<"[POINT_UPDATE] [<0>] captured [<1>]%",
+            ControlModeScoringTeam(), 
+            RoundToInteger(ControlModeScoringPercentage(ControlModeScoringTeam()), Rounding.Down)
+        >);
+        CaptureProgress = ControlModeScoringPercentage(ControlModeScoringTeam());
+    }
+
+/*
+*  @name        HybridTickGain
+*  @description Log hybrid tick gain
+*/
+rule: "HybridTickGain"
+    if(IsGameInProgress())
+    if(CurrentGameMode() == GameMode.Hybrid)
+    if(PointCapturePercentage() >= NextTick * 100/3 && PointCapturePercentage() < NextTick * 100/3 + 1)
+    {
+        if(NextTick > 0) {
+            LogToInspector(<"[EARNED_TICK] [<0>] captured [<1>]%", AttackingTeam(), RoundToInteger(PointCapturePercentage(), Rounding.Down)>);
+        }
+        NextTick++;
+    }
+
+/*
+*  @name        HybridPointCaptured
+*  @description Log hybrid point capped
+*/
+rule: "HybridPointCaptured"
+    if(IsGameInProgress())
+    if(CurrentGameMode() == GameMode.Hybrid)
+    if(IsObjectiveComplete(CaptureProgress))
+    {
+        LogToInspector(<"[WON_POINT] [<0>] CAPTURED POINT [<1>]", AttackingTeam(), CaptureProgress + 1>);
+        CaptureProgress = ObjectiveIndex();
+        NextTick = 0;
+    }
+
+/*
+*  @name        AssaultTickGain
+*  @description Log assualt tick gain
+*/
+rule: "AssaultTickGain"
+    if(IsGameInProgress())
+    if(CurrentGameMode() == GameMode.Assault)
+    if(PointCapturePercentage() >= NextTick * 100/3 && PointCapturePercentage() < NextTick * 100/3 + 1)
+    {
+        if(NextTick > 0) {
+            LogToInspector(<"[EARNED_TICK] [<0>] captured [<1>]% of Point [<2>]",
+                AttackingTeam(),
+                RoundToInteger(PointCapturePercentage(), Rounding.Down),
+                ObjectiveIndex() + 1
+            >);
+        }
+        NextTick++;
+    }
+
+/*
+*  @name        AssaultPointCaptured
+*  @description Log assault point capped
+*/
+rule: "AssaultPointCaptured"
+    if(IsGameInProgress())
+    if(CurrentGameMode() == GameMode.Assault)
+    if(IsObjectiveComplete(CaptureProgress))
+    {
+        LogToInspector(<"[WON_POINT] [<0>] CAPTURED POINT [<1>]", AttackingTeam(), CaptureProgress + 1>);
+        CaptureProgress = ObjectiveIndex();
+        NextTick = 0;
+    }
+
+/*
+*  @name        EscortUpdate
+*  @description Log Escort checkpoints
+*/
+rule: "EscortUpdate"
+    if(IsGameInProgress())
+    if(CurrentGameMode() == GameMode.Escort)
+    if(IsObjectiveComplete(CaptureProgress))
+    {
+        LogToInspector(<"[WON_POINT] [<0>] CAPTURED POINT [<1>]", AttackingTeam(), CaptureProgress + 1>);
+        CaptureProgress = ObjectiveIndex();
+    }

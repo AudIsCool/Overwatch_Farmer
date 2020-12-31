@@ -9,6 +9,10 @@ import "./ScrimSettings.json";   //Lobby Settings
 //Seita's Components
 import "./SeitaComponents/SetupRules.ostw";
 
+//Stats
+import "./Stats/RoundLogs.ostw";
+import "./Stats/ObjectiveLogs.ostw";
+
 rule: "Aud hates life" {
     LogToInspector("Fucking hell");
 
