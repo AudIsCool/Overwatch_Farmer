@@ -1,0 +1,38 @@
+/*
+*   Name:        RoundStartLogs.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds the code to log round start information
+*/
+
+import "./HelperFunctions/StringUtils.ostw";
+import "./HelperFunctions/InfoUtils.ostw";
+import "./HelperFunctions/NumUtils.ostw";
+
+/*
+*  @name        LogRoundStart
+*  @description Inital logs for round start
+*/
+rule: "LogRoundStart"
+    if(IsGameInProgress())
+    {
+        LogToInspector("[VERSION] Running on version [0.0.4] [Scrim] version");
+        if (CurrentGameMode() != GameMode.Control)
+        {
+            LogToInspector(
+                <"[ROUND_START_ALL] Started Round on Map [<0>] with Teams Attacker: <1> , Defender: <2> , Time Bank [<3>]",
+                    CurrentMap(),
+                    TeamString(AttackingTeam()),
+                    TeamString(DefendingTeam()),
+                    MatchTime()
+                >);
+        } else {
+            LogToInspector(
+                <"[ROUND_START_CONTROL] Started Round on Map [<0>] Stage [<1>] with Teams <2> , <3>",
+                    CurrentMap(),
+                    ObjectiveIndex(),
+                    TeamString(Team.Team1),
+                    TeamString(Team.Team2),
+                    MatchTime()
+                >);
+        }
+    }

@@ -1,0 +1,9 @@
+/* File:        SetupRules.ostw
+   Author:      leguminote#5816
+   Description: This file contains the setup for the stats rules
+*/ 
+
+//Imports
+import "./RoundEndLogs.ostw";
+
+import "./PlayerStateUpdateRules.ostw";       //Import Last

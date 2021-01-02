@@ -1,0 +1,13 @@
+/*
+*   Name:        NumUtils.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds the code to create commonly used numbers for logging
+*/
+
+/*
+*  @name        Round to decimal
+*  @description Rounds num to exp decimals
+*  <Macro>
+*/
+define RoundToDecimal(define num, define exp, Rounding rt):
+    RoundToInteger(10 * exp * num, rt) / (10 * exp);
