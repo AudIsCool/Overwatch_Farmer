@@ -8,11 +8,16 @@ import "./HelperFunctions/StringUtils.ostw";
 import "./HelperFunctions/InfoUtils.ostw";
 import "./HelperFunctions/NumUtils.ostw";
 
+
 globalvar define CaptureProgress = 0;
 globalvar define WhoControlsPoint = Team.All;
 globalvar define NextTick = 0;
 globalvar define PartialProgress = 0;
 
+/*
+*  @name        RoundStartInitCaptureProgress
+*  @description Initialize variables needed for Capture Progress
+*/
 rule: "RoundStartInitCaptureProgress"
     if(IsGameInProgress())
     {
@@ -246,18 +251,3 @@ rule: "EscortUpdatePartialProgress"
             Wait(0.250, WaitBehavior.IgnoreCondition);
         }
     }
-
-// rule: "TESTR" Event.OngoingPlayer
-//     if(IsButtonHeld(EventPlayer(),Button.Interact))
-//     {
-//         LogToInspector(PartialProgress);
-//         if (CurrentGameMode() == GameMode.Escort || CurrentGameMode() == GameMode.Hybrid){
-//             LogToInspector(AdjustedProgressPercent(CurrentMap(), CaptureProgress, PartialProgress));
-//         } else {
-//             LogToInspector(PartialProgress);
-//         }
-//         LogToInspector(MatchTime());//this should be plug and play in the round start and score
-        
-
-//         LogToInspector(". .");
-//     }

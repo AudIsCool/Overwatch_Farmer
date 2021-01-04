@@ -4,6 +4,7 @@
 */ 
 
 //Imports
+import "./PlayerStateInitRules.ostw";
 import "./RoundEndLogs.ostw";
-
+import "./EventLogs.ostw";
 import "./PlayerStateUpdateRules.ostw";       //Import Last
