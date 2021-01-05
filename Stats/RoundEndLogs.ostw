@@ -1,0 +1,54 @@
+/*
+*   Name:        RoundLogs.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds the code to log round end information
+*/
+
+import "./HelperFunctions/StringUtils.ostw";
+import "./HelperFunctions/InfoUtils.ostw";
+import "./HelperFunctions/NumUtils.ostw";
+
+import "./ObjectiveLogs.ostw";
+import "./RoundStartLogs.ostw";
+
+
+
+/*
+*  @name        LogRoundEndControl
+*  @description Inital logs for round end control
+*/
+rule: "LogRoundEndControl" 1
+    if(Not(IsGameInProgress()))
+    if(CurrentGameMode() == GameMode.Control)
+    {
+        if(TotalTimeElapsed() > 5) {
+            LogToInspector(<"[ROUND_END_SCORE] Team [<0>] Won with a score of [<1>] vs Team [<2>] Lost with a score of [<3>]",
+                ControlWinningTeam(),
+                ControlModeScoringPercentage(ControlWinningTeam()),
+                ControlLosingTeam(),
+                ControlModeScoringPercentage(ControlLosingTeam()),
+                MatchTime()
+            >);
+            LogToInspector("[ROUND_END]");
+        }        
+    }
+
+/*
+*  @name        LogRoundEndControl
+*  @description Inital logs for round end control
+*/
+rule: "LogRoundEndNonControl" 1
+    if(Not(IsGameInProgress()))
+    if(CurrentGameMode() != GameMode.Control)
+    {
+        if(TotalTimeElapsed() > 5)
+        {
+            LogToInspector(<"[SCORE_ALL] [<0>] SCORED [<1>] PROGRESS [<2>] TIMEBANK [<3>]",
+                AttackingTeam(),
+                TeamScore(AttackingTeam()),
+                RoundToDecimal(PartialProgress, 1, Rounding.Nearest),
+                MatchTime()
+            >);
+            LogToInspector("[ROUND_END]");
+        }
+    }

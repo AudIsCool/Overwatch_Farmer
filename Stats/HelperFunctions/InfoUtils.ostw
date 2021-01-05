@@ -4,6 +4,8 @@
 *   Description: This file holds the code to get commonly needed information
 */
 
+import "../HelperFunctions/NumUtils.ostw";
+
 /*
 *  @name        AttackingTeam
 *  @description Get attacking team
@@ -35,7 +37,7 @@ define ControlWinningTeam():
 
 /*
 *  @name        ControlLosingTeam
-*  @description Get control lsoing team
+*  @description Get control losing team
 *  Note:        Requires control map
 *  <Macro>
 */
@@ -43,3 +45,44 @@ define ControlLosingTeam():
     ControlModeScoringPercentage(Team.Team1) > ControlModeScoringPercentage(Team.Team2) ?
         Team.Team2 : 
         Team.Team1;
+
+/*
+*  @name        AdjustedProgressPercent
+*  @description Gets progress percent for that checkpoint
+*  Note:        Requires Escort or Hybrid Map Payload portion
+*/
+public define AdjustedProgressPercent(Map map, define ObjIdx, define percent) 
+{
+    define MapCheckPointKeys = [
+        Map.Dorado,
+        Map.Havana,
+        Map.Junkertown,
+        Map.Rialto,
+        Map.Route_66,
+        Map.Watchpoint_Gibraltar,
+        Map.Blizzard_World,
+        Map.Eichenwalde,
+        Map.Hollywood,
+        Map.Kings_Row,
+        Map.Numbani
+    ];
+
+    define MapCheckPointValues = [
+        [0, 32.18, 68.02, 100],
+        [0, 31.16, 63.74, 100],
+        [0, 32.56, 63.53, 100],
+        [0, 33.48, 69.60, 100],
+        [0, 33.85, 70.26, 100],
+        [0, 33.49, 65.49, 100],
+        [0, 0, 50.47, 100],
+        [0, 0, 65.39, 100],
+        [0, 0, 60.10, 100],
+        [0, 0, 62.01, 100],
+        [0, 0, 57.44, 100]
+    ];
+
+    return RoundToDecimal(100 * (percent - MapCheckPointValues[IndexOfArrayValue(MapCheckPointKeys, map)][ObjIdx]) /
+        (MapCheckPointValues[IndexOfArrayValue(MapCheckPointKeys, map)][ObjIdx+1] - 
+            MapCheckPointValues[IndexOfArrayValue(MapCheckPointKeys, map)][ObjIdx]),
+        1, Rounding.Down);
+}

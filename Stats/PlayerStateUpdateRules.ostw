@@ -16,7 +16,7 @@ import "./PlayerStateInitRules.ostw";
 *
 *  Note: This rule must be after the prints as to not overwrite
 */
-rule: "PlayerStateTransition" Event.OngoingPlayer
+rule: "PlayerStateTransition" 2 Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsAlive())
     if(PlayerStateInitialized)

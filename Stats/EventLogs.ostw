@@ -1,0 +1,310 @@
+/*
+*   Name:        EventLogs.ostw
+*   Author:      leguminote#5816
+*   Description: This file holds the code to log Player Event info
+*/
+
+import "./PlayerStateInitRules.ostw";
+
+playervar define TrackedHero = HeroOf(EventPlayer());
+
+/*
+*  @name        TrackRez
+*  @description Log control rezzurected player event
+*/
+rule: "TrackRez" Event.OngoingPlayer
+    if(IsAlive(EventPlayer()))
+    if(HasSpawned(EventPlayer()))
+    {
+        if(IsGameInProgress())
+        if(IsHeroBeingPlayed(Hero.Mercy, TeamOf(EventPlayer())))
+        if(HasStatus(EventPlayer(), Status.PhasedOut))
+        {
+            LogToInspector(<
+                    "[RESURRECT] Team [<0>] Player [<1>] Rezzed [<2>] playing [<3>]",
+                    TeamOf(EventPlayer()),
+                    AllPlayers(TeamOf(EventPlayer()))
+                        [IndexOfArrayValue(
+                            MappedArray(AllPlayers(TeamOf(EventPlayer())), HeroOf(ArrayElement())), 
+                            Hero.Mercy)
+                        ],
+                    EventPlayer(),
+                    HeroOf(EventPlayer())
+                >);
+        }
+    }
+
+/*
+*  @name        TrackNormalUltReady
+*  @description Log normal ult ready
+*/
+rule: "TrackNormalUltReady" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(UltimateChargePercent(EventPlayer()) == 100)
+    if(HeroOf(EventPlayer()) != Hero.Echo)
+    if(HeroOf(EventPlayer()) != Hero.Dva)
+    {
+        LogToInspector(<
+            "[ULT_READY] [NORMAL] [<0>] on [<1>] [<2>] has 100% ult charge",
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            TeamOf(EventPlayer())
+        >);
+    }
+
+/*
+*  @name        TrackEchoUltReady
+*  @description Log Echo ult ready
+*/
+rule: "TrackEchoUltReady" Event.OngoingPlayer Team.All Player.Echo
+    if(IsGameInProgress())
+    if(UltimateChargePercent() == 100)
+    {
+        if(Not(PlayerState.ActualHeroBeingDuplicated(EventPlayer())))
+        {
+            LogToInspector(<
+                "[ULT_READY] [NORMAL] [<0>] on [<1>] [<2>] has 100% ult charge",
+                EventPlayer(),
+                HeroOf(EventPlayer()),
+                TeamOf(EventPlayer())
+            >);
+        } else {
+            //Possibly change to handle duplicated d.va bomb vs duplicated d.va remech
+            LogToInspector(<
+                "[ULT_READY] [ECHO_DUPLICATE] [<0>] on [<1>] [<2>] (duplicated [<3>] hero) has 100% ult charge",
+                EventPlayer(),
+                HeroOf(EventPlayer()),
+                TeamOf(EventPlayer()),
+                PlayerState.ActualHeroBeingDuplicated(EventPlayer())
+            >);
+        }
+    }
+
+/*
+*  @name        TrackD.vaUltReady
+*  @description Log D.va ult ready
+*/
+rule: "TrackD.vaUltReady" Event.OngoingPlayer Team.All Player.Dva 
+    if(IsGameInProgress())
+    if(UltimateChargePercent(EventPlayer()) == 100)
+    {
+        if(Not(PlayerState.ActualAlternateForm(EventPlayer())))
+        {
+            LogToInspector(<
+                "[ULT_READY] [NORMAL] [<0>] on [<1>] [<2>] has 100% ult charge",
+                EventPlayer(),
+                HeroOf(EventPlayer()),
+                TeamOf(EventPlayer())
+            >);
+        } else {
+            LogToInspector(<
+                "[ULT_READY] [BABY_DVA] [<0>] on [<1>] [<2>] has 100% ult charge",
+                EventPlayer(),
+                HeroOf(EventPlayer()),
+                TeamOf(EventPlayer()),
+                PlayerState.ActualHeroBeingDuplicated(EventPlayer())
+            >);
+        }
+    }
+
+/*
+*  @name        TrackNormalUltUsed
+*  @description Log ults used (not d.va or echo)
+*/
+rule: "TrackNormalUltUsed" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsUsingUltimate(EventPlayer()))
+    if(HeroOf(EventPlayer()) != Hero.Echo)
+    if(HeroOf(EventPlayer()) != Hero.Dva)
+    {
+        LogToInspector(<
+            "[ULT_USED] [<0>] [<1>], [<2>] used Ultimate",
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            TeamOf(EventPlayer())
+        >);
+    }
+
+/*
+*  @name        TrackEchoUltDuringDup
+*  @description Log ults used while duplicating a hero
+*/
+rule: "TrackEchoUltDuringDup" Event.OngoingPlayer Team.All Player.Echo
+    if(IsGameInProgress())
+    if(PlayerState.ActualHeroBeingDuplicated(EventPlayer()))
+    if(IsUsingUltimate(EventPlayer()))
+    {
+        LogToInspector(<
+            "[ECHO_ULTED_DURING_DUPLICATION] [<0>] [<1>], [<2>] used Ultimate (as [<3>])",
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            TeamOf(EventPlayer()),
+            PlayerState.ActualHeroBeingDuplicated(EventPlayer())
+        >);
+    }
+
+/*
+*  @name        TrackEchoDupUltUsed
+*  @description Log echo duplications
+*/
+rule: "TrackEchoDupUltUsed" Event.OngoingPlayer Team.All Player.Echo
+    if(IsGameInProgress())
+    if(IsAlive())
+    if(CurrentPlayerState.DuplicateStartEvent())
+    {
+        LogToInspector(<
+            "[ECHO_DUPLICATE] [<0>] [<1>], [<2>] used ultimate duplicating [<3>]",
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            TeamOf(EventPlayer()),
+            PlayerState.ActualHeroBeingDuplicated(EventPlayer())
+        >);
+    }
+
+//TODO Echo Duplicate End
+
+//TODO Echo Duplicate Demech
+//TODO Echo Duplicate Remech / Bomb
+
+/*
+*  @name        TrackD.vaUlts
+*  @description Log D.va Ults (remech and bomb)
+*/
+rule: "TrackD.vaUlts" Event.OngoingPlayer Team.All Player.Dva 
+    if(IsGameInProgress())
+    if(IsUsingUltimate(EventPlayer()))
+    {
+        if(Not(CurrentPlayerState.GetState(PlayerStateEnum.IsInAlternateForm)))
+        {
+            LogToInspector(<
+                "[DVA_BOMBED] [<0>] [<1>], [<2>]",
+                EventPlayer(),
+                HeroOf(EventPlayer()),
+                TeamOf(EventPlayer())
+            >);
+        } else {
+            LogToInspector(<
+                "[DVA_REMECH] [<0>] [<1>], [<2>]",
+                EventPlayer(),
+                HeroOf(EventPlayer()),
+                TeamOf(EventPlayer())
+            >);
+        }
+    }
+
+/*
+*  @name        TrackKillNormal
+*  @description Log Kills that aren't environmental or suicides
+*/
+rule: "TrackKillNormal" Event.OnFinalBlow
+    if(IsGameInProgress())
+    if(Not(EventWasEnvironment()))
+    {
+        LogToInspector(<
+            "[PLAYER_KILL] [<0>] [<1>], [<2>] killed [<3>] [<4>] using [<5>]",
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            TeamOf(EventPlayer()),
+            Victim(),
+            HeroOf(Victim()),
+            EventAbility()
+        >);
+    }
+
+/*
+*  @name        TrackKillEnv
+*  @description Log Environmental kills
+*/
+rule: "TrackKillEnv" Event.OnDeath
+    if(IsGameInProgress())
+    if(EventPlayer() != Attacker())
+    if(EventWasEnvironment())
+    {
+        LogToInspector(<
+            "[ENVIRONMENTAL_KILL] [<0>] [<1>], [<2>] killed [<3>] [<4>] using [<5>]",
+            Attacker(),
+            HeroOf(Attacker()),
+            TeamOf(Attacker()),
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            EventAbility()
+        >);
+    }
+
+/*
+*  @name        TrackSuicideEnv
+*  @description Log suicide environmental kills
+*/
+rule: "TrackSuicideEnv" Event.OnDeath
+    if(IsGameInProgress())
+    if(EventPlayer() == Attacker())
+    if(EventWasEnvironment())
+    {
+        LogToInspector(<
+            "[SUICIDE_ENVIRONMENTAL_DEATH] [<0>] [<1>], [<2>] fell from a high place",
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            TeamOf(EventPlayer())
+        >);
+    }
+
+/*
+*  @name        TrackSuicideNonEnv
+*  @description Log non environmental suicides
+*/
+rule: "TrackSuicideNonEnv" Event.OnDeath
+    if(IsGameInProgress())
+    if(Not(EventWasEnvironment()))
+    if(EventPlayer() ==Attacker())
+    {
+        LogToInspector(<
+            "[SUICIDE] [<0>] [<1>], [<2>] hurt itself in its confusion with [<3>]",
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            TeamOf(EventPlayer()),
+            EventAbility()
+        >);
+    }
+
+/*
+*  @name        TrackHeroSwitch
+*  @description Log hero switch during game
+*/
+rule: "TrackHeroSwitch" Event.OngoingPlayer
+    if(HeroOf(EventPlayer()) != TrackedHero)
+    {
+        if(IsGameInProgress())
+        {
+            LogToInspector(<
+                "[HERO_SWITCH] [<0>] from [<1>] swapped to [[<2>] from [<3>]]",
+                EventPlayer(),
+                TeamOf(EventPlayer()),
+                HeroOf(EventPlayer()),
+                TrackedHero
+            >);
+        }
+        TrackedHero = HeroOf(EventPlayer());
+    }
+
+/*
+*  @name        TrackD.vaDemech
+*  @description Log D.va Demech (Not as echo dup)
+*/
+rule: "TrackD.vaDemech" Event.OnDamageTaken Team.All Player.Dva 
+    if(IsGameInProgress())
+    if(IsAlive())
+    if(HasSpawned())
+    if(Not(IsInSpawnRoom()))
+    if(Not(IsInAlternateForm()))
+    if(Not(CurrentPlayerState.GetState(PlayerStateEnum.InSpawn)))
+    if(Health() < 0.5)
+    {
+        LogToInspector(<
+            "[DEMECH] Player [<0>] [<1>] was demeched by [<2>] [<3>] [<4>]",
+            TeamOf(EventPlayer()),
+            EventPlayer(),
+            TeamOf(Attacker()),
+            Attacker(),
+            EventAbility()
+        >);
+    }

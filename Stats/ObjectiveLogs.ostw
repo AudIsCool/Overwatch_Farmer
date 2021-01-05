@@ -6,10 +6,24 @@
 
 import "./HelperFunctions/StringUtils.ostw";
 import "./HelperFunctions/InfoUtils.ostw";
+import "./HelperFunctions/NumUtils.ostw";
+
 
 globalvar define CaptureProgress = 0;
 globalvar define WhoControlsPoint = Team.All;
 globalvar define NextTick = 0;
+globalvar define PartialProgress = 0;
+
+/*
+*  @name        RoundStartInitCaptureProgress
+*  @description Initialize variables needed for Capture Progress
+*/
+rule: "RoundStartInitCaptureProgress"
+    if(IsGameInProgress())
+    {
+        CaptureProgress = ObjectiveIndex();
+        PartialProgress = 0;
+    }
 
 /*
 *  @name        ControlPointFlip
@@ -21,10 +35,11 @@ rule: "ControlPointFlip"
     if(Not(IsControlModePointLocked()))
     if(WhoControlsPoint != ControlModeScoringTeam())
     {
-        LogToInspector(<"[POINT_FLIP] [<0>] has taken the point, currently: [<1>]% (vs:[<2>]%)",
+        LogToInspector(<"[POINT_FLIP] [<0>] has taken the point, currently: [<1>]% (vs:[<2>]%) REMAINING TIMEBANK [<3>]",
             ControlModeScoringTeam(),
             RoundToInteger(ControlModeScoringPercentage(ControlModeScoringTeam()), Rounding.Down),
-            RoundToInteger(ControlModeScoringPercentage(OppositeTeamOf(ControlModeScoringTeam())))
+            RoundToInteger(ControlModeScoringPercentage(OppositeTeamOf(ControlModeScoringTeam()))),
+            MatchTime()
         >);
         WhoControlsPoint = ControlModeScoringTeam();
     }
@@ -56,7 +71,11 @@ rule: "HybridTickGain"
     if(PointCapturePercentage() >= NextTick * 100/3 && PointCapturePercentage() < NextTick * 100/3 + 1)
     {
         if(NextTick > 0) {
-            LogToInspector(<"[EARNED_TICK] [<0>] captured [<1>]%", AttackingTeam(), RoundToInteger(PointCapturePercentage(), Rounding.Down)>);
+            LogToInspector(<"[EARNED_TICK] [<0>] captured [<1>]% REMAINING TIMEBANK [<2>]",
+                AttackingTeam(), 
+                RoundToInteger(PointCapturePercentage(), Rounding.Down),
+                MatchTime()
+            >);
         }
         NextTick++;
     }
@@ -66,11 +85,33 @@ rule: "HybridTickGain"
 *  @description Log hybrid point capped
 */
 rule: "HybridPointCaptured"
-    if(IsGameInProgress())
     if(CurrentGameMode() == GameMode.Hybrid)
     if(IsObjectiveComplete(CaptureProgress))
     {
-        LogToInspector(<"[WON_POINT] [<0>] CAPTURED POINT [<1>]", AttackingTeam(), CaptureProgress + 1>);
+        if(CaptureProgress == 0) {
+            LogToInspector(<
+                "[WON_POINT] [<0>] CAPTURED POINT [<1>] REMAINING TIMEBANK [<2>]", 
+                AttackingTeam(), 
+                CaptureProgress + 1,
+                MatchTime()
+            >);
+        } else {
+            LogToInspector(<
+                "[WON_POINT] [<0>] CAPTURED POINT [<1>] PROGRESS [<2>] REMAINING TIMEBANK [<3>]",
+                AttackingTeam(), 
+                CaptureProgress + 1,
+                AdjustedProgressPercent(CurrentMap(), CaptureProgress, PartialProgress) > 97 ? 100 :
+                    AdjustedProgressPercent(CurrentMap(), CaptureProgress, PartialProgress),
+                MatchTime()
+            >);
+        }
+        if(IsGameInProgress()){
+            PartialProgress = 0;
+        }
+        if(Not(IsGameInProgress()) && AdjustedProgressPercent(CurrentMap(), CaptureProgress, PartialProgress) > 99)
+        {
+            PartialProgress = 100;
+        }
         CaptureProgress = ObjectiveIndex();
         NextTick = 0;
     }
@@ -85,10 +126,11 @@ rule: "AssaultTickGain"
     if(PointCapturePercentage() >= NextTick * 100/3 && PointCapturePercentage() < NextTick * 100/3 + 1)
     {
         if(NextTick > 0) {
-            LogToInspector(<"[EARNED_TICK] [<0>] captured [<1>]% of Point [<2>]",
+            LogToInspector(<"[EARNED_TICK] [<0>] captured [<1>]% of Point [<2>] REMAINING TIMEBANK [<3>]",
                 AttackingTeam(),
                 RoundToInteger(PointCapturePercentage(), Rounding.Down),
-                ObjectiveIndex() + 1
+                ObjectiveIndex() + 1,
+                MatchTime()
             >);
         }
         NextTick++;
@@ -99,11 +141,22 @@ rule: "AssaultTickGain"
 *  @description Log assault point capped
 */
 rule: "AssaultPointCaptured"
-    if(IsGameInProgress())
     if(CurrentGameMode() == GameMode.Assault)
     if(IsObjectiveComplete(CaptureProgress))
     {
-        LogToInspector(<"[WON_POINT] [<0>] CAPTURED POINT [<1>]", AttackingTeam(), CaptureProgress + 1>);
+        LogToInspector(<
+            "[WON_POINT] [<0>] CAPTURED POINT [<1>] REMAINING TIMEBANK [<2>]", 
+            AttackingTeam(), 
+            CaptureProgress + 1,
+            MatchTime()
+        >);
+        if(IsGameInProgress()){
+            PartialProgress = 0;
+        }
+        if(Not(IsGameInProgress()) && PartialProgress > 97)
+        {
+            PartialProgress = 100;
+        }
         CaptureProgress = ObjectiveIndex();
         NextTick = 0;
     }
@@ -113,10 +166,88 @@ rule: "AssaultPointCaptured"
 *  @description Log Escort checkpoints
 */
 rule: "EscortUpdate"
-    if(IsGameInProgress())
     if(CurrentGameMode() == GameMode.Escort)
     if(IsObjectiveComplete(CaptureProgress))
     {
-        LogToInspector(<"[WON_POINT] [<0>] CAPTURED POINT [<1>]", AttackingTeam(), CaptureProgress + 1>);
+        LogToInspector(<
+            "[WON_POINT] [<0>] CAPTURED POINT [<1>] PROGRESS [<2>] REMAINING TIMEBANK [<3>]",
+            AttackingTeam(),
+            CaptureProgress + 1,
+            AdjustedProgressPercent(CurrentMap(), CaptureProgress, PartialProgress) > 97 ? 100 :
+                    AdjustedProgressPercent(CurrentMap(), CaptureProgress, PartialProgress) ,
+            MatchTime()
+        >);
+        if(Not(IsGameInProgress()) && AdjustedProgressPercent(CurrentMap(), CaptureProgress, PartialProgress) > 97)
+        {
+            PartialProgress = 100;
+        }
         CaptureProgress = ObjectiveIndex();
+    }
+
+//*****************************************************//
+// Track Max Objective Progress                        //
+//*****************************************************//
+
+/*
+*  @name        AssaultUpdatePartialProgress
+*  @description Update PartialProgress for Assualt
+*/
+rule: "AssaultUpdatePartialProgress"
+    if(CurrentGameMode() == GameMode.Assault)
+    if(PointCapturePercentage() > 100/3)
+    if(PointCapturePercentage() > PartialProgress)
+    {
+        while(IsGameInProgress() && PointCapturePercentage())
+        {
+            PartialProgress = PointCapturePercentage() > PartialProgress ? PointCapturePercentage() : PartialProgress;
+            Wait(0.250, WaitBehavior.IgnoreCondition);
+        }
+    }
+
+/*
+*  @name        HybridPointUpdatePartialProgress
+*  @description Update PartialProgress for Hybrid points
+*/
+rule: "HybridPointUpdatePartialProgress"
+    if(CurrentGameMode() == GameMode.Hybrid)
+    if(CaptureProgress == 0)
+    if(PointCapturePercentage() > 100/3)
+    if(PointCapturePercentage() > PartialProgress)
+    {
+        while(IsGameInProgress() && PointCapturePercentage())
+        {
+            PartialProgress = PointCapturePercentage() > PartialProgress ? PointCapturePercentage() : PartialProgress;
+            Wait(0.250, WaitBehavior.IgnoreCondition);
+        }
+    }
+
+/*
+*  @name        HybridPayloadUpdatePartialProgress
+*  @description Update PartialProgress for Hybrid payload
+*/
+rule: "HybridPayloadUpdatePartialProgress"
+    if(CurrentGameMode() == GameMode.Hybrid)
+    if(CaptureProgress != 0)
+    if(PayloadProgressPercentage() > PartialProgress)
+    {
+        while(IsGameInProgress() && PayloadProgressPercentage())
+        {
+            PartialProgress = PayloadProgressPercentage() > PartialProgress ? PayloadProgressPercentage() : PartialProgress;
+            Wait(0.250, WaitBehavior.IgnoreCondition);
+        }
+    }
+
+/*
+*  @name        EscortUpdatePartialProgress
+*  @description Update PartialProgress for Escort
+*/
+rule: "EscortUpdatePartialProgress"
+    if(CurrentGameMode() == GameMode.Escort)
+    if(PayloadProgressPercentage() > PartialProgress)
+    {
+        while(IsGameInProgress() && PayloadProgressPercentage())
+        {
+            PartialProgress = PayloadProgressPercentage() > PartialProgress ? PayloadProgressPercentage() : PartialProgress;
+            Wait(0.250, WaitBehavior.IgnoreCondition);
+        }
     }
