@@ -4,6 +4,8 @@
 *   Description: This file holds the code to create commonly used strings for logging
 */
 
+import "../Classes/PlayerStateClass.ostw";
+
 /*
 *  @name        TeamString
 *  @description Gets string with [Team] : <[player]s> <[hero]es>
@@ -24,4 +26,15 @@ define TeamString(Team team):
         HeroOf(PlayersInSlot(3, team)),
         HeroOf(PlayersInSlot(4, team)),
         HeroOf(PlayersInSlot(5, team))
+    >;
+
+define AbilityString(define Ability, Player player):
+    <
+        "[ABILITY_USED] [<0>] [<1>], [<2>] [<3>], [<4>] [<5>]",
+        player,
+        HeroOf(player),
+        TeamOf(player),
+        Ability,
+        PlayerState.ActualHeroBeingDuplicated(player),
+        PlayerState.ActualAlternateForm(player)
     >;
