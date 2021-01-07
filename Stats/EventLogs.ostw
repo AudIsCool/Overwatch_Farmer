@@ -399,7 +399,7 @@ rule: "TrackReloading" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsReloading(EventPlayer()))
     {
-        Log(AbilityString("MELEE", EventPlayer()));
+        Log(AbilityString("RELOAD", EventPlayer()));
     }
 
 
