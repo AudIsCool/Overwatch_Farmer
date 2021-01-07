@@ -15,10 +15,10 @@ import "./HelperFunctions/NumUtils.ostw";
 rule: "LogRoundStart"
     if(IsGameInProgress())
     {
-        LogToInspector("[VERSION] Running on version [0.0.4] [Scrim] version");
+        Log("[VERSION] Running on version [0.0.4] [Scrim] version");
         if (CurrentGameMode() != GameMode.Control)
         {
-            LogToInspector(
+            Log(
                 <"[ROUND_START_ALL] Started Round on Map [<0>] with Teams Attacker: <1> , Defender: <2> , Time Bank [<3>]",
                     CurrentMap(),
                     TeamString(AttackingTeam()),
@@ -26,7 +26,7 @@ rule: "LogRoundStart"
                     MatchTime()
                 >);
         } else {
-            LogToInspector(
+            Log(
                 <"[ROUND_START_CONTROL] Started Round on Map [<0>] Stage [<1>] with Teams <2> , <3>",
                     CurrentMap(),
                     ObjectiveIndex(),

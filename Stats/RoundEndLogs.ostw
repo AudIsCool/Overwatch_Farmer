@@ -22,14 +22,14 @@ rule: "LogRoundEndControl" 1
     if(CurrentGameMode() == GameMode.Control)
     {
         if(TotalTimeElapsed() > 5) {
-            LogToInspector(<"[ROUND_END_SCORE] Team [<0>] Won with a score of [<1>] vs Team [<2>] Lost with a score of [<3>]",
+            Log(<"[ROUND_END_SCORE] Team [<0>] Won with a score of [<1>] vs Team [<2>] Lost with a score of [<3>]",
                 ControlWinningTeam(),
                 ControlModeScoringPercentage(ControlWinningTeam()),
                 ControlLosingTeam(),
                 ControlModeScoringPercentage(ControlLosingTeam()),
                 MatchTime()
             >);
-            LogToInspector("[ROUND_END]");
+            Log("[ROUND_END]");
         }        
     }
 
@@ -43,12 +43,12 @@ rule: "LogRoundEndNonControl" 1
     {
         if(TotalTimeElapsed() > 5)
         {
-            LogToInspector(<"[SCORE_ALL] [<0>] SCORED [<1>] PROGRESS [<2>] TIMEBANK [<3>]",
+            Log(<"[SCORE_ALL] [<0>] SCORED [<1>] PROGRESS [<2>] TIMEBANK [<3>]",
                 AttackingTeam(),
                 TeamScore(AttackingTeam()),
                 RoundToDecimal(PartialProgress, 1, Rounding.Nearest),
                 MatchTime()
             >);
-            LogToInspector("[ROUND_END]");
+            Log("[ROUND_END]");
         }
     }
