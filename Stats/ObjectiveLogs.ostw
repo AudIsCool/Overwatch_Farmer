@@ -35,7 +35,7 @@ rule: "ControlPointFlip"
     if(Not(IsControlModePointLocked()))
     if(WhoControlsPoint != ControlModeScoringTeam())
     {
-        LogToInspector(<"[POINT_FLIP] [<0>] has taken the point, currently: [<1>]% (vs:[<2>]%) REMAINING TIMEBANK [<3>]",
+        Log(<"[POINT_FLIP] [<0>] has taken the point, currently: [<1>]% (vs:[<2>]%) REMAINING TIMEBANK [<3>]",
             ControlModeScoringTeam(),
             RoundToInteger(ControlModeScoringPercentage(ControlModeScoringTeam()), Rounding.Down),
             RoundToInteger(ControlModeScoringPercentage(OppositeTeamOf(ControlModeScoringTeam()))),
@@ -54,7 +54,7 @@ rule: "ControlUpdatePercentageIncrease"
     if(WhoControlsPoint != Team.All)
     if(RoundToInteger(ControlModeScoringPercentage(ControlModeScoringTeam()), Rounding.Down) % 10 == 0)
     {
-        LogToInspector(<"[POINT_UPDATE] [<0>] captured [<1>]%",
+        Log(<"[POINT_UPDATE] [<0>] captured [<1>]%",
             ControlModeScoringTeam(), 
             RoundToInteger(ControlModeScoringPercentage(ControlModeScoringTeam()), Rounding.Down)
         >);
@@ -71,7 +71,7 @@ rule: "HybridTickGain"
     if(PointCapturePercentage() >= NextTick * 100/3 && PointCapturePercentage() < NextTick * 100/3 + 1)
     {
         if(NextTick > 0) {
-            LogToInspector(<"[EARNED_TICK] [<0>] captured [<1>]% REMAINING TIMEBANK [<2>]",
+            Log(<"[EARNED_TICK] [<0>] captured [<1>]% REMAINING TIMEBANK [<2>]",
                 AttackingTeam(), 
                 RoundToInteger(PointCapturePercentage(), Rounding.Down),
                 MatchTime()
@@ -89,14 +89,14 @@ rule: "HybridPointCaptured"
     if(IsObjectiveComplete(CaptureProgress))
     {
         if(CaptureProgress == 0) {
-            LogToInspector(<
+            Log(<
                 "[WON_POINT] [<0>] CAPTURED POINT [<1>] REMAINING TIMEBANK [<2>]", 
                 AttackingTeam(), 
                 CaptureProgress + 1,
                 MatchTime()
             >);
         } else {
-            LogToInspector(<
+            Log(<
                 "[WON_POINT] [<0>] CAPTURED POINT [<1>] PROGRESS [<2>] REMAINING TIMEBANK [<3>]",
                 AttackingTeam(), 
                 CaptureProgress + 1,
@@ -126,7 +126,7 @@ rule: "AssaultTickGain"
     if(PointCapturePercentage() >= NextTick * 100/3 && PointCapturePercentage() < NextTick * 100/3 + 1)
     {
         if(NextTick > 0) {
-            LogToInspector(<"[EARNED_TICK] [<0>] captured [<1>]% of Point [<2>] REMAINING TIMEBANK [<3>]",
+            Log(<"[EARNED_TICK] [<0>] captured [<1>]% of Point [<2>] REMAINING TIMEBANK [<3>]",
                 AttackingTeam(),
                 RoundToInteger(PointCapturePercentage(), Rounding.Down),
                 ObjectiveIndex() + 1,
@@ -144,7 +144,7 @@ rule: "AssaultPointCaptured"
     if(CurrentGameMode() == GameMode.Assault)
     if(IsObjectiveComplete(CaptureProgress))
     {
-        LogToInspector(<
+        Log(<
             "[WON_POINT] [<0>] CAPTURED POINT [<1>] REMAINING TIMEBANK [<2>]", 
             AttackingTeam(), 
             CaptureProgress + 1,
@@ -169,7 +169,7 @@ rule: "EscortUpdate"
     if(CurrentGameMode() == GameMode.Escort)
     if(IsObjectiveComplete(CaptureProgress))
     {
-        LogToInspector(<
+        Log(<
             "[WON_POINT] [<0>] CAPTURED POINT [<1>] PROGRESS [<2>] REMAINING TIMEBANK [<3>]",
             AttackingTeam(),
             CaptureProgress + 1,

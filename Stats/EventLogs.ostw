@@ -22,7 +22,7 @@ rule: "TrackRez" Event.OngoingPlayer
         if(IsHeroBeingPlayed(Hero.Mercy, TeamOf(EventPlayer())))
         if(HasStatus(EventPlayer(), Status.PhasedOut))
         {
-            LogToInspector(<
+            Log(<
                     "[RESURRECT] Team [<0>] Player [<1>] Rezzed [<2>] playing [<3>]",
                     TeamOf(EventPlayer()),
                     AllPlayers(TeamOf(EventPlayer()))
@@ -46,7 +46,7 @@ rule: "TrackNormalUltReady" Event.OngoingPlayer
     if(HeroOf(EventPlayer()) != Hero.Echo)
     if(HeroOf(EventPlayer()) != Hero.Dva)
     {
-        LogToInspector(<
+        Log(<
             "[ULT_READY] [NORMAL] [<0>] on [<1>] [<2>] has 100% ult charge",
             EventPlayer(),
             HeroOf(EventPlayer()),
@@ -64,7 +64,7 @@ rule: "TrackEchoUltReady" Event.OngoingPlayer Team.All Player.Echo
     {
         if(Not(PlayerState.ActualHeroBeingDuplicated(EventPlayer())))
         {
-            LogToInspector(<
+            Log(<
                 "[ULT_READY] [NORMAL] [<0>] on [<1>] [<2>] has 100% ult charge",
                 EventPlayer(),
                 HeroOf(EventPlayer()),
@@ -72,7 +72,7 @@ rule: "TrackEchoUltReady" Event.OngoingPlayer Team.All Player.Echo
             >);
         } else {
             //Possibly change to handle duplicated d.va bomb vs duplicated d.va remech
-            LogToInspector(<
+            Log(<
                 "[ULT_READY] [ECHO_DUPLICATE] [<0>] on [<1>] [<2>] (duplicated [<3>] hero) has 100% ult charge",
                 EventPlayer(),
                 HeroOf(EventPlayer()),
@@ -92,14 +92,14 @@ rule: "TrackD.vaUltReady" Event.OngoingPlayer Team.All Player.Dva
     {
         if(Not(PlayerState.ActualAlternateForm(EventPlayer())))
         {
-            LogToInspector(<
+            Log(<
                 "[ULT_READY] [NORMAL] [<0>] on [<1>] [<2>] has 100% ult charge",
                 EventPlayer(),
                 HeroOf(EventPlayer()),
                 TeamOf(EventPlayer())
             >);
         } else {
-            LogToInspector(<
+            Log(<
                 "[ULT_READY] [BABY_DVA] [<0>] on [<1>] [<2>] has 100% ult charge",
                 EventPlayer(),
                 HeroOf(EventPlayer()),
@@ -119,7 +119,7 @@ rule: "TrackNormalUltUsed" Event.OngoingPlayer
     if(HeroOf(EventPlayer()) != Hero.Echo)
     if(HeroOf(EventPlayer()) != Hero.Dva)
     {
-        LogToInspector(<
+        Log(<
             "[ULT_USED] [<0>] [<1>], [<2>] used Ultimate",
             EventPlayer(),
             HeroOf(EventPlayer()),
@@ -136,7 +136,7 @@ rule: "TrackEchoUltDuringDup" Event.OngoingPlayer Team.All Player.Echo
     if(PlayerState.ActualHeroBeingDuplicated(EventPlayer()))
     if(IsUsingUltimate(EventPlayer()))
     {
-        LogToInspector(<
+        Log(<
             "[ECHO_ULTED_DURING_DUPLICATION] [<0>] [<1>], [<2>] used Ultimate (as [<3>])",
             EventPlayer(),
             HeroOf(EventPlayer()),
@@ -154,7 +154,7 @@ rule: "TrackEchoDupUltUsed" Event.OngoingPlayer Team.All Player.Echo
     if(IsAlive())
     if(CurrentPlayerState.DuplicateStartEvent())
     {
-        LogToInspector(<
+        Log(<
             "[ECHO_DUPLICATE] [<0>] [<1>], [<2>] used ultimate duplicating [<3>]",
             EventPlayer(),
             HeroOf(EventPlayer()),
@@ -217,14 +217,14 @@ rule: "TrackD.vaUlts" Event.OngoingPlayer Team.All Player.Dva
     {
         if(Not(CurrentPlayerState.GetState(PlayerStateEnum.IsInAlternateForm)))
         {
-            LogToInspector(<
+            Log(<
                 "[DVA_BOMBED] [<0>] [<1>], [<2>]",
                 EventPlayer(),
                 HeroOf(EventPlayer()),
                 TeamOf(EventPlayer())
             >);
         } else {
-            LogToInspector(<
+            Log(<
                 "[DVA_REMECH] [<0>] [<1>], [<2>]",
                 EventPlayer(),
                 HeroOf(EventPlayer()),
@@ -241,7 +241,7 @@ rule: "TrackKillNormal" Event.OnFinalBlow
     if(IsGameInProgress())
     if(Not(EventWasEnvironment()))
     {
-        LogToInspector(<
+        Log(<
             "[PLAYER_KILL] [<0>] [<1>], [<2>] killed [<3>] [<4>] using [<5>]",
             EventPlayer(),
             HeroOf(EventPlayer()),
@@ -261,7 +261,7 @@ rule: "TrackKillEnv" Event.OnDeath
     if(EventPlayer() != Attacker())
     if(EventWasEnvironment())
     {
-        LogToInspector(<
+        Log(<
             "[ENVIRONMENTAL_KILL] [<0>] [<1>], [<2>] killed [<3>] [<4>] using [<5>]",
             Attacker(),
             HeroOf(Attacker()),
@@ -281,7 +281,7 @@ rule: "TrackSuicideEnv" Event.OnDeath
     if(EventPlayer() == Attacker())
     if(EventWasEnvironment())
     {
-        LogToInspector(<
+        Log(<
             "[SUICIDE_ENVIRONMENTAL_DEATH] [<0>] [<1>], [<2>] fell from a high place",
             EventPlayer(),
             HeroOf(EventPlayer()),
@@ -298,7 +298,7 @@ rule: "TrackSuicideNonEnv" Event.OnDeath
     if(Not(EventWasEnvironment()))
     if(EventPlayer() ==Attacker())
     {
-        LogToInspector(<
+        Log(<
             "[SUICIDE] [<0>] [<1>], [<2>] hurt itself in its confusion with [<3>]",
             EventPlayer(),
             HeroOf(EventPlayer()),
@@ -316,7 +316,7 @@ rule: "TrackHeroSwitch" Event.OngoingPlayer
     {
         if(IsGameInProgress())
         {
-            LogToInspector(<
+            Log(<
                 "[HERO_SWITCH] [<0>] from [<1>] swapped to [[<2>] from [<3>]]",
                 EventPlayer(),
                 TeamOf(EventPlayer()),
@@ -341,7 +341,7 @@ rule: "TrackD.vaDemech" Event.OnDamageTaken Team.All Player.Dva
     if(Not(CurrentPlayerState.GetState(PlayerStateEnum.InSpawn)))
     if(Health() < 0.5)
     {
-        LogToInspector(<
+        Log(<
             "[DEMECH] Player [<0>] [<1>] was demeched by [<2>] [<3>] [<4>]",
             TeamOf(EventPlayer()),
             EventPlayer(),
