@@ -5,6 +5,7 @@
 *   NOTE:        IMPORT BEFORE ANYTHING THAT USES PLAYER STATE
 */
 import "./Classes/PlayerStateClass.ostw";
+import "./HelperFunctions/StringUtils.ostw";
 
 playervar define PlayerStateInitialized = false;
 playervar PlayerState CurrentPlayerState;

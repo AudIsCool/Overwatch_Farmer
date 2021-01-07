@@ -3,15 +3,6 @@
    Description: This file contains the setup for the scrim version of the Overwatch_Farmer 
 */ 
 
-public void Log(define StringToLog){
-    EnableInspectorRecording();
-
-    LogToInspector(StringToLog);
-
-    DisableInspectorRecording();
-}
-
-
 // Imports
 import "./ScrimSettings.json";   //Lobby Settings 
 

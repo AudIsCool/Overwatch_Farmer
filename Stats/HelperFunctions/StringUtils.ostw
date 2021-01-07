@@ -38,3 +38,11 @@ define AbilityString(define Ability, Player player):
         PlayerState.ActualHeroBeingDuplicated(player),
         PlayerState.ActualAlternateForm(player)
     >;
+
+void Log(define StringToLog){
+    EnableInspectorRecording();
+
+    LogToInspector(StringToLog);
+
+    DisableInspectorRecording();
+}

@@ -171,7 +171,7 @@ rule: "TrackDuplicateEnd" Event.OngoingPlayer Team.All Player.Echo
     if(CurrentPlayerState.DuplicateEndedEvent())
     if(Dupping)
     {
-        LogToInspector(<
+        Log(<
             "[ECHO_DUPLICATE_END] [<0>] [<1>], [<2>] [<3>] duplicate ended",
             EventPlayer(),
             HeroOf(EventPlayer()),
@@ -188,7 +188,7 @@ rule: "TrackDuplicateDeath" Event.OnDamageTaken Team.All Player.Echo
     if(PlayerState.ActualHeroBeingDuplicated(EventPlayer()))
     if(Dupping)
     {
-        LogToInspector(<
+        Log(<
             "[ECHO_DUPLICATE_END] [<0>] [<1>], [<2>] [<3>] duplicate ended [<4>] [<5>] [<6>] [<7>] [<8>]",
             EventPlayer(),
             HeroOf(EventPlayer()),
@@ -355,28 +355,28 @@ rule: "TrackPrimaryFireUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsFiringPrimary(EventPlayer()))
     {
-        LogToInspector(AbilityString("PRIMARY_FIRE", EventPlayer()));
+        Log(AbilityString("PRIMARY_FIRE", EventPlayer()));
     }
 
 rule: "TrackSecondaryFireUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsFiringSecondary(EventPlayer()))
     {
-        LogToInspector(AbilityString("SECONDARY_FIRE", EventPlayer()));
+        Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
     }
 
 rule: "TrackAbility1Used" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsUsingAbility1(EventPlayer()))
     {
-        LogToInspector(AbilityString("ABILITY_1", EventPlayer()));
+        Log(AbilityString("ABILITY_1", EventPlayer()));
     }
 
 rule: "TrackAbility2Used" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsUsingAbility2(EventPlayer()))
     {
-        LogToInspector(AbilityString("ABILITY_2", EventPlayer()));
+        Log(AbilityString("ABILITY_2", EventPlayer()));
     }
 
 rule: "TrackCrouchAbilityUsedWreckingBall" Event.OngoingPlayer
@@ -385,21 +385,21 @@ rule: "TrackCrouchAbilityUsedWreckingBall" Event.OngoingPlayer
         HeroBeingDuplicated(EventPlayer()) == Hero.WreckingBall)
     if(IsButtonHeld(EventPlayer(), Button.Crouch))
     {
-        LogToInspector(AbilityString("CROUCH_ABILITY", EventPlayer()));
+        Log(AbilityString("CROUCH_ABILITY", EventPlayer()));
     }
 
 rule: "TrackMeleeUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsMeleeing(EventPlayer()))
     {
-        LogToInspector(AbilityString("MELEE", EventPlayer()));
+        Log(AbilityString("MELEE", EventPlayer()));
     }
 
 rule: "TrackReloading" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsReloading(EventPlayer()))
     {
-        LogToInspector(AbilityString("MELEE", EventPlayer()));
+        Log(AbilityString("MELEE", EventPlayer()));
     }
 
 
