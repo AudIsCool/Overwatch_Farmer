@@ -351,6 +351,11 @@ rule: "TrackD.vaDemech" Event.OnDamageTaken Team.All Player.Dva
         >);
     }
 
+/*
+*  @name        TrackPrimaryFireUsed
+*  @description Log Primary Fire Event
+*  @TODO Maybe loop with ammo to make sure to get all event on full auto heroes
+*/
 rule: "TrackPrimaryFireUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsFiringPrimary(EventPlayer()))
@@ -358,6 +363,10 @@ rule: "TrackPrimaryFireUsed" Event.OngoingPlayer
         Log(AbilityString("PRIMARY_FIRE", EventPlayer()));
     }
 
+/*
+*  @name        TrackSecondaryFireUsed
+*  @description Log Secondary Fire Event
+*/
 rule: "TrackSecondaryFireUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsFiringSecondary(EventPlayer()))
@@ -365,6 +374,10 @@ rule: "TrackSecondaryFireUsed" Event.OngoingPlayer
         Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
     }
 
+/*
+*  @name        TrackAbility1Used
+*  @description Log Ability 1 Event
+*/
 rule: "TrackAbility1Used" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsUsingAbility1(EventPlayer()))
@@ -372,6 +385,10 @@ rule: "TrackAbility1Used" Event.OngoingPlayer
         Log(AbilityString("ABILITY_1", EventPlayer()));
     }
 
+/*
+*  @name        TrackAbility1Used
+*  @description Log Ability 1 Event
+*/
 rule: "TrackAbility2Used" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsUsingAbility2(EventPlayer()))
@@ -379,6 +396,10 @@ rule: "TrackAbility2Used" Event.OngoingPlayer
         Log(AbilityString("ABILITY_2", EventPlayer()));
     }
 
+/*
+*  @name        TrackCrouchAbilityUsed
+*  @description Log Crouch Ability Event
+*/
 rule: "TrackCrouchAbilityUsedWreckingBall" Event.OngoingPlayer
     if(IsGameInProgress())
     if(HeroOf(EventPlayer()) == Hero.WreckingBall ||
@@ -388,6 +409,10 @@ rule: "TrackCrouchAbilityUsedWreckingBall" Event.OngoingPlayer
         Log(AbilityString("CROUCH_ABILITY", EventPlayer()));
     }
 
+/*
+*  @name        TrackMeleeUsed
+*  @description Log Melee Event
+*/
 rule: "TrackMeleeUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsMeleeing(EventPlayer()))
@@ -395,6 +420,10 @@ rule: "TrackMeleeUsed" Event.OngoingPlayer
         Log(AbilityString("MELEE", EventPlayer()));
     }
 
+/*
+*  @name        TrackReloadingUsed
+*  @description Log Reloading Event
+*/
 rule: "TrackReloading" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsReloading(EventPlayer()))
