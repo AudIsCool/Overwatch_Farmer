@@ -5,6 +5,7 @@
 *   NOTE:        IMPORT AFTER STATS THAT USE THESE VALUES
 */
 import "./Classes/PlayerStateClass.ostw";
+import "./HelperFunctions/StringUtils.ostw";
 import "./PlayerStateInitRules.ostw";
 
 /*

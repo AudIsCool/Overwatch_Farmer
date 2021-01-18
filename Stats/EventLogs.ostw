@@ -3,10 +3,12 @@
 *   Author:      leguminote#5816
 *   Description: This file holds the code to log Player Event info
 */
+import "./HelperFunctions/StringUtils.ostw";
 
 import "./PlayerStateInitRules.ostw";
 
-playervar define TrackedHero = HeroOf(EventPlayer());
+playervar define TrackedHero = HeroOf(EventPlayer());   //Used for hero swaps
+playervar define Dupping = false;                       //Used for printing correct output only on dup end
 
 /*
 *  @name        TrackRez
@@ -159,9 +161,48 @@ rule: "TrackEchoDupUltUsed" Event.OngoingPlayer Team.All Player.Echo
             TeamOf(EventPlayer()),
             PlayerState.ActualHeroBeingDuplicated(EventPlayer())
         >);
+        Dupping = true;
     }
 
-//TODO Echo Duplicate End
+//TODO Echo Duplicate End  // MAYBE CHANGE TO SHOW WHO ENDED IT??
+rule: "TrackDuplicateEnd" Event.OngoingPlayer Team.All Player.Echo
+    if(IsGameInProgress())
+    if(IsAlive())
+    if(CurrentPlayerState.DuplicateEndedEvent())
+    if(Dupping)
+    {
+        Log(<
+            "[ECHO_DUPLICATE_END] [<0>] [<1>], [<2>] [<3>] duplicate ended",
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            TeamOf(EventPlayer()),
+            PlayerState.ActualHeroBeingDuplicated(EventPlayer()),
+            PlayerState.ActualAlternateForm(EventPlayer())
+        >);
+        Dupping = false;
+    }
+
+rule: "TrackDuplicateDeath" Event.OnDamageTaken Team.All Player.Echo 
+    if(IsGameInProgress())
+    if(Health(EventPlayer()) < 0.5)
+    if(PlayerState.ActualHeroBeingDuplicated(EventPlayer()))
+    if(Dupping)
+    {
+        Log(<
+            "[ECHO_DUPLICATE_END] [<0>] [<1>], [<2>] [<3>] duplicate ended [<4>] [<5>] [<6>] [<7>] [<8>]",
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            TeamOf(EventPlayer()),
+            PlayerState.ActualHeroBeingDuplicated(EventPlayer()),
+            PlayerState.ActualAlternateForm(EventPlayer()),
+            Attacker(),
+            HeroOf(Attacker()),
+            EventAbility(),
+            PlayerState.ActualHeroBeingDuplicated(Attacker()),
+            PlayerState.ActualAlternateForm(Attacker())
+        >);
+        Dupping = false;
+    }
 
 //TODO Echo Duplicate Demech
 //TODO Echo Duplicate Remech / Bomb
@@ -284,6 +325,7 @@ rule: "TrackHeroSwitch" Event.OngoingPlayer
             >);
         }
         TrackedHero = HeroOf(EventPlayer());
+        Dupping = false;
     }
 
 /*
@@ -308,3 +350,89 @@ rule: "TrackD.vaDemech" Event.OnDamageTaken Team.All Player.Dva
             EventAbility()
         >);
     }
+
+/*
+*  @name        TrackPrimaryFireUsed
+*  @description Log Primary Fire Event
+*  @TODO Maybe loop with ammo to make sure to get all event on full auto heroes
+*/
+rule: "TrackPrimaryFireUsed" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsFiringPrimary(EventPlayer()))
+    {
+        Log(AbilityString("PRIMARY_FIRE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackSecondaryFireUsed
+*  @description Log Secondary Fire Event
+*/
+rule: "TrackSecondaryFireUsed" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsFiringSecondary(EventPlayer()))
+    {
+        Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackAbility1Used
+*  @description Log Ability 1 Event
+*/
+rule: "TrackAbility1Used" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsUsingAbility1(EventPlayer()))
+    {
+        Log(AbilityString("ABILITY_1", EventPlayer()));
+    }
+
+/*
+*  @name        TrackAbility1Used
+*  @description Log Ability 1 Event
+*/
+rule: "TrackAbility2Used" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsUsingAbility2(EventPlayer()))
+    {
+        Log(AbilityString("ABILITY_2", EventPlayer()));
+    }
+
+/*
+*  @name        TrackCrouchAbilityUsed
+*  @description Log Crouch Ability Event
+*/
+rule: "TrackCrouchAbilityUsedWreckingBall" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.WreckingBall ||
+        HeroBeingDuplicated(EventPlayer()) == Hero.WreckingBall)
+    if(IsButtonHeld(EventPlayer(), Button.Crouch))
+    {
+        Log(AbilityString("CROUCH_ABILITY", EventPlayer()));
+    }
+
+/*
+*  @name        TrackMeleeUsed
+*  @description Log Melee Event
+*/
+rule: "TrackMeleeUsed" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsMeleeing(EventPlayer()))
+    {
+        Log(AbilityString("MELEE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackReloadingUsed
+*  @description Log Reloading Event
+*/
+rule: "TrackReloading" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(IsReloading(EventPlayer()))
+    {
+        Log(AbilityString("RELOAD", EventPlayer()));
+    }
+
+
+
+//HANZO LUNGE
+//BAPT JUMP CHARGE
+//
