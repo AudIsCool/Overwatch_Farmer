@@ -88,6 +88,16 @@ class PlayerState
             IndexOfArrayValue(AllHeroes(), PlayerState.ActualHeroBeingDuplicated(player)) == -1;
 
     /*
+    *  @name        IsScoped
+    *  @description Returns true if Player is Scoped / ADS
+    *  <Macro>
+    */
+    public define IsScoped():
+        (IsScopedHero(HeroOf(player)) ||
+        (HeroBeingDuplicated(player) != false && IsScopedHero(HeroBeingDuplicated(player)))) &&
+        IsButtonHeld(player, Button.SecondaryFire);
+
+    /*
     *  @name        IsStale
     *  @description Returns true if PlayerStateArray[index] is outdated
     *  <Macro>
@@ -143,7 +153,6 @@ class PlayerState
         IsInSpawnRoom(player),
         UltimateChargePercent(player) == 100];
 
-
     //*****************************************************//
     // private helper functions                            //
     //*****************************************************//
@@ -156,15 +165,7 @@ class PlayerState
     private static define IsScopedHero(define ActingAs):
         IndexOfArrayValue([Hero.Widowmaker, Hero.Ashe, Hero.Ana], ActingAs) >= 0;
 
-    /*
-    *  @name        IsScoped
-    *  @description Returns true if Player is Scoped / ADS
-    *  <Macro>
-    */
-    private define IsScoped():
-        (IsScopedHero(HeroOf(player)) ||
-        (HeroBeingDuplicated(player) != false && IsScopedHero(HeroBeingDuplicated(player)))) &&
-        IsButtonHeld(player, Button.SecondaryFire);
+    
 
 
     //*****************************************************//
@@ -192,7 +193,8 @@ class PlayerState
                 PlayerStateArray[9],
                 PlayerStateArray[10],
                 PlayerStateArray[11],
-                PlayerStateArray[12]>;
+                PlayerStateArray[12],
+                PlayerStateArray[13]>;
     }
 }
 
@@ -216,5 +218,5 @@ enum PlayerStateEnum
     IsReloading,            //9
     IsScoped,               //10
     InSpawn,                //11
-    HasUlt                  //12
+    HasUlt                 //12
 }

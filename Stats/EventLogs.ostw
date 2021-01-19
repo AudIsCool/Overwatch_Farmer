@@ -358,6 +358,22 @@ rule: "TrackD.vaDemech" Event.OnDamageTaken Team.All Player.Dva
 */
 rule: "TrackPrimaryFireUsed" Event.OngoingPlayer
     if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) != Hero.Hanzo)
+    if(CurrentPlayerState.IsScoped() == false)
+    if(IsFiringPrimary(EventPlayer()))
+    {
+        Log(AbilityString("PRIMARY_FIRE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackPrimaryFireUsedHanzo
+*  @description Log Primary Fire Event for Hanzo
+*  @TODO Maybe loop with ammo to make sure to get all event on full auto heroes
+*/
+rule: "TrackPrimaryFireUsedHanzo" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Hanzo)
+    if(!IsUsingAbility1(EventPlayer()))
     if(IsFiringPrimary(EventPlayer()))
     {
         Log(AbilityString("PRIMARY_FIRE", EventPlayer()));
@@ -370,6 +386,19 @@ rule: "TrackPrimaryFireUsed" Event.OngoingPlayer
 rule: "TrackSecondaryFireUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsFiringSecondary(EventPlayer()))
+    if(HeroOf(EventPlayer()) != Hero.Ana && HeroOf(EventPlayer()) != Hero.Ashe && HeroOf(EventPlayer()) != Hero.Widowmaker)
+    {
+        Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackSecondaryFireUsedScoped
+*  @description Log Secondary Fire Event
+*/
+rule: "TrackSecondaryFireUsedScoped" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(CurrentPlayerState.IsScoped() == true)
+    if(IsFiringPrimary(EventPlayer()))
     {
         Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
     }
@@ -479,8 +508,8 @@ rule: "TrackSombraTranslocated" Event.OngoingPlayer
 rule: "TrackSombraDecloaked" Event.OngoingPlayer
     if(IsGameInProgress())
     if(HeroOf(EventPlayer()) == Hero.Sombra)
-    if(IsUsingAbility1(EventPlayer()))
     if(IsButtonHeld(EventPlayer(), Button.Ability1))
+    if(IsUsingAbility1(EventPlayer()))
     {
        Log(AbilityString("DECLOAK", EventPlayer())); 
     }
