@@ -386,7 +386,7 @@ rule: "TrackPrimaryFireUsedHanzo" Event.OngoingPlayer
 rule: "TrackSecondaryFireUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsFiringSecondary(EventPlayer()))
-    if(HeroOf(EventPlayer()) != Hero.Ana && HeroOf(EventPlayer()) != Hero.Ashe && HeroOf(EventPlayer()) != Hero.Widowmaker)
+    if(HeroOf(EventPlayer()) != Hero.Ana && HeroOf(EventPlayer()) != Hero.Ashe && HeroOf(EventPlayer()) != Hero.Widowmaker && HeroOf(EventPlayer()) != Hero.Sombra)
     {
         Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
     }
@@ -399,6 +399,18 @@ rule: "TrackSecondaryFireUsedScoped" Event.OngoingPlayer
     if(IsGameInProgress())
     if(CurrentPlayerState.IsScoped() == true)
     if(IsFiringPrimary(EventPlayer()))
+    {
+        Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackSecondaryFireUsedSombraHack
+*  @description Log Sombra's Hack
+*/
+rule: "TrackSecondaryFireSombraHackUsed" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Sombra)
+    if(AbilityCooldown(EventPlayer(), Button.SecondaryFire) > 2)
     {
         Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
     }
