@@ -386,8 +386,8 @@ rule: "TrackAbility1Used" Event.OngoingPlayer
     }
 
 /*
-*  @name        TrackAbility1Used
-*  @description Log Ability 1 Event
+*  @name        TrackAbility2Used
+*  @description Log Ability 2 Event
 */
 rule: "TrackAbility2Used" Event.OngoingPlayer
     if(IsGameInProgress())
@@ -395,6 +395,7 @@ rule: "TrackAbility2Used" Event.OngoingPlayer
     {
         Log(AbilityString("ABILITY_2", EventPlayer()));
     }
+
 
 /*
 *  @name        TrackCrouchAbilityUsed
@@ -404,7 +405,7 @@ rule: "TrackCrouchAbilityUsedWreckingBall" Event.OngoingPlayer
     if(IsGameInProgress())
     if(HeroOf(EventPlayer()) == Hero.WreckingBall ||
         HeroBeingDuplicated(EventPlayer()) == Hero.WreckingBall)
-    if(IsButtonHeld(EventPlayer(), Button.Crouch))
+    if(AbilityCooldown(EventPlayer(), Button.Crouch) != 0)
     {
         Log(AbilityString("CROUCH_ABILITY", EventPlayer()));
     }
@@ -433,6 +434,42 @@ rule: "TrackReloading" Event.OngoingPlayer
 
 
 
-//HANZO LUNGE
+/*
+*  @name        TrackHanzoLungeUsed
+*  @description Log Hanzo Lunge Event
+*/
+rule: "TrackHanzoLungeUsed" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Hanzo)
+    if(AbilityCooldown(EventPlayer(), Button.Jump) != 0)
+    {
+       Log(AbilityString("LUNGE", EventPlayer())); 
+    }
+
+/*
+*  @name        TrackSombraTranslocated
+*  @description Log Sombra Activating Translocater
+*/
+rule: "TrackSombraTranslocated" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Sombra)
+    if(IsUsingAbility2(EventPlayer()))
+    if(IsButtonHeld(EventPlayer(), Button.Ability2))
+    {
+       Log(AbilityString("TRANSLOCATE", EventPlayer())); 
+    }
+
+/*
+*  @name        TrackSombraDecloaked
+*  @description Log Sombra Exiting Cloak
+*/
+rule: "TrackSombraTranslocated" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Sombra)
+    if(IsUsingAbility1(EventPlayer()))
+    if(IsButtonHeld(EventPlayer(), Button.Ability1))
+    {
+       Log(AbilityString("DECLOAK", EventPlayer())); 
+    }
 //BAPT JUMP CHARGE
 //
