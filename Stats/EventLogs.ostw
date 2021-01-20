@@ -1,6 +1,6 @@
 /*
 *   Name:        EventLogs.ostw
-*   Author:      leguminote#5816
+*   Author:      leguminote#5816, EventHorizon#0087
 *   Description: This file holds the code to log Player Event info
 */
 import "./HelperFunctions/StringUtils.ostw";
@@ -386,7 +386,7 @@ rule: "TrackPrimaryFireUsedHanzo" Event.OngoingPlayer
 rule: "TrackSecondaryFireUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsFiringSecondary(EventPlayer()))
-    if(HeroOf(EventPlayer()) != Hero.Ana && HeroOf(EventPlayer()) != Hero.Ashe && HeroOf(EventPlayer()) != Hero.Widowmaker && HeroOf(EventPlayer()) != Hero.Sombra)
+    if(HeroOf(EventPlayer()) != Hero.Ana && HeroOf(EventPlayer()) != Hero.Ashe && HeroOf(EventPlayer()) != Hero.Widowmaker && HeroOf(EventPlayer()) != Hero.Sombra && HeroOf(EventPlayer()) != Hero.Junkrat)
     {
         Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
     }
@@ -411,6 +411,19 @@ rule: "TrackSecondaryFireSombraHackUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(HeroOf(EventPlayer()) == Hero.Sombra)
     if(AbilityCooldown(EventPlayer(), Button.SecondaryFire) > 2)
+    {
+        Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackSecondaryFireJunkratMine
+*  @description Log Junkrat Detonating Mine
+*/
+rule: "TrackSecondaryFireJunkratMine" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Junkrat)
+    if(IsUsingAbility1(EventPlayer()))
+    if(IsFiringPrimary(EventPlayer()))
     {
         Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
     }

@@ -134,6 +134,15 @@ class PlayerState
         PlayerStateArray[Kind];   
 
     /*
+    *  @name        GetState
+    *  @description Returns status from PlayerStateArray give index
+    *               Use PlayerStateEnum for indices
+    *  <Macro>
+    */
+    public define GetFullState():
+        PlayerStateArray;   
+
+    /*
     *  @name        GetUpdated
     *  @description Returns updated PlayerStateArray for this.player
     *  <Macro>

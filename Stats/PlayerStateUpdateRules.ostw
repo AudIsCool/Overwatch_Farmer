@@ -17,11 +17,40 @@ import "./PlayerStateInitRules.ostw";
 *
 *  Note: This rule must be after the prints as to not overwrite
 */
+globalvar define FieldNames = [ //Set up list of state field names for logging
+
+    "IsAlseep",               //0
+    "IsBurning",              //1
+    "IsFrozen",               //2
+    "IsHacked",               //3
+    "IsKnockedDown",          //4
+    "IsRooted",               //5
+    "IsStunned",              //6
+    "IsInAlternateForm",      //7
+    "HeroBeingDuplicated",    //8
+    "IsReloading",            //9
+    "IsScoped",               //10
+    "InSpawn",                //11
+    "HasUlt"                 //12
+];
 rule: "PlayerStateTransition" 2 Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsAlive())
     if(PlayerStateInitialized)
     if(CurrentPlayerState.IsStale())
     {
+        define StalePlayerState = CurrentPlayerState.GetFullState(); //Store the stale state before we update, since all fields are updated
         CurrentPlayerState.Update();
+        define ActivePlayerState = CurrentPlayerState.GetFullState();
+        for (define i = 0; i < 13; i++)
+          if(ActivePlayerState[i] != StalePlayerState[i])
+          {
+              Log(<
+            "[STATE_CHANGE] [<0>] [<1>], [<2>], [<3>] changed to [<4>]",
+            EventPlayer(),
+            HeroOf(EventPlayer()),
+            TeamOf(EventPlayer()),
+            FieldNames[i],
+            ActivePlayerState[i]>);
+          }
     }
