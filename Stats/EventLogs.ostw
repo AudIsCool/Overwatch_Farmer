@@ -1,6 +1,6 @@
 /*
 *   Name:        EventLogs.ostw
-*   Author:      leguminote#5816
+*   Author:      leguminote#5816, EventHorizon#0087
 *   Description: This file holds the code to log Player Event info
 */
 import "./HelperFunctions/StringUtils.ostw";
@@ -358,6 +358,22 @@ rule: "TrackD.vaDemech" Event.OnDamageTaken Team.All Player.Dva
 */
 rule: "TrackPrimaryFireUsed" Event.OngoingPlayer
     if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) != Hero.Hanzo)
+    if(CurrentPlayerState.IsScoped() == false)
+    if(IsFiringPrimary(EventPlayer()))
+    {
+        Log(AbilityString("PRIMARY_FIRE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackPrimaryFireUsedHanzo
+*  @description Log Primary Fire Event for Hanzo
+*  @TODO Maybe loop with ammo to make sure to get all event on full auto heroes
+*/
+rule: "TrackPrimaryFireUsedHanzo" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Hanzo)
+    if(!IsUsingAbility1(EventPlayer()))
     if(IsFiringPrimary(EventPlayer()))
     {
         Log(AbilityString("PRIMARY_FIRE", EventPlayer()));
@@ -370,6 +386,44 @@ rule: "TrackPrimaryFireUsed" Event.OngoingPlayer
 rule: "TrackSecondaryFireUsed" Event.OngoingPlayer
     if(IsGameInProgress())
     if(IsFiringSecondary(EventPlayer()))
+    if(HeroOf(EventPlayer()) != Hero.Ana && HeroOf(EventPlayer()) != Hero.Ashe && HeroOf(EventPlayer()) != Hero.Widowmaker && HeroOf(EventPlayer()) != Hero.Sombra && HeroOf(EventPlayer()) != Hero.Junkrat)
+    {
+        Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackSecondaryFireUsedScoped
+*  @description Log Secondary Fire Event
+*/
+rule: "TrackSecondaryFireUsedScoped" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(CurrentPlayerState.IsScoped() == true)
+    if(IsFiringPrimary(EventPlayer()))
+    {
+        Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackSecondaryFireUsedSombraHack
+*  @description Log Sombra's Hack
+*/
+rule: "TrackSecondaryFireSombraHackUsed" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Sombra)
+    if(AbilityCooldown(EventPlayer(), Button.SecondaryFire) > 2)
+    {
+        Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
+    }
+
+/*
+*  @name        TrackSecondaryFireJunkratMine
+*  @description Log Junkrat Detonating Mine
+*/
+rule: "TrackSecondaryFireJunkratMine" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Junkrat)
+    if(IsUsingAbility1(EventPlayer()))
+    if(IsFiringPrimary(EventPlayer()))
     {
         Log(AbilityString("SECONDARY_FIRE", EventPlayer()));
     }
@@ -380,14 +434,15 @@ rule: "TrackSecondaryFireUsed" Event.OngoingPlayer
 */
 rule: "TrackAbility1Used" Event.OngoingPlayer
     if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) != Hero.Hanzo)
     if(IsUsingAbility1(EventPlayer()))
     {
         Log(AbilityString("ABILITY_1", EventPlayer()));
     }
 
 /*
-*  @name        TrackAbility1Used
-*  @description Log Ability 1 Event
+*  @name        TrackAbility2Used
+*  @description Log Ability 2 Event
 */
 rule: "TrackAbility2Used" Event.OngoingPlayer
     if(IsGameInProgress())
@@ -395,6 +450,7 @@ rule: "TrackAbility2Used" Event.OngoingPlayer
     {
         Log(AbilityString("ABILITY_2", EventPlayer()));
     }
+
 
 /*
 *  @name        TrackCrouchAbilityUsed
@@ -404,7 +460,7 @@ rule: "TrackCrouchAbilityUsedWreckingBall" Event.OngoingPlayer
     if(IsGameInProgress())
     if(HeroOf(EventPlayer()) == Hero.WreckingBall ||
         HeroBeingDuplicated(EventPlayer()) == Hero.WreckingBall)
-    if(IsButtonHeld(EventPlayer(), Button.Crouch))
+    if(AbilityCooldown(EventPlayer(), Button.Crouch) != 0)
     {
         Log(AbilityString("CROUCH_ABILITY", EventPlayer()));
     }
@@ -433,6 +489,56 @@ rule: "TrackReloading" Event.OngoingPlayer
 
 
 
-//HANZO LUNGE
+/*
+*  @name        TrackHanzoLungeUsed
+*  @description Log Hanzo Lunge Event
+*/
+rule: "TrackHanzoLungeUsed" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Hanzo)
+    if(AbilityCooldown(EventPlayer(), Button.Jump) != 0)
+    {
+       Log(AbilityString("LUNGE", EventPlayer())); 
+    }
+
+/*
+*  @name        TrackHanzoSonicUsed
+*  @description Log Hanzo Lunge Event
+*/
+rule: "TrackHanzoSonicUsed" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Hanzo)
+    if(AbilityCooldown(EventPlayer(), Button.Ability1) != 0)
+    {
+       Log(AbilityString("ABILITY1", EventPlayer())); 
+    }
+
+/*
+*  @name        TrackSombraTranslocated
+*  @description Log Sombra Activating Translocater
+*/
+rule: "TrackSombraTranslocated" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Sombra)
+    if(IsUsingAbility2(EventPlayer()))
+    if(IsButtonHeld(EventPlayer(), Button.Ability2))
+    {
+       Log(AbilityString("TRANSLOCATE", EventPlayer())); 
+    }
+
+/*
+*  @name        TrackSombraDecloaked
+*  @description Log Sombra Exiting Cloak
+*/
+/*
+rule: "TrackSombraDecloaked" Event.OngoingPlayer
+    if(IsGameInProgress())
+    if(HeroOf(EventPlayer()) == Hero.Sombra)
+    if(IsButtonHeld(EventPlayer(), Button.Ability1))
+    if(IsUsingAbility1(EventPlayer()))
+    {
+       Log(AbilityString("DECLOAK", EventPlayer())); 
+    }
+    */
 //BAPT JUMP CHARGE
 //
