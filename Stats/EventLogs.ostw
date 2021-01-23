@@ -530,6 +530,7 @@ rule: "TrackSombraTranslocated" Event.OngoingPlayer
 *  @name        TrackSombraDecloaked
 *  @description Log Sombra Exiting Cloak
 */
+/*
 rule: "TrackSombraDecloaked" Event.OngoingPlayer
     if(IsGameInProgress())
     if(HeroOf(EventPlayer()) == Hero.Sombra)
@@ -538,5 +539,6 @@ rule: "TrackSombraDecloaked" Event.OngoingPlayer
     {
        Log(AbilityString("DECLOAK", EventPlayer())); 
     }
+    */
 //BAPT JUMP CHARGE
 //
