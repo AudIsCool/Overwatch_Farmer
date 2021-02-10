@@ -170,8 +170,10 @@ rule: "Team1ChangeReady"
 
             //Say that they're ready
             SmallMessage(AllPlayers(), <"<0> unreadied their team", EventPlayer()>);
+            
+            //Remove past text 
+            DestroyTextInList(Team1ReadyText);
 
-            //Remove hud text 
         }
 
         //Ready down
@@ -181,6 +183,9 @@ rule: "Team1ChangeReady"
 
             //Say that they're ready
             SmallMessage(AllPlayers(), <"<0> readied their team", EventPlayer()>);
+
+            //Remove past text 
+            DestroyTextInList(Team1ReadyText);
 
             //Create hud text 
             CreateHudText(AllPlayers(Team.Team1),
@@ -240,6 +245,7 @@ rule: "Team2ChangeReady"
     if(MatchTime() > 5)                              // If the match time exists
     if(HeroOf(EventPlayer()))                        // If the player hasselected a hero
 
+
     if(IsButtonHeld(EventPlayer(), Button.Crouch))   // If pressing crouch
     if(IsButtonHeld(EventPlayer(), Button.Interact)) // If pressing interact
 
@@ -263,11 +269,12 @@ rule: "Team2ChangeReady"
             //Ready
             Team2Ready = false;
 
+            //Remove past text 
+            DestroyTextInList(Team2ReadyText);
+
             //Say that they're ready
             SmallMessage(AllPlayers(), <"<0> unreadied their team", EventPlayer()>);
 
-            //Remove past text 
-            DestroyTextInList(Team2ReadyText);
 
             
         }
@@ -280,6 +287,8 @@ rule: "Team2ChangeReady"
             //Say that they're ready
             SmallMessage(AllPlayers(), <"<0> readied their team", EventPlayer()>);
 
+            //Remove past text 
+            DestroyTextInList(Team2ReadyText);
 
             //Create hud text
             CreateHudText(AllPlayers(Team.Team2),
@@ -291,7 +300,7 @@ rule: "Team2ChangeReady"
                 Reevaluation: HudTextRev.VisibleToAndString,
                 Spectators: Spectators.VisibleNever
             );
-            Team2ReadyText[CountOf(Team1ReadyText)] = LastTextID();
+            Team2ReadyText[CountOf(Team2ReadyText)] = LastTextID();
 
             //Create team two text
             CreateHudText(AllPlayers(Team.Team1),
@@ -303,7 +312,7 @@ rule: "Team2ChangeReady"
                 Reevaluation: HudTextRev.VisibleToAndString,
                 Spectators: Spectators.VisibleNever
             );
-            Team2ReadyText[CountOf(Team1ReadyText)] = LastTextID();
+            Team2ReadyText[CountOf(Team2ReadyText)] = LastTextID();
 
 
             //Create spectator text
@@ -314,7 +323,7 @@ rule: "Team2ChangeReady"
                 Reevaluation: HudTextRev.VisibleToAndString,
                 Spectators: Spectators.VisibleAlways
             );
-            Team2ReadyText[CountOf(Team1ReadyText)] = LastTextID();
+            Team2ReadyText[CountOf(Team2ReadyText)] = LastTextID();
 
         }
 

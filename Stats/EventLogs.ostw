@@ -526,6 +526,53 @@ rule: "TrackSombraTranslocated" Event.OngoingPlayer
        Log(AbilityString("TRANSLOCATE", EventPlayer())); 
     }
 
+
+
+
+/*
+*  @name        LogHealingRecieved
+*  @description Log healing taken from target, stating what ability and for how much
+*/
+rule: "LogHealingRecieved" 
+    Event.OnHealingTaken
+    if(IsGameInProgress())
+    if(IsInSpawnRoom() == false)
+
+    if(true){
+        Log(<
+            "[HEALING_TAKEN] Player [<0>] took healing from [<1>] for [<2>] points using [<3>]",
+            EventPlayer(),
+            Healer(),
+            
+            EventHealing(),
+            EventAbility()
+            
+        >);
+    }
+
+/*
+*  @name        LogDamageTaken
+*  @description Log damage taken from target, stating what ability and for how much
+*/
+rule: "LogDamageTaken" 
+    Event.OnDamageTaken
+    if(IsGameInProgress())
+    if(IsInSpawnRoom() == false)
+
+    if(true){
+        Log(<
+            "[DAMAGE_TAKEN] Player [<0>] took damage from [<1>] for [<2>] points using [<3>]",
+            EventPlayer(),
+            Attacker(),
+            
+            EventDamage(),
+            EventAbility()
+            
+        >);
+    }
+
+
+
 /*
 *  @name        TrackSombraDecloaked
 *  @description Log Sombra Exiting Cloak

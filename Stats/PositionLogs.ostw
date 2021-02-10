@@ -1,0 +1,37 @@
+/*
+*   Name:        PositionLogs.ostw
+*   Author:      Aud#9488
+*   Description: This file holds the rules for active system logging
+*/
+
+import "./HelperFunctions/StringUtils.ostw";
+import "./HelperFunctions/InfoUtils.ostw";
+import "./HelperFunctions/NumUtils.ostw";
+
+
+globalvar define PositionLogRate = 0.5;
+
+
+/*
+*  @name        LogPlayerPositions
+*  @description Logs player's positions every <PositionLogRate> seconds
+*/
+rule: "LogPlayerPositions"
+    Event.OngoingGlobal
+
+    //If the game is in progress, log out positions
+    if(IsGameInProgress())
+    if(true){
+        //Log out positions
+        Log(
+            <
+                "[POSITION_UPDATE] Team One <0>  | Team Two <1>",
+                PositionString(Team.Team1),
+                PositionString(Team.Team2)
+            >
+        );
+
+
+        Wait(PositionLogRate, WaitBehavior.IgnoreCondition);
+        Loop();
+    }

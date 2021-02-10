@@ -1,6 +1,7 @@
 /*
 *   Name:        StringUtils.ostw
 *   Author:      leguminote#5816
+*   Edited:      Aud#9488
 *   Description: This file holds the code to create commonly used strings for logging
 */
 
@@ -28,6 +29,12 @@ define TeamString(Team team):
         HeroOf(PlayersInSlot(5, team))
     >;
 
+
+
+/*
+* @name        AbilityString 
+* @description Creates a string for a [player] using an [Ability]
+*/
 define AbilityString(define Ability, Player player):
     <
         "[ABILITY_USED] [<0>] [<1>], [<2>] [<3>], [<4>] [<5>]",
@@ -38,6 +45,33 @@ define AbilityString(define Ability, Player player):
         PlayerState.ActualHeroBeingDuplicated(player),
         PlayerState.ActualAlternateForm(player)
     >;
+
+
+/*
+*  @name        PositionString 
+*  @description Gets string with [Team] : <[player]s> <[position]s>  
+*  <Macro>
+*/
+define PositionString(Team team):
+    <
+        //Team                    Player Names                            Positions
+        "[<0>] Position, Players: [<1>] [<2>] [<3>] [<4>] [<5>], Pos: [<6>] [<7>] [<8>] [<9>] [<10>]",
+        team,
+        PlayersInSlot(0, team),
+        PlayersInSlot(1, team),
+        PlayersInSlot(2, team),
+        PlayersInSlot(3, team),
+        PlayersInSlot(4, team),
+        PlayersInSlot(5, team),
+        PositionOf(PlayersInSlot(0, team)),
+        PositionOf(PlayersInSlot(1, team)),
+        PositionOf(PlayersInSlot(2, team)),
+        PositionOf(PlayersInSlot(3, team)),
+        PositionOf(PlayersInSlot(4, team)),
+        PositionOf(PlayersInSlot(5, team))
+    >;
+
+
 
 void Log(define StringToLog){
     EnableInspectorRecording();

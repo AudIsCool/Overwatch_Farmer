@@ -1,5 +1,6 @@
 /* File:        SetupRules.ostw
    Author:      leguminote#5816
+   Edited:      Aud#9488
    Description: This file contains the setup for the stats rules
 */ 
 
@@ -7,4 +8,5 @@
 import "./PlayerStateInitRules.ostw";
 import "./RoundEndLogs.ostw";
 import "./EventLogs.ostw";
+import "./PositionLogs.ostw";
 import "./PlayerStateUpdateRules.ostw";       //Import Last

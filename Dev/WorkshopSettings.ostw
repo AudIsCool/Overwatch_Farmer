@@ -1,0 +1,15 @@
+globalvar define GodIHateItHere = true;
+globalvar define HelpPls = "help2";
+
+globalvar define Menu = null;
+
+rule: "ToggleDevSettings"
+    Event.OngoingGlobal
+    if(true){
+        Menu = WorkshopSettingToggle("Developer Settings", "Test", fasle, 0);
+
+        EnableInspectorRecording();
+
+        LogToInspector(Menu);
+
+    }

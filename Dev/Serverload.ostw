@@ -1,0 +1,30 @@
+/**
+* Name: Serverload.ostw
+* Author: Aud#9488
+* Description: This file contains all of the server load monitoring systems 
+*              that we'll use during develop but most likely develop on prod
+**/
+
+//Import our logging system
+import "../Stats/HelperFunctions/StringUtils.ostw"; // If this is the system we intend on using for logging
+                                                   // maybe we should move them to the root of the project 
+                                                   // directory
+
+
+/**
+*   @name        LogChangeInServerResourceUsage
+*   @description As the game progresses, output server load to log 
+*
+**/
+rule: "LogChangeInServerResourceUsage"
+    Event.OngoingGlobal
+
+    //Only track when in game
+    if(IsGameInProgress())
+    if(true){
+        Log(<"[SERVER_LOAD] Current: [<0>]", ServerLoad()>);        
+        
+        Wait(2, WaitBehavior.IgnoreCondition); // We wait 2 seconds because that's the time it takes to refresh the avg load
+    
+        Loop();
+    }
